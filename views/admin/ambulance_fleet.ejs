@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambulance Fleet & Dispatch Telemetry | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Available-at-Base { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Dispatched---En-Route { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-On-Scene---Resuscitation { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .status-Transit-to-Hospital { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-Sanitization---Maintenance { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    .tag-vehicle { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .tag-als { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .tag-nicu { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); }
+    .tag-bls { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Ambulance Fleet & Dispatch Telemetry</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('ambulanceModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Register Ambulance
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Fleet Units</h3>
+      <p><%= stats.total_fleet %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Ready at Hospital Base</h3>
+      <p style="color: var(--success);"><%= stats.available_units %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Dispatches / En Route</h3>
+      <p style="color: var(--danger);"><%= stats.active_dispatches %></p>
+    </div>
+    <div class="stat-card">
+      <h3>ALS Intensive Units</h3>
+      <p style="color: var(--info);"><%= stats.als_units %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Vehicle # & Unit Type</th>
+          <th>Assigned Crew</th>
+          <th>Live Location</th>
+          <th>Fuel & Oxygen</th>
+          <th>Telemetry Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (fleet && fleet.length > 0) { %>
+          <% fleet.forEach(a => { %>
+            <tr>
+              <td>
+                <strong style="font-size: 15px;"><%= a.vehicle_number %></strong>
+                <div>
+                  <span class="tag-vehicle <%= a.vehicle_type.includes('Advanced') ? 'tag-als' : (a.vehicle_type.includes('Neonatal') ? 'tag-nicu' : 'tag-bls') %>">
+                    <%= a.vehicle_type %>
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div><i class="fa-solid fa-id-card" style="color: var(--info);"></i> <%= a.driver_name %></div>
+                <small style="color: var(--text-muted);"><%= a.driver_phone %></small>
+                <div style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">
+                  <i class="fa-solid fa-user-nurse" style="color: #818cf8;"></i> <%= a.paramedic_name %>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight: 600;"><i class="fa-solid fa-location-dot" style="color: var(--danger);"></i> <%= a.current_location %></div>
+                <% if (a.last_dispatched_at) { %>
+                  <small style="color: var(--text-muted);">Dispatched: <%= new Date(a.last_dispatched_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
+                <% } %>
+              </td>
+              <td>
+                <div>
+                  Fuel: <strong style="color: <%= a.fuel_level_percent <= 30 ? 'var(--danger)' : 'var(--success)' %>;"><%= a.fuel_level_percent %>%</strong>
+                </div>
+                <small style="color: var(--text-muted);">
+                  O2 Cylinder: <span style="font-weight: bold; color: <%= a.oxygen_cylinder_status === 'Full' ? 'var(--success)' : (a.oxygen_cylinder_status === 'In Use' ? 'var(--warning)' : 'var(--danger)') %>;"><%= a.oxygen_cylinder_status %></span>
+                </small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= a.status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= a.status %>
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openTelemetryModal('<%= a.ambulance_id %>', '<%= a.vehicle_number %>', '<%= a.status %>', `<%= a.current_location %>`, '<%= a.fuel_level_percent %>', '<%= a.oxygen_cylinder_status %>')">
+                    <i class="fa-solid fa-satellite-dish"></i> Telemetry
+                  </button>
+                  <a href="/admin/ambulance_fleet/delete/<%= a.ambulance_id %>" class="btn btn-delete" onclick="return confirm('Deregister ambulance from fleet?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No ambulance vehicles found. Click "Register Ambulance" to configure the fleet.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Register Ambulance -->
+  <div id="ambulanceModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Ambulance Vehicle</h3>
+        <span onclick="document.getElementById('ambulanceModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/ambulance_fleet/save" method="POST">
+        <div class="form-group">
+          <label>Vehicle Plate Registration Number</label>
+          <input type="text" name="vehicle_number" placeholder="MH-12-HB-XXXX" required>
+        </div>
+
+        <div class="form-group">
+          <label>Emergency Vehicle Classification</label>
+          <select name="vehicle_type" required>
+            <option value="Advanced Life Support (ALS)">Advanced Life Support (ALS - Ventilator/Defibrillator)</option>
+            <option value="Basic Life Support (BLS)">Basic Life Support (BLS - Oxygen/First Aid)</option>
+            <option value="Neonatal Intensive Care (NICU)">Neonatal Intensive Care (NICU - Incubator Support)</option>
+            <option value="Patient Transport (PTS)">Patient Transport (PTS - Non-Critical Transfer)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Assigned Pilot / Driver</label>
+            <input type="text" name="driver_name" placeholder="Driver Name" required>
+          </div>
+          <div class="form-group">
+            <label>Driver Contact Phone</label>
+            <input type="tel" name="driver_phone" placeholder="+91 98229 XXXXX" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Onboard Emergency Paramedic</label>
+          <input type="text" name="paramedic_name" placeholder="Paramedic / Staff Nurse Name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Initial Station Location</label>
+          <input type="text" name="current_location" value="Main Hospital ER Bay" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Current Fuel Level (%)</label>
+            <input type="number" name="fuel_level_percent" value="95" min="1" max="100" required>
+          </div>
+          <div class="form-group">
+            <label>O2 Cylinder Reserve</label>
+            <select name="oxygen_cylinder_status" required>
+              <option value="Full">Full (Ready)</option>
+              <option value="In Use">In Use</option>
+              <option value="Depleted">Depleted</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Register to Active Fleet
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update Telemetry Status -->
+  <div id="telemetryModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalVehicleTitle">Update Telemetry</h3>
+        <span onclick="document.getElementById('telemetryModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/ambulance_fleet/update-telemetry" method="POST">
+        <input type="hidden" name="ambulance_id" id="modalAmbulanceId">
+
+        <div class="form-group">
+          <label>Dispatch / Operational Status</label>
+          <select name="status" id="modalStatus" required>
+            <option value="Available at Base">Available at Base</option>
+            <option value="Dispatched / En Route">Dispatched / En Route</option>
+            <option value="On Scene / Resuscitation">On Scene / Resuscitation</option>
+            <option value="Transit to Hospital">Transit to Hospital</option>
+            <option value="Sanitization / Maintenance">Sanitization / Maintenance</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Current Location / Destination Landmark</label>
+          <input type="text" name="current_location" id="modalLocation" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Fuel Level (%)</label>
+            <input type="number" name="fuel_level_percent" id="modalFuel" min="0" max="100" required>
+          </div>
+          <div class="form-group">
+            <label>Oxygen Stock</label>
+            <select name="oxygen_cylinder_status" id="modalO2" required>
+              <option value="Full">Full</option>
+              <option value="In Use">In Use</option>
+              <option value="Depleted">Depleted</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Broadcast Telemetry Update
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openTelemetryModal(id, vehicleNo, status, location, fuel, o2) {
+      document.getElementById('modalAmbulanceId').value = id;
+      document.getElementById('modalVehicleTitle').innerText = 'Telemetry: ' + vehicleNo;
+      document.getElementById('modalStatus').value = status;
+      document.getElementById('modalLocation').value = location;
+      document.getElementById('modalFuel').value = fuel;
+      document.getElementById('modalO2').value = o2;
+      document.getElementById('telemetryModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

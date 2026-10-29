@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Audit Logs | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --create: #10b981;
+      --update: #38bdf8;
+      --delete: #ef4444;
+      --auth: #a855f7;
+      --discharge: #f59e0b;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-action { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge-CREATE { background: rgba(16, 185, 129, 0.15); color: var(--create); }
+    .badge-UPDATE { background: rgba(56, 189, 248, 0.15); color: var(--update); }
+    .badge-DELETE { background: rgba(239, 68, 68, 0.15); color: var(--delete); }
+    .badge-AUTH { background: rgba(168, 85, 247, 0.15); color: var(--auth); }
+    .badge-DISCHARGE { background: rgba(245, 158, 11, 0.15); color: var(--discharge); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-purge { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-purge:hover { background: #ef4444; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Staff Activity Audit & Security Logs</h1>
+    </div>
+    <form action="/admin/audit_logs/purge" method="POST" onsubmit="return confirm('Purge audit records older than 30 days?')">
+      <button type="submit" class="btn btn-purge">
+        <i class="fa-solid fa-broom"></i> Clean History (&gt;30 Days)
+      </button>
+    </form>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Logged Events</h3>
+      <p><%= stats.total_logs %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Actions Today</h3>
+      <p style="color: #38bdf8;"><%= stats.today_actions %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Auth Events</h3>
+      <p style="color: #a855f7;"><%= stats.auth_events %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Deletion Triggers</h3>
+      <p style="color: #ef4444;"><%= stats.deletion_events %></p>
+    </div>
+  </div>
+
+  <!-- Logs Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Log ID</th>
+          <th>Staff / Admin</th>
+          <th>Type</th>
+          <th>Target Module</th>
+          <th>Action Description</th>
+          <th>IP Address</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (logs && logs.length > 0) { %>
+          <% logs.forEach(l => { %>
+            <tr>
+              <td><code style="color: var(--text-muted);">#<%= l.log_id %></code></td>
+              <td>
+                <strong><%= l.admin_username %></strong>
+              </td>
+              <td>
+                <span class="badge-action badge-<%= l.action_type %>"><%= l.action_type %></span>
+              </td>
+              <td><span style="color: #818cf8; font-weight: 600;"><%= l.module_name %></span></td>
+              <td style="color: #cbd5e1; font-size: 13px; max-width: 380px;">
+                <%= l.description %>
+              </td>
+              <td><small style="color: var(--text-muted);"><%= l.ip_address %></small></td>
+              <td>
+                <div style="font-size: 13px;"><%= new Date(l.created_at).toLocaleDateString() %></div>
+                <small style="color: var(--text-muted);"><%= new Date(l.created_at).toLocaleTimeString() %></small>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No system logs registered. Administrative actions will populate here automatically.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Registration | WellCure Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-glow: rgba(99, 102, 241, 0.45);
+  --secondary: #06b6d4;
+  --accent: #ec4899;
+  --bg-deep: #090d16;
+  --card-bg: rgba(17, 24, 39, 0.72);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --input-bg: rgba(15, 23, 42, 0.65);
+  --input-border: rgba(255, 255, 255, 0.08);
+  --error: #f43f5e;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg-deep);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow-x: hidden;
+  padding: 40px 20px;
+  color: var(--text-primary);
+}
+
+/* Dynamic Ambient Glow Follower */
+.cursor-light {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(236, 72, 153, 0.08) 45%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  will-change: transform;
+}
+
+/* Background Animated Gradient Mesh Spheres */
+.mesh-sphere {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.55;
+  z-index: 0;
+  animation: floatOrb 20s infinite alternate ease-in-out;
+}
+
+.sphere-1 {
+  width: 450px;
+  height: 450px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  top: -100px;
+  left: -80px;
+}
+
+.sphere-2 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  bottom: -120px;
+  right: -100px;
+  animation-duration: 24s;
+  animation-delay: -5s;
+}
+
+.sphere-3 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  top: 45%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  animation-duration: 18s;
+  animation-delay: -9s;
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 40px) scale(1.12); }
+  100% { transform: translate(-40px, 70px) scale(0.92); }
+}
+
+/* 3D Glassmorphic Wrapper */
+.register-wrapper {
+  perspective: 1200px;
+  z-index: 2;
+  width: 100%;
+  max-width: 680px;
+}
+
+.register-card {
+  position: relative;
+  background: var(--card-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 44px 48px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+/* Mouse Highlight Glare Border */
+.register-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 25px;
+  padding: 1.5px;
+  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.35), transparent 40%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Header Styling */
+.header-section {
+  text-align: center;
+  margin-bottom: 34px;
+  transform: translateZ(30px);
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 30px;
+  color: #818cf8;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.header-section h2 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.header-section p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Responsive Grid Form */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 20px;
+  transform: translateZ(25px);
+}
+
+.full-span {
+  grid-column: span 2;
+}
+
+.input-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-block label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-block label i {
+  color: var(--secondary);
+  font-size: 12px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  padding: 13px 16px;
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-wrapper input::placeholder {
+  color: #475569;
+}
+
+.input-wrapper input:focus {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18), 0 0 20px rgba(99, 102, 241, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Glow Action Button */
+.btn-submit {
+  width: 100%;
+  position: relative;
+  margin-top: 10px;
+  padding: 15px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  background-size: 200% auto;
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5), 0 8px 10px -6px rgba(236, 72, 153, 0.4);
+  transition: all 0.3s ease;
+  transform: translateZ(30px);
+}
+
+.btn-submit:hover {
+  background-position: right center;
+  box-shadow: 0 15px 35px -5px rgba(99, 102, 241, 0.65), 0 10px 15px -4px rgba(236, 72, 153, 0.5);
+  transform: translateZ(30px) translateY(-2px) scale(1.01);
+}
+
+.btn-submit:active {
+  transform: translateZ(30px) translateY(1px) scale(0.99);
+}
+
+/* Button Ripple Flare */
+.btn-submit::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: skewX(-20deg);
+  transition: 0.6s;
+}
+
+.btn-submit:hover::after {
+  left: 140%;
+}
+
+/* Footer Link */
+.login-link {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transform: translateZ(25px);
+}
+
+.login-link a {
+  color: #38bdf8;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.login-link a:hover {
+  color: #e0e7ff;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  text-decoration: underline;
+}
+
+/* Mobile & Tablet Responsiveness */
+@media (max-width: 680px) {
+  body {
+    padding: 20px 14px;
+  }
+
+  .register-card {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .full-span {
+    grid-column: span 1;
+  }
+
+  .header-section h2 {
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Interactive Mouse Cursor Aura -->
+<div class="cursor-light" id="cursorLight"></div>
+
+<!-- Background Animated Glow Spheres -->
+<div class="mesh-sphere sphere-1"></div>
+<div class="mesh-sphere sphere-2"></div>
+<div class="mesh-sphere sphere-3"></div>
+
+<div class="register-wrapper">
+  <div class="register-card" id="card">
+    
+    <div class="header-section">
+      <div class="brand-badge">
+        <i class="fa-solid fa-shield-halved"></i> WellCure Security
+      </div>
+      <h2>Create Admin Account</h2>
+      <p>Enter administrative credentials to set up dashboard privileges</p>
+    </div>
+
+    <form action="/admin/save_admin" method="post" class="form-grid">
+
+      <div class="input-block">
+        <label><i class="fa-solid fa-user"></i> Full Name</label>
+        <div class="input-wrapper">
+          <input type="text" name="full_name" placeholder="Shaikh Rizwan" required autocomplete="name">
+        </div>
+      </div>
+
+      <div class="input-block">
+        <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+        <div class="input-wrapper">
+          <input type="email" name="email" placeholder="admin@wellcure.com" required autocomplete="email">
+        </div>
+      </div>
+
+      <div class="input-block">
+        <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
+        <div class="input-wrapper">
+          <input type="tel" name="mobile" placeholder="+91 98765 43210" required autocomplete="tel">
+        </div>
+      </div>
+
+      <div class="input-block">
+        <label><i class="fa-solid fa-id-badge"></i> Username</label>
+        <div class="input-wrapper">
+          <input type="text" name="username" placeholder="rizwan_admin" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="input-block">
+        <label><i class="fa-solid fa-lock"></i> Password</label>
+        <div class="input-wrapper">
+          <input type="password" name="password" placeholder="••••••••••••" required autocomplete="new-password">
+        </div>
+      </div>
+
+      <div class="input-block">
+        <label><i class="fa-solid fa-circle-check"></i> Confirm Password</label>
+        <div class="input-wrapper">
+          <input type="password" name="confirm_password" placeholder="••••••••••••" required autocomplete="new-password">
+        </div>
+      </div>
+
+      <div class="full-span">
+        <button type="submit" class="btn-submit">
+          <span>Register Admin Portal</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </form>
+
+    <div class="login-link">
+      Already have administrative access?
+      <a href="/admin/login">Sign In Here</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const card = document.getElementById('card');
+  const cursorLight = document.getElementById('cursorLight');
+
+  // Smooth mouse coordinates tracking for glow follower & 3D tilt
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let currentX = mouseX;
+  let currentY = mouseY;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    // Track cursor for border gradient illumination inside card
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+
+    // Subtle 3D Card Parallax Tilt (Disabled on touch devices automatically)
+    if (window.innerWidth > 768) {
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const rotateX = ((e.clientY - centerY) / (rect.height / 2)) * -6;
+      const rotateY = ((e.clientX - centerX) / (rect.width / 2)) * 6;
+      
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
+  });
+
+  // Smooth Interpolation Loop for the Ambient Follower
+  function renderAura() {
+    currentX += (mouseX - currentX) * 0.12;
+    currentY += (mouseY - currentY) * 0.12;
+    cursorLight.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
+    requestAnimationFrame(renderAura);
+  }
+  renderAura();
+
+  // Reset 3D Tilt on Mouse Leave
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  });
+</script>
+
+</body>
+</html>

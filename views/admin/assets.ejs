@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biomedical & Equipment Assets | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .status-Operational { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Under-Maintenance { background: rgba(245, 158, 11, 0.15); color: var(--warning); animation: pulse 1.5s infinite; }
+    .status-Decommissioned { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-action { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 12px; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 450px; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Hospital Equipment & Asset Tracker</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('addAssetModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Register Machine
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Tracked Biomedical Assets</h3>
+      <p><%= stats.total_assets %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active & Operational</h3>
+      <p style="color: var(--success);"><%= stats.operational_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Down for Servicing</h3>
+      <p style="color: var(--warning);"><%= stats.maintenance_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Calibration Due (&lt;30 Days)</h3>
+      <p style="color: #38bdf8;"><%= stats.service_due_count %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Asset Code & Equipment</th>
+          <th>Department & Room</th>
+          <th>Warranty Expiry</th>
+          <th>Next Calibration Due</th>
+          <th>Operational Status</th>
+          <th>Maintenance Actions</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (assets && assets.length > 0) { %>
+          <% assets.forEach(a => { %>
+            <tr>
+              <td>
+                <strong><%= a.asset_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= a.asset_code %></div>
+              </td>
+              <td>
+                <div><%= a.department %></div>
+                <small style="color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> <%= a.location_room %></small>
+              </td>
+              <td style="font-size: 13px; color: #cbd5e1;">
+                <%= new Date(a.warranty_expiry).toISOString().slice(0, 10) %>
+              </td>
+              <td>
+                <strong><%= new Date(a.next_service_due).toISOString().slice(0, 10) %></strong>
+                <% if (a.last_service_date) { %>
+                  <div style="font-size: 11px; color: var(--text-muted);">Last: <%= new Date(a.last_service_date).toISOString().slice(0, 10) %></div>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge-status status-<%= a.status.replace(/\s+/g, '-') %>"><%= a.status %></span>
+              </td>
+              <td>
+                <% if (a.status === 'Operational') { %>
+                  <form action="/admin/assets/set-maintenance" method="POST" style="display:inline;">
+                    <input type="hidden" name="asset_id" value="<%= a.asset_id %>">
+                    <input type="hidden" name="status" value="Under Maintenance">
+                    <button type="submit" class="btn btn-action" style="color: var(--warning);">
+                      <i class="fa-solid fa-wrench"></i> Flag Service
+                    </button>
+                  </form>
+                <% } else { %>
+                  <button class="btn btn-action" style="color: var(--success);" onclick="openServiceModal('<%= a.asset_id %>', '<%= a.asset_name %>')">
+                    <i class="fa-solid fa-check"></i> Complete Service
+                  </button>
+                <% } %>
+              </td>
+              <td>
+                <a href="/admin/assets/delete/<%= a.asset_id %>" class="btn btn-delete" onclick="return confirm('Deregister this hospital asset?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No medical machinery registered. Click "Register Machine" to track inventory.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Add New Asset -->
+  <div id="addAssetModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Biomedical Equipment</h3>
+        <span onclick="document.getElementById('addAssetModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/assets/save" method="POST">
+        <div class="form-group">
+          <label>Equipment / Asset Name</label>
+          <input type="text" name="asset_name" placeholder="e.g. Biphasic Defibrillator" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Assigned Department</label>
+            <select name="department" required>
+              <% departments.forEach(d => { %>
+                <option value="<%= d.department_name %>"><%= d.department_name %></option>
+              <% }) %>
+              <option value="ICU">ICU</option>
+              <option value="Emergency">Emergency</option>
+              <option value="Cardiology">Cardiology</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Room / Ward Location</label>
+            <input type="text" name="location_room" placeholder="e.g. ICU Bay 2" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Purchase Date</label>
+            <input type="date" name="purchase_date" required>
+          </div>
+          <div class="form-group">
+            <label>Warranty Expiry</label>
+            <input type="date" name="warranty_expiry" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Initial Status</label>
+            <select name="status" required>
+              <option value="Operational">Operational</option>
+              <option value="Under Maintenance">Under Maintenance</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Next Service Due</label>
+            <input type="date" name="next_service_due" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Technician / Support Contact</label>
+          <input type="text" name="technician_contact" placeholder="e.g. Philips BioMed Support">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Register Equipment
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Complete Calibration / Service -->
+  <div id="serviceModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="serviceModalTitle">Complete Maintenance</h3>
+        <span onclick="document.getElementById('serviceModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/assets/complete-service" method="POST">
+        <input type="hidden" name="asset_id" id="serviceAssetId">
+
+        <div class="form-group">
+          <label>Set Next Calibration / Maintenance Date</label>
+          <input type="date" name="next_service_due" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Confirm Calibration & Return to Operation
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openServiceModal(id, name) {
+      document.getElementById('serviceAssetId').value = id;
+      document.getElementById('serviceModalTitle').innerText = 'Complete Service: ' + name;
+      document.getElementById('serviceModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

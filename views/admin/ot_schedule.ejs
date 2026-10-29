@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operation Theater (OT) Scheduling | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Scheduled { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-In-Surgery { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-Post-Op-Recovery { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-Completed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Cancelled { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .badge-ot { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .btn-action { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Operation Theater (OT) Roster</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('addSurgModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Schedule Surgery
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Surgeries Listed</h3>
+      <p><%= stats.total_surgeries %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active in OT Now</h3>
+      <p style="color: var(--danger);"><%= stats.active_surgeries %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Upcoming / Scheduled</h3>
+      <p style="color: var(--info);"><%= stats.scheduled_surgeries %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Completed Today</h3>
+      <p style="color: var(--success);"><%= stats.completed_surgeries %></p>
+    </div>
+  </div>
+
+  <!-- Surgeries Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Code & Procedure</th>
+          <th>Suite</th>
+          <th>Patient Name</th>
+          <th>Surgical Team</th>
+          <th>Scheduled Slot</th>
+          <th>Procedure Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (schedules && schedules.length > 0) { %>
+          <% schedules.forEach(s => { %>
+            <tr>
+              <td>
+                <strong><%= s.procedure_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= s.ot_code %></div>
+              </td>
+              <td><span class="badge-ot"><%= s.theater_name %></span></td>
+              <td><strong><%= s.patient_name %></strong></td>
+              <td style="font-size: 12px; color: #cbd5e1;">
+                <div><i class="fa-solid fa-user-doctor" style="color: #818cf8;"></i> <%= s.lead_surgeon %></div>
+                <div style="color: var(--text-muted); margin-top: 2px;">Anesthetist: <%= s.anesthesiologist %></div>
+                <div style="color: var(--text-muted);">Scrub Nurse: <%= s.scrub_nurse %></div>
+              </td>
+              <td>
+                <strong><%= new Date(s.surgery_date).toISOString().slice(0, 10) %></strong>
+                <div style="font-size: 12px; color: var(--warning);"><i class="fa-solid fa-clock"></i> <%= s.scheduled_time %></div>
+              </td>
+              <td>
+                <form action="/admin/ot_schedule/update-status" method="POST">
+                  <input type="hidden" name="ot_id" value="<%= s.ot_id %>">
+                  <select name="status" onchange="this.form.submit()" class="btn-action">
+                    <option value="Scheduled" <%= s.status === 'Scheduled' ? 'selected' : '' %>>Scheduled</option>
+                    <option value="In Surgery" <%= s.status === 'In Surgery' ? 'selected' : '' %>>In Surgery</option>
+                    <option value="Post-Op Recovery" <%= s.status === 'Post-Op Recovery' ? 'selected' : '' %>>Post-Op Recovery</option>
+                    <option value="Completed" <%= s.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                    <option value="Cancelled" <%= s.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/ot_schedule/delete/<%= s.ot_id %>" class="btn btn-delete" onclick="return confirm('Remove surgical record?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No surgical procedures scheduled. Click "Schedule Surgery" to book an OT slot.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Book Surgery -->
+  <div id="addSurgModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Schedule Surgical Procedure</h3>
+        <span onclick="document.getElementById('addSurgModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/ot_schedule/save" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Surgical Procedure</label>
+          <input type="text" name="procedure_name" placeholder="e.g. Laparoscopic Appendectomy" required>
+        </div>
+
+        <div class="form-group">
+          <label>Operation Theater Suite</label>
+          <select name="theater_name" required>
+            <option value="OT-1 (General & Laparoscopy)">OT-1 (General & Laparoscopy)</option>
+            <option value="OT-2 (Orthopedics & Trauma)">OT-2 (Orthopedics & Trauma)</option>
+            <option value="OT-3 (Cardiac & Neuro)">OT-3 (Cardiac & Neuro)</option>
+            <option value="Minor OT">Minor OT (Day Care)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Lead Surgeon</label>
+            <select name="lead_surgeon" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Anesthesiologist</label>
+            <input type="text" name="anesthesiologist" placeholder="e.g. Dr. K. Saxena" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Scrub Nurse</label>
+          <input type="text" name="scrub_nurse" placeholder="e.g. Staff Nurse Pooja" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Surgery Date</label>
+            <input type="date" name="surgery_date" required>
+          </div>
+          <div class="form-group">
+            <label>Start Time</label>
+            <input type="text" name="scheduled_time" placeholder="e.g. 10:30 AM" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Pre-Op Notes (Optional)</label>
+          <textarea name="clinical_notes" rows="2" placeholder="PAC clearance, blood cross-match, or allergies..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Reserve OT Slot
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Basic styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #15153b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.appointment-container {
+    margin-top: 150px;
+    background-color: rgba(237, 239, 240, 0.521);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 750px;
+    border: 2px solid rebeccapurple;
+    max-width: 500px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.appointment-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+input[type="date"], input[type="time"] {
+    font-size: 16px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.gender-options {
+    display: flex;
+    gap: 15px;
+}
+
+.gender-options label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.submit-btn {
+    padding: 12px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #4e8851;
+}
+
+.submit-btn:active {
+    background-color: #387e3d;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="appointment-container">
+        <h2>update patient <%=update.appointment_id%></h2>
+        
+        <form action="/admin/modify_patient" method="POST" class="appointment-form">
+            <div class="form-group">
+                <input type="text" id="patient-name" name="appointment_id" required  value="<%=update.appointment_id%>">
+
+            <label for="patient-name">Patient Name</label>
+                <input type="text" id="patient-name" name="patient_name" required value="<%=update.patient_name%>">
+            </div>
+
+            <div class="form-group">
+                <label for="contact-number">Contact Number</label>
+                <input type="tel" id="contact-number" name="contact_number" required value="<%=update.contact_number%>" >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address (Optional)</label>
+                <input type="email" id="email" name="email" value="<%=update.email%>">
+            </div>
+
+            <div class="form-group">
+                <label for="doctor">Select Doctor</label>
+                <select id="doctor" name="doctor" required value="<%=update.doctor%>">
+                    <option value="">--Select a Doctor--</option>
+                    <option value="dr-john">Dr. John Doe (Cardiologist)</option>
+                    <option value="dr-jane">Dr. Jane Smith (Dentist)</option>
+                    <option value="dr-alex">Dr. Alex Brown (Pediatrician)</option>
+                    <option value="dr-olivia">Dr. Olivia White (Neurologist)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="appointment-date">Select Appointment Date</label>
+                <input type="date" id="appointment-date" name="appointment_date" required value="<%=update.appointment_date%>">
+            </div>
+
+            <div class="form-group">
+                <label for="appointment-time">Select Appointment Time</label>
+                <input type="time" id="appointment-time" name="appointment_time" required value="<%=update.appointment_time%>">
+            </div>
+
+            <div class="form-group">
+                <label for="reason">Reason for Appointment</label>
+                <textarea id="reason" name="reason" required placeholder="Describe your reason for the appointment"><%=update.reason%></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="gender-options">
+                    <label for="gender-male">
+                        <input type="radio" id="gender-male" name="gender" value="male"> Male
+                    </label>
+                    <label for="gender-female">
+                        <input type="radio" id="gender-female" name="gender" value="female"> Female
+                    </label>
+                    <label for="gender-other">
+                        <input type="radio" id="gender-other" name="gender" value="other"> Other
+                    </label>
+                </div>
+            </div>
+
+            <button  class="submit-btn">Book Appointment</button>
+        </form>
+    </div>
+
+</body>
+</html>

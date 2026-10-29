@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance & TPA Claims | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #38bdf8;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Submitted { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+    .status-Under-Review { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-Approved { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-Settled { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Rejected { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 460px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Insurance & TPA Claims Adjudication</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('newClaimModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Submit Insurance Claim
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total In-Process</h3>
+      <p><%= stats.total_claims %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Claimed</h3>
+      <p style="color: #38bdf8;">$<%= Number(stats.total_claimed || 0).toLocaleString(undefined, {minimumFractionDigits: 2}) %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Settled & Approved</h3>
+      <p style="color: var(--success);">$<%= Number(stats.total_approved || 0).toLocaleString(undefined, {minimumFractionDigits: 2}) %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Under Review</h3>
+      <p style="color: var(--warning);"><%= stats.pending_claims %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Claim # & Patient</th>
+          <th>Insurance Provider & Policy</th>
+          <th>Claimed Amount</th>
+          <th>Approved / Co-Pay</th>
+          <th>Adjudication Status</th>
+          <th>Admission Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (claims && claims.length > 0) { %>
+          <% claims.forEach(c => { %>
+            <tr>
+              <td>
+                <strong><%= c.patient_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= c.claim_number %></div>
+              </td>
+              <td>
+                <div><%= c.insurance_provider %></div>
+                <small style="color: var(--text-muted);">Policy: <%= c.policy_number %> (<%= c.tpa_name %>)</small>
+              </td>
+              <td><strong>$<%= parseFloat(c.claimed_amount).toFixed(2) %></strong></td>
+              <td>
+                <div style="color: var(--success); font-weight: bold;">$<%= parseFloat(c.approved_amount).toFixed(2) %></div>
+                <% if (c.co_pay_amount > 0) { %>
+                  <small style="color: var(--warning);">Co-Pay: $<%= parseFloat(c.co_pay_amount).toFixed(2) %></small>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge-status status-<%= c.claim_status.replace(/\s+/g, '-') %>"><%= c.claim_status %></span>
+                <% if (c.denial_reason) { %>
+                  <div style="font-size: 11px; color: var(--danger); margin-top: 4px;"><%= c.denial_reason %></div>
+                <% } %>
+              </td>
+              <td><%= new Date(c.admission_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openReviewModal('<%= c.claim_id %>', '<%= c.claim_number %>', '<%= c.claimed_amount %>', '<%= c.approved_amount %>', '<%= c.co_pay_amount %>', '<%= c.claim_status %>', `<%= c.denial_reason || '' %>`)">
+                    <i class="fa-solid fa-file-signature"></i> Adjudicate
+                  </button>
+                  <a href="/admin/insurance_claims/delete/<%= c.claim_id %>" class="btn btn-delete" onclick="return confirm('Remove claim record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No insurance claims submitted yet. Click "Submit Insurance Claim" to record one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Submit Claim -->
+  <div id="newClaimModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Submit Insurance Claim</h3>
+        <span onclick="document.getElementById('newClaimModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/insurance_claims/save" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Insurance Carrier</label>
+            <input type="text" name="insurance_provider" placeholder="e.g. Star Health / Care" required>
+          </div>
+          <div class="form-group">
+            <label>Policy Number</label>
+            <input type="text" name="policy_number" placeholder="POL-XXXXXXX" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>TPA Name (Third-Party Administrator)</label>
+          <input type="text" name="tpa_name" placeholder="e.g. Medi Assist / Vidal Health / Direct">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Claim Amount ($)</label>
+            <input type="number" step="0.01" name="claimed_amount" placeholder="45000.00" required>
+          </div>
+          <div class="form-group">
+            <label>Admission Date</label>
+            <input type="date" name="admission_date" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Submit to Insurance Desk
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Adjudicate Claim -->
+  <div id="reviewModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="reviewModalTitle">Adjudicate Claim</h3>
+        <span onclick="document.getElementById('reviewModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/insurance_claims/update-status" method="POST">
+        <input type="hidden" name="claim_id" id="modalClaimId">
+
+        <div class="form-group">
+          <label>Claim Adjudication Status</label>
+          <select name="claim_status" id="modalStatus" required>
+            <option value="Submitted">Submitted</option>
+            <option value="Under Review">Under Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Settled">Settled</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Approved Amount ($)</label>
+            <input type="number" step="0.01" name="approved_amount" id="modalApproved">
+          </div>
+          <div class="form-group">
+            <label>Co-Pay Amount ($)</label>
+            <input type="number" step="0.01" name="co_pay_amount" id="modalCoPay">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Deduction / Denial Notes (If applicable)</label>
+          <textarea name="denial_reason" id="modalDenial" rows="2" placeholder="Policy exclusion, non-medical deduction, or cap limit..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Update Claim Status
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openReviewModal(id, claimNo, claimed, approved, copay, status, denial) {
+      document.getElementById('modalClaimId').value = id;
+      document.getElementById('reviewModalTitle').innerText = 'Adjudicate ' + claimNo;
+      document.getElementById('modalApproved').value = approved;
+      document.getElementById('modalCoPay').value = copay;
+      document.getElementById('modalStatus').value = status;
+      document.getElementById('modalDenial').value = denial;
+      document.getElementById('reviewModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

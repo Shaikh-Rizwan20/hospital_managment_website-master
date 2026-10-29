@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medico-Legal Cases (MLC) & Police Intimation | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Intimation-Sent-to-Police { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-IO-Visited---Recorded { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-FIR-Filed---Documented { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-Custody---Legal-Clearance-Issued { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+
+    .badge-injury { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .inj-critical { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+    .inj-grievous { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
+    .inj-simple { color: var(--info); background: rgba(56, 189, 248, 0.15); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 500px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Medico-Legal Cases (MLC) & Police Intimation</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('mlcModal').style.display='flex'">
+      <i class="fa-solid fa-scale-balanced"></i> Register MLC Entry
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Enrolled MLC</h3>
+      <p><%= stats.total_mlc %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Police Follow-up</h3>
+      <p style="color: var(--danger);"><%= stats.pending_police %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Critical Injuries</h3>
+      <p style="color: var(--warning);"><%= stats.critical_injuries %></p>
+    </div>
+    <div class="stat-card">
+      <h3>RTA Admissions</h3>
+      <p style="color: var(--info);"><%= stats.rta_cases %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>MLC Case # & Patient</th>
+          <th>Incident Type & Bed</th>
+          <th>Injury Severity</th>
+          <th>Police Station & Diary</th>
+          <th>Investigating Officer</th>
+          <th>Police Intimation Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (records && records.length > 0) { %>
+          <% records.forEach(r => { %>
+            <tr>
+              <td>
+                <strong><%= r.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= r.mlc_case_no %></div>
+                <small style="color: var(--text-muted);"><%= r.patient_contact %></small>
+              </td>
+              <td>
+                <strong><%= r.incident_type %></strong>
+                <div style="font-size: 12px; color: var(--info);"><i class="fa-solid fa-bed-pulse"></i> <%= r.emergency_bed_no %></div>
+              </td>
+              <td>
+                <span class="badge-injury <%= r.injury_grade.includes('Critical') ? 'inj-critical' : (r.injury_grade.includes('Grievous') ? 'inj-grievous' : 'inj-simple') %>">
+                  <%= r.injury_grade %>
+                </span>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; max-width: 190px;"><%= r.clinical_injury_description %></div>
+              </td>
+              <td>
+                <div><%= r.police_station_name %></div>
+                <small style="color: var(--text-muted); font-family: monospace;"><%= r.fir_station_diary_no %></small>
+              </td>
+              <td>
+                <div><%= r.police_officer_name %></div>
+                <small style="color: var(--text-muted);">Badge: <%= r.police_officer_badge %></small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= r.intimation_status.replace(/\s+/g, '-') %>"><%= r.intimation_status %></span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openMlcUpdateModal('<%= r.mlc_id %>', '<%= r.mlc_case_no %>', '<%= r.intimation_status %>', '<%= r.fir_station_diary_no %>', '<%= r.police_officer_name %>')">
+                    <i class="fa-solid fa-file-pen"></i> Update
+                  </button>
+                  <a href="/admin/mlc/delete/<%= r.mlc_id %>" class="btn btn-delete" onclick="return confirm('Deregister this MLC record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No medico-legal cases registered. Click "Register MLC Entry" to log a case.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Register MLC -->
+  <div id="mlcModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Medico-Legal Case</h3>
+        <span onclick="document.getElementById('mlcModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/mlc/save" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Emergency Contact Phone</label>
+            <input type="tel" name="patient_contact" placeholder="+91 98228 XXXXX" required>
+          </div>
+          <div class="form-group">
+            <label>Emergency Bay / Bed</label>
+            <input type="text" name="emergency_bed_no" value="Trauma Bay 1" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Incident Classification</label>
+            <select name="incident_type" required>
+              <option value="Road Traffic Accident (RTA)">Road Traffic Accident (RTA)</option>
+              <option value="Physical Assault / Trauma">Physical Assault / Trauma</option>
+              <option value="Suspected Poisoning / Overdose">Suspected Poisoning / Overdose</option>
+              <option value="Severe Industrial Injury">Severe Industrial Injury</option>
+              <option value="Burn Injury (Thermal/Chemical)">Burn Injury (Thermal/Chemical)</option>
+              <option value="Brought Dead / Suspicious">Brought Dead / Suspicious</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Injury Nature / Grade</label>
+            <select name="injury_grade" required>
+              <option value="Simple / Superficial">Simple / Superficial</option>
+              <option value="Grievous / Severe" selected>Grievous / Severe</option>
+              <option value="Critical / Life-Threatening">Critical / Life-Threatening</option>
+              <option value="Fatal">Fatal</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Jurisdictional Police Station</label>
+            <input type="text" name="police_station_name" placeholder="e.g. Swargate Police Station" required>
+          </div>
+          <div class="form-group">
+            <label>FIR / Station Diary No.</label>
+            <input type="text" name="fir_station_diary_no" placeholder="FIR-XXX or Pending">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Investigating Officer Name</label>
+            <input type="text" name="police_officer_name" placeholder="Officer Name">
+          </div>
+          <div class="form-group">
+            <label>Officer Badge / Reg No.</label>
+            <input type="text" name="police_officer_badge" placeholder="Badge Number">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Attending Medical Officer</label>
+            <select name="attending_cmo" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Incident Date & Time</label>
+            <input type="datetime-local" name="incident_datetime" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Clinical Description of Wounds / Findings</label>
+          <textarea name="clinical_injury_description" rows="2" placeholder="Lacerations, fractures, burns, chemical smell, conscious level..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Sign & Log Medico-Legal Record
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update MLC Legal Status -->
+  <div id="mlcUpdateModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalMlcTitle">Update Legal Tracking</h3>
+        <span onclick="document.getElementById('mlcUpdateModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/mlc/update-status" method="POST">
+        <input type="hidden" name="mlc_id" id="modalMlcId">
+
+        <div class="form-group">
+          <label>Intimation & Legal Clearance Status</label>
+          <select name="intimation_status" id="modalIntimationStatus" required>
+            <option value="Intimation Sent to Police">Intimation Sent to Police</option>
+            <option value="IO Visited & Recorded">IO Visited & Recorded Statement</option>
+            <option value="FIR Filed & Documented">FIR Filed & Documented</option>
+            <option value="Custody / Legal Clearance Issued">Custody / Legal Clearance Issued</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>FIR / Station Diary Reference</label>
+          <input type="text" name="fir_station_diary_no" id="modalFirNo" required>
+        </div>
+
+        <div class="form-group">
+          <label>Investigating Officer Attending</label>
+          <input type="text" name="police_officer_name" id="modalOfficer" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Update Police Status
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openMlcUpdateModal(id, caseNo, status, fir, officer) {
+      document.getElementById('modalMlcId').value = id;
+      document.getElementById('modalMlcTitle').innerText = 'Update ' + caseNo;
+      document.getElementById('modalIntimationStatus').value = status;
+      document.getElementById('modalFirNo').value = fir;
+      document.getElementById('modalOfficer').value = officer;
+      document.getElementById('mlcUpdateModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

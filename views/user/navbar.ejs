@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mediplus — Excellence in Modern Healthcare & Clinical Care</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            emerald: '#10b981',
+                            teal: '#14b8a6',
+                        }
+                    },
+                    boxShadow: {
+                        'glow': '0 10px 35px -5px rgba(14, 165, 233, 0.25)',
+                        'card': '0 12px 30px -10px rgba(15, 23, 42, 0.08)',
+                        'card-hover': '0 25px 45px -12px rgba(14, 165, 233, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* Modern Glassmorphic effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .dark-glass {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Continuous Infinite Marquee */
+        @keyframes scrollMarquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: scrollMarquee 26s linear infinite;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* Subtle pulsating ripple for emergency/status */
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .pulse-dot {
+            animation: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Announcement & Quick Contact Header -->
+    <div class="bg-slate-900 text-slate-300 text-xs sm:text-sm py-2.5 px-4 border-b border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-6 flex-wrap justify-center md:justify-start">
+                <span class="inline-flex items-center gap-2 text-emerald-400 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                    24/7 Emergency Trauma & Ambulance Ready
+                </span>
+                <span class="hidden sm:inline-flex items-center gap-2 text-slate-300">
+                    <i class="fa-solid fa-phone text-brand-400"></i>
+                    Emergency Hotline: <strong class="text-white font-semibold ml-1">+91 (0241) 234-5678</strong>
+                </span>
+                <span class="hidden lg:inline-flex items-center gap-2 text-slate-400">
+                    <i class="fa-solid fa-location-dot text-brand-400"></i>
+                    Zandi Gate Medical District, Ahmednagar 414001
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4 text-xs font-medium">
+                <button onclick="openDoctorScheduleModal()" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-regular fa-calendar-check text-brand-400"></i> Duty Roster
+                </button>
+                <span class="text-slate-600">|</span>
+                <a href="#portal" onclick="showToast('Patient Health Portal: Single-sign on login opened.')" class="hover:text-brand-300 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-lock text-brand-400"></i> Patient Portal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav id="navbar" class="glass-nav sticky top-0 z-40 w-full border-b border-slate-200/80 transition-all duration-300 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-white shadow-glow group-hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-heart-pulse text-2xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-display font-extrabold text-2xl text-slate-900 tracking-tight leading-none group-hover:text-brand-600 transition-colors">
+                            Medi<span class="text-brand-500">plus</span>
+                        </span>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-slate-500 mt-1">Super Speciality Care</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <div class="hidden lg:flex items-center gap-8">
+                    <a href="#home" class="text-sm font-semibold text-brand-600 border-b-2 border-brand-500 pb-0.5">Home</a>
+                    <a href="#about" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">About Hospital</a>
+                    <a href="#services" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Specialties</a>
+                    <a href="#doctors" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Doctors</a>
+                    <a href="#pricing" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Health Packages</a>
+                    <a href="#news" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Updates</a>
+                </div>
+
+                <!-- Right Action Buttons -->
+                <div class="hidden lg:flex items-center gap-3">
+                    <a href="" class="relative inline-flex items-center justify-center px-6 py-2.5 rounded-full font-semibold text-sm text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 shadow-glow hover:shadow-lg transition-all duration-300 transform active:scale-95">
+                        <i class="fa-regular fa-calendar-plus mr-2 text-base"></i>
+                        Book Appointment
+                    </a>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <div class="lg:hidden flex items-center gap-2">
+                    <a href="#appointment" class="px-3.5 py-1.5 text-xs font-semibold rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                        Book
+                    </a>
+                    <button id="mobileMenuBtn" aria-label="Toggle menu" class="p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors">
+                        <i id="menuIcon" class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-md px-6 py-6 space-y-4">
+            <div class="flex flex-col space-y-3 font-medium text-slate-700">
+                <a href="#home" class="py-2 text-brand-600 font-semibold border-l-4 border-brand-500 pl-3">Home</a>
+                <a href="#about" class="py-2 hover:text-brand-600 pl-3">About Hospital</a>
+                <a href="#services" class="py-2 hover:text-brand-600 pl-3">Specialties & Care</a>
+                <a href="#doctors" class="py-2 hover:text-brand-600 pl-3">Consultant Doctors</a>
+                <a href="#pricing" class="py-2 hover:text-brand-600 pl-3">Health Packages</a>
+                <a href="#news" class="py-2 hover:text-brand-600 pl-3">Medical Insights</a>
+            </div>
+            <div class="pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <a href="#appointment" class="w-full py-3 text-center text-white bg-brand-600 rounded-xl font-semibold shadow-md">
+                    Book Instant Appointment
+                </a>
+                <button onclick="openDoctorScheduleModal()" class="w-full py-2.5 text-center text-slate-700 bg-slate-100 rounded-xl text-sm font-semibold">
+                    View Doctor Duty Schedule
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-[85vh] lg:min-h-[88vh] flex items-center bg-gradient-to-br from-brand-50/70 via-slate-50 to-sky-100/40 overflow-hidden py-16 lg:py-24">
+        <!-- Background Ambient Blobs -->
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-brand-300/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-emerald-200/30 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                <!-- Hero Left Copy -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white shadow-sm border border-brand-100 text-xs sm:text-sm font-semibold text-brand-700 mx-auto lg:mx-0">
+                        <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+                        NABH & JCI Accredited Hospital
+                        <span class="bg-brand-50 text-brand-600 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Ahmednagar</span>
+                    </div>
+
+                    <h1 class="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 leading-[1.12] tracking-tight">
+                        Compassionate Care, <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-brand-500 to-teal-500">
+                            World-Class Precision.
+                        </span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                        Mediplus brings together nationally celebrated surgical specialists, next-generation diagnostics, and prompt emergency response so your family receives genuine clinical excellence.
+                    </p>
+
+                    <!-- CTAs -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <a href="#appointment" class="w-full sm:w-auto px-8 py-4 rounded-xl text-base font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-glow hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group">
+                            <span>Book Consultation</span>
+                            <i class="fa-solid fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <button onclick="openVideoTourModal()" class="w-full sm:w-auto px-6 py-4 rounded-xl text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all duration-300 flex items-center justify-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </span>
+                            <span>Hospital Virtual Tour</span>
+                        </button>
+                    </div>
+
+                    <!-- Trust Indicators -->
+                    <div class="pt-6 border-t border-slate-200/80 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
+                        <div>
+                            <p class="font-display font-extrabold text-2xl text-slate-900">4.9/5</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Google Clinical Rating</p>
+                        </div>
+                        <div>
+                            <p class="font-display font-extrabold text-2xl text-slate-900">250k+</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Recovered Patients</p>
+                        </div>
+                        <div>
+                            <p class="font-display font-extrabold text-2xl text-slate-900">35+</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Clinical Specialities</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Right Interactive Illustration / Image Card -->
+                <div class="lg:col-span-5 relative">
+                    <div class="relative mx-auto max-w-md lg:max-w-none">
+                        <!-- Main Card -->
+                        <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900">
+                            <!-- SVG Stylized Modern Hospital Illustration -->
+                            <svg viewBox="0 0 600 700" class="w-full h-auto bg-gradient-to-b from-slate-900 via-slate-800 to-brand-950" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#38bdf8" />
+                                        <stop offset="100%" stop-color="#0284c7" />
+                                    </linearGradient>
+                                    <linearGradient id="glowG" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#10b981" stop-opacity="0.8"/>
+                                        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                                    </linearGradient>
+                                </defs>
+                                <!-- Architecture Grid Background -->
+                                <pattern id="subgrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                                </pattern>
+                                <rect width="600" height="700" fill="url(#subgrid)" />
+
+                                <!-- Modern Clinic Structure Silhouette -->
+                                <rect x="90" y="160" width="420" height="460" rx="24" fill="#1e293b" opacity="0.9"/>
+                                <rect x="130" y="210" width="340" height="360" rx="16" fill="#0f172a"/>
+                                
+                                <!-- Glass Windows Rows -->
+                                <g fill="#38bdf8" opacity="0.25">
+                                    <rect x="160" y="240" width="55" height="45" rx="6"/>
+                                    <rect x="235" y="240" width="55" height="45" rx="6"/>
+                                    <rect x="310" y="240" width="55" height="45" rx="6"/>
+                                    <rect x="385" y="240" width="55" height="45" rx="6"/>
+
+                                    <rect x="160" y="310" width="55" height="45" rx="6"/>
+                                    <rect x="235" y="310" width="55" height="45" rx="6"/>
+                                    <rect x="310" y="310" width="55" height="45" rx="6"/>
+                                    <rect x="385" y="310" width="55" height="45" rx="6"/>
+
+                                    <rect x="160" y="380" width="55" height="45" rx="6"/>
+                                    <rect x="235" y="380" width="55" height="45" rx="6"/>
+                                    <rect x="310" y="380" width="55" height="45" rx="6"/>
+                                    <rect x="385" y="380" width="55" height="45" rx="6"/>
+                                </g>
+
+                                <!-- Medical Cross Glowing Sign -->
+                                <circle cx="300" cy="130" r="48" fill="#0369a1"/>
+                                <path d="M 288 100 H 312 V 118 H 330 V 142 H 312 V 160 H 288 V 142 H 270 V 118 H 288 Z" fill="#ffffff"/>
+
+                                <!-- Doctor avatar / silhouette foreground -->
+                                <g transform="translate(180, 360)">
+                                    <circle cx="120" cy="90" r="46" fill="#fed7aa"/>
+                                    <!-- Stethoscope curve -->
+                                    <path d="M 98 120 C 95 180, 145 180, 142 120" fill="none" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+                                    <circle cx="120" cy="180" r="10" fill="#38bdf8"/>
+                                    <!-- Coat -->
+                                    <path d="M 40 250 C 45 155, 90 140, 120 140 C 150 140, 195 155, 200 250 Z" fill="#ffffff"/>
+                                    <path d="M 105 140 L 120 200 L 135 140 Z" fill="#0284c7"/>
+                                </g>
+
+                                <!-- Cardiogram Pulse Line -->
+                                <path d="M 20 630 L 140 630 L 170 590 L 190 660 L 220 570 L 245 645 L 265 630 L 580 630" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+
+                        <!-- Floating Badge 1: Instant Doctor Status -->
+                        <div class="absolute -top-5 -left-5 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-card border border-slate-100 flex items-center gap-3.5 max-w-[230px]">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg flex-shrink-0">
+                                <i class="fa-solid fa-stethoscope"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-800">Surgeons On Duty</p>
+                                <p class="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 24 Doctors Available
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Floating Badge 2: Emergency Response Time -->
+                        <div class="absolute -bottom-6 -right-5 bg-slate-900/90 text-white backdrop-blur-md rounded-2xl p-4 shadow-card border border-slate-700/60 flex items-center gap-3 max-w-[240px]">
+                            <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                                <i class="fa-solid fa-truck-medical"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-200">ICU Ambulance</p>
+                                <p class="text-[11px] text-brand-300 font-medium">Under 12 Mins Avg Dispatch</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Schedule & Contact Pillar Banners -->
+    <section class="relative z-20 -mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Box 1 -->
+            <div class="bg-gradient-to-br from-brand-600 to-brand-700 text-white rounded-3xl p-7 shadow-glow hover:-translate-y-1.5 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white text-2xl mb-5">
+                    <i class="fa-solid fa-truck-medical"></i>
+                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-200">24/7 Immediate Help</span>
+                <h3 class="font-display font-bold text-xl mt-1 mb-2">Emergency Cases</h3>
+                <p class="text-brand-100 text-sm leading-relaxed mb-4">Immediate ICU stabilization, trauma OT units, and rapid cardiology team on direct alert.</p>
+                <a href="tel:02412345678" class="inline-flex items-center text-xs font-bold tracking-wider uppercase text-white hover:text-brand-200 transition-colors gap-2">
+                    Direct Trauma Call <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="bg-slate-900 text-white rounded-3xl p-7 shadow-card hover:-translate-y-1.5 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-brand-400 text-2xl mb-5">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Consultation Schedule</span>
+                <h3 class="font-display font-bold text-xl mt-1 mb-2">Doctors Timetable</h3>
+                <p class="text-slate-300 text-sm leading-relaxed mb-4">View real-time OPD availability, specialist schedules, and token availability for today.</p>
+                <button onclick="openDoctorScheduleModal()" class="inline-flex items-center text-xs font-bold tracking-wider uppercase text-brand-400 hover:text-brand-300 transition-colors gap-2 cursor-pointer">
+                    Explore Schedule <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Box 3 -->
+            <div class="bg-white text-slate-800 rounded-3xl p-7 shadow-card border border-slate-100 hover:-translate-y-1.5 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl mb-5">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Regular Consultation</span>
+                <h3 class="font-display font-bold text-xl mt-1 mb-2">Working Hours</h3>
+                <div class="space-y-2 text-xs text-slate-600 mb-4">
+                    <div class="flex justify-between pb-1 border-b border-slate-100">
+                        <span class="font-medium">Mon — Fri:</span>
+                        <span class="font-semibold text-slate-900">08:00 AM – 09:00 PM</span>
+                    </div>
+                    <div class="flex justify-between pb-1 border-b border-slate-100">
+                        <span class="font-medium">Saturday:</span>
+                        <span class="font-semibold text-slate-900">09:00 AM – 06:30 PM</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Sunday / ER:</span>
+                        <span class="font-semibold text-emerald-600">24/7 Open Non-stop</span>
+                    </div>
+                </div>
+                <a href="#appointment" class="inline-flex items-center text-xs font-bold tracking-wider uppercase text-brand-600 hover:text-brand-700 transition-colors gap-2">
+                    Schedule Visit <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Hospital Section -->
+    <section id="about" class="py-24 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 text-brand-700 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-hospital"></i> About Mediplus Super Speciality
+                    </div>
+                    <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 leading-tight">
+                        Transforming Healthcare With Empathy, Technology & Ethics.
+                    </h2>
+                    <p class="text-slate-600 text-base leading-relaxed">
+                        Established with a legacy of providing advanced medical solutions in Ahmednagar and western Maharashtra, Mediplus offers state-of-the-art modular operating rooms, 3 Tesla MRI, digital catheterization labs, and multidisciplinary ICUs.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Our panel consists of international fellowship-trained consultants adhering to strict patient safety protocols, paperless records, and zero-compromise post-surgical rehabilitation.
+                    </p>
+
+                    <!-- Feature bullets -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
+                            <span class="text-sm font-semibold text-slate-700">Cleanliness & HEPA Filter OTs</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
+                            <span class="text-sm font-semibold text-slate-700">In-house 24/7 Robotic Pathology</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
+                            <span class="text-sm font-semibold text-slate-700">All Major Cashless Insurance TPAs</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
+                            <span class="text-sm font-semibold text-slate-700">Organized Critical ICU Care</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex items-center gap-4">
+                        <div class="flex -space-x-2">
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center font-bold text-xs text-slate-700">Dr.A</div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-brand-200 flex items-center justify-center font-bold text-xs text-brand-700">Dr.P</div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-teal-200 flex items-center justify-center font-bold text-xs text-teal-700">Dr.K</div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-900 text-white flex items-center justify-center font-bold text-xs">+45</div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">48+ Full-Time Specialists</p>
+                            <p class="text-[11px] text-slate-500">Board-Certified in Cardiology, Neuro, Ortho & Gynaec</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6">
+                    <div class="relative bg-slate-100 rounded-3xl p-4 sm:p-8 border border-slate-200/80 shadow-card">
+                        <!-- Stat Highlights Inside About -->
+                        <div class="grid grid-cols-2 gap-4 sm:gap-6">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="text-brand-600 text-2xl font-bold mb-2">
+                                    <i class="fa-solid fa-hospital-user"></i>
+                                </div>
+                                <h4 class="font-display font-extrabold text-3xl text-slate-900 mb-1">99.4%</h4>
+                                <p class="text-xs font-medium text-slate-500">Infection-Free OT Record</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="text-teal-600 text-2xl font-bold mb-2">
+                                    <i class="fa-solid fa-bed-pulse"></i>
+                                </div>
+                                <h4 class="font-display font-extrabold text-3xl text-slate-900 mb-1">350+</h4>
+                                <p class="text-xs font-medium text-slate-500">Multispeciality In-patient Beds</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="text-emerald-600 text-2xl font-bold mb-2">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </div>
+                                <h4 class="font-display font-extrabold text-3xl text-slate-900 mb-1">100%</h4>
+                                <p class="text-xs font-medium text-slate-500">Transparent Billing Policy</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="text-brand-500 text-2xl font-bold mb-2">
+                                    <i class="fa-solid fa-award"></i>
+                                </div>
+                                <h4 class="font-display font-extrabold text-3xl text-slate-900 mb-1">32+</h4>
+                                <p class="text-xs font-medium text-slate-500">Years Healthcare Legacy</p>
+                            </div>
+                        </div>
+
+                        <!-- Hospital Address Card -->
+                        <div class="mt-6 bg-slate-900 text-white p-5 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-map-pin"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold">Central Campus Location</p>
+                                    <p class="text-[11px] text-slate-400">Zandigate, Ahmednagar, MH 414001</p>
+                                </div>
+                            </div>
+                            <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-medium text-brand-300 transition-colors">
+                                Get Directions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Animated Metrics Counter Section -->
+    <section class="py-16 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                <div class="p-4">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl mb-3">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
+                    <div class="font-display font-extrabold text-4xl lg:text-5xl text-white counter-val" data-target="3468">0</div>
+                    <p class="text-slate-400 text-xs sm:text-sm font-medium mt-1">Hospital Rooms & Suites</p>
+                </div>
+
+                <div class="p-4">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-2xl mb-3">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="font-display font-extrabold text-4xl lg:text-5xl text-white counter-val" data-target="557">0</div>
+                    <p class="text-slate-400 text-xs sm:text-sm font-medium mt-1">Specialist Doctors</p>
+                </div>
+
+                <div class="p-4">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-3">
+                        <i class="fa-solid fa-face-smile"></i>
+                    </div>
+                    <div class="font-display font-extrabold text-4xl lg:text-5xl text-white counter-val" data-target="24500">0</div>
+                    <p class="text-slate-400 text-xs sm:text-sm font-medium mt-1">Happy Recovered Patients</p>
+                </div>
+
+                <div class="p-4">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-2xl mb-3">
+                        <i class="fa-solid fa-medal"></i>
+                    </div>
+                    <div class="font-display font-extrabold text-4xl lg:text-5xl text-white counter-val" data-target="32">0</div>
+                    <p class="text-slate-400 text-xs sm:text-sm font-medium mt-1">Years of Service</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services / Specialties With Interactive Category Filter -->
+    <section id="services" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-100/70 px-3.5 py-1.5 rounded-full">Departments & Specialties</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mt-3 mb-4">
+                    Comprehensive Care, Personalized Solutions
+                </h2>
+                <p class="text-slate-600 text-base">
+                    From preventative health check-ups to complex multi-vessel cardiovascular bypass surgeries, our dedicated clinical departments are equipped with cutting-edge medical technologies.
+                </p>
+
+                <!-- Interactive Department Filter Tabs -->
+                <div class="flex items-center justify-center flex-wrap gap-2 mt-8" id="serviceFilterTabs">
+                    <button onclick="filterServices('all', this)" class="service-tab-btn active px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-brand-600 text-white shadow-sm">
+                        All Specialties
+                    </button>
+                    <button onclick="filterServices('critical', this)" class="service-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                        Critical & Surgery
+                    </button>
+                    <button onclick="filterServices('routine', this)" class="service-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                        Diagnostics & Outpatient
+                    </button>
+                    <button onclick="filterServices('specialized', this)" class="service-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                        Specialized Clinics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Service Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="servicesGrid">
+                <!-- 1: Cardiology -->
+                <div class="service-card critical bg-white rounded-3xl p-8 shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                    <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white flex items-center justify-center text-2xl mb-6 transition-colors duration-300">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cardiovascular Institute</span>
+                    <h3 class="font-display font-bold text-xl text-slate-900 mt-1 mb-2 group-hover:text-brand-600 transition-colors">Cardiology & Heart Surgery</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Primary angioplasty, electrophysiology, bypass procedures, pacemaker insertions, and a 24/7 dedicated Heart Attack Center.
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-[10px]"></i> Cath-Lab Active
+                        </span>
+                        <a href="#appointment" onclick="preselectDept('Cardiology')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                            Book Slot <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2: Neurology & Neurosurgery -->
+                <div class="service-card critical bg-white rounded-3xl p-8 shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center text-2xl mb-6 transition-colors duration-300">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Neurosciences</span>
+                    <h3 class="font-display font-bold text-xl text-slate-900 mt-1 mb-2 group-hover:text-brand-600 transition-colors">Neurology & Brain Spine</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Rapid hyper-acute stroke thrombolysis, micro-neurosurgery, spine stabilization, and specialized epilepsy clinic.
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-[10px]"></i> Stroke Ready ICU
+                        </span>
+                        <a href="#appointment" onclick="preselectDept('Neurology')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                            Book Slot <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3: Dental & Maxillofacial -->
+                <div class="service-card routine bg-white rounded-3xl p-8 shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                    <div class="w-14 h-14 rounded-2xl bg-sky-50 text-sky-500 group-hover:bg-brand-500 group-hover:text-white flex items-center justify-center text-2xl mb-6 transition-colors duration-300">
+                        <i class="fa-solid fa-tooth"></i>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Oral Health</span>
+                    <h3 class="font-display font-bold text-xl text-slate-900 mt-1 mb-2 group-hover:text-brand-600 transition-colors">Dentistry & Implantology</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Computer-guided dental implants, laser teeth whitening, orthodontic aligners, painless root canal and maxillofacial reconstruction.
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-[10px]"></i> Digital 3D Scanner
+                        </span>
+                        <a href="#appointment" onclick="preselectDept('Dentistry')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                            Book Slot <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4: Gastroenterology -->
+                <div class="service-card specialized bg-white rounded-3xl p-8 shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 group-hover:bg-amber-500 group-hover:text-white flex items-center justify-center text-2xl mb-6 transition-colors duration-300">
+                        <i class="fa-solid fa-capsules"></i>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Digestive Care</span>
+                    <h3 class="font-display font-bold text-xl text-slate-900 mt-1 mb-2 group-hover:text-brand-600 transition-colors">Gastro & Liver Diseases</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        High-definition upper GI endoscopy, colonoscopy, ERCP, fatty liver clinics, and laparoscopic bariatric surgery.
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-[10px]"></i> Endoscopy Suite
+                        </span>
+                        <a href="#appointment" onclick="preselectDept('Gastroenterology')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                            Book Slot <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 5: Ophthalmology -->
+                <div class="service-card routine bg-white rounded-3xl p-8 shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-500 group-hover:bg-teal-500 group-hover:text-white flex items-center justify-center text-2xl mb-6 transition-colors duration-300">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Vision Science</span>
+                    <h3 class="font-display font-bold text-xl text-slate-900 mt-1 mb-2 group-hover:text-brand-600 transition-colors">Ophthalmology & Lasik</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Blade-free robotic cataract removal, retina vitrectomy, pediatric squint correction, and computerized glaucoma assessments.
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-[10px]"></i> Day-care Surgery
+                        </span>
+                        <a href="#appointment" onclick="preselectDept('Ophthalmology')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                            Book Slot <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 6: Hematology & Blood Bank -->
+                <div class="service-card specialized bg-white rounded-3xl p-8 shadow-card hover:shadow-card-hover border border-slate-100 transition-all duration-300 group hover:-translate-y-1">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 group-hover:bg-rose-500 group-hover:text-white flex items-center justify-center text-2xl mb-6 transition-colors duration-300">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Laboratory & Transfusion</span>
+                    <h3 class="font-display font-bold text-xl text-slate-900 mt-1 mb-2 group-hover:text-brand-600 transition-colors">Blood Bank & Pathology</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        Apheresis component separation, NAT-tested single donor platelets (SDP), round-the-clock emergency transfusion bank.
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-check text-[10px]"></i> 24/7 Available
+                        </span>
+                        <a href="#appointment" onclick="preselectDept('Pathology')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                            Book Slot <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctors Showcase Section -->
+    <section id="doctors" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3.5 py-1.5 rounded-full">Medical Leadership</span>
+                    <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mt-3">
+                        Meet Our Senior Medical Specialists
+                    </h2>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <button onclick="openDoctorScheduleModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <i class="fa-regular fa-calendar text-brand-500"></i> Full Weekly Roster
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Doctor 1 -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200/70 hover:shadow-card transition-all duration-300 text-center group">
+                    <div class="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden mb-4 bg-gradient-to-tr from-brand-600 to-sky-400 p-1">
+                        <!-- Stylized Doctor Avatar Placeholder -->
+                        <div class="w-full h-full bg-slate-800 rounded-xl flex items-center justify-center text-white text-3xl font-bold">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-brand-600 bg-brand-100/60 px-2.5 py-0.5 rounded-full">Cardiothoracic</span>
+                    <h3 class="font-display font-bold text-lg text-slate-900 mt-2">Dr. Akther Hossain</h3>
+                    <p class="text-xs text-slate-500 mb-3">MBBS, MS, MCh (AIIMS)</p>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">Over 18 years expertise in off-pump coronary bypass and pediatric congenital surgeries.</p>
+                    <button onclick="selectDoctorAndBook('Dr. Akther Hossain', 'Cardiology')" class="w-full py-2 rounded-xl text-xs font-bold text-brand-600 bg-white border border-brand-200 hover:bg-brand-600 hover:text-white transition-all">
+                        Book Appointment
+                    </button>
+                </div>
+
+                <!-- Doctor 2 -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200/70 hover:shadow-card transition-all duration-300 text-center group">
+                    <div class="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden mb-4 bg-gradient-to-tr from-teal-500 to-emerald-400 p-1">
+                        <div class="w-full h-full bg-slate-800 rounded-xl flex items-center justify-center text-teal-300 text-3xl font-bold">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100/60 px-2.5 py-0.5 rounded-full">Neurosurgeon</span>
+                    <h3 class="font-display font-bold text-lg text-slate-900 mt-2">Dr. Dery Alex</h3>
+                    <p class="text-xs text-slate-500 mb-3">MD, DM (Neuro), FINR</p>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">Pioneer in endovascular clot retrieval, aneurysm coiling, and endoscopic skull base cases.</p>
+                    <button onclick="selectDoctorAndBook('Dr. Dery Alex', 'Neurology')" class="w-full py-2 rounded-xl text-xs font-bold text-teal-600 bg-white border border-teal-200 hover:bg-teal-600 hover:text-white transition-all">
+                        Book Appointment
+                    </button>
+                </div>
+
+                <!-- Doctor 3 -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200/70 hover:shadow-card transition-all duration-300 text-center group">
+                    <div class="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden mb-4 bg-gradient-to-tr from-amber-500 to-yellow-400 p-1">
+                        <div class="w-full h-full bg-slate-800 rounded-xl flex items-center justify-center text-amber-300 text-3xl font-bold">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100/60 px-2.5 py-0.5 rounded-full">Orthopedics</span>
+                    <h3 class="font-display font-bold text-lg text-slate-900 mt-2">Dr. Jovis Karon</h3>
+                    <p class="text-xs text-slate-500 mb-3">MS (Ortho), Fellowship UK</p>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">Specialized in robotic total knee replacements, sports ligament arthroscopy, and trauma.</p>
+                    <button onclick="selectDoctorAndBook('Dr. Jovis Karon', 'Dentistry')" class="w-full py-2 rounded-xl text-xs font-bold text-amber-600 bg-white border border-amber-200 hover:bg-amber-600 hover:text-white transition-all">
+                        Book Appointment
+                    </button>
+                </div>
+
+                <!-- Doctor 4 -->
+                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200/70 hover:shadow-card transition-all duration-300 text-center group">
+                    <div class="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden mb-4 bg-gradient-to-tr from-rose-500 to-pink-400 p-1">
+                        <div class="w-full h-full bg-slate-800 rounded-xl flex items-center justify-center text-rose-300 text-3xl font-bold">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700 bg-rose-100/60 px-2.5 py-0.5 rounded-full">Gastroenterologist</span>
+                    <h3 class="font-display font-bold text-lg text-slate-900 mt-2">Dr. Maya Sharma</h3>
+                    <p class="text-xs text-slate-500 mb-3">MD, DNB (Gastroenterology)</p>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">Expert in therapeutic endoscopy, inflammatory bowel disease (IBD), and liver transplantation.</p>
+                    <button onclick="selectDoctorAndBook('Dr. Maya Sharma', 'Gastroenterology')" class="w-full py-2 rounded-xl text-xs font-bold text-rose-600 bg-white border border-rose-200 hover:bg-rose-600 hover:text-white transition-all">
+                        Book Appointment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hospital Cleanliness & High-Tech Facilities (Portfolio) -->
+    <section class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-100/70 px-3.5 py-1.5 rounded-full">Infrastructure & Sanitization</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mt-3 mb-4">
+                    Sterile Environments & Advanced Clinical Infrastructure
+                </h2>
+                <p class="text-slate-600 text-base">
+                    Strict infection control adheres to US CDC and WHO airborne particle isolation standards for patient recovery.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Facility 1 -->
+                <div class="group relative rounded-3xl overflow-hidden shadow-card bg-white border border-slate-200/80">
+                    <div class="h-56 bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-microscope text-6xl text-brand-400/40 group-hover:scale-110 transition-transform duration-500"></i>
+                        <span class="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Sterility Class 100</span>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-display font-bold text-lg text-slate-900">Modular Laminar Flow OT</h4>
+                        <p class="text-slate-600 text-xs mt-2 leading-relaxed">Integrated with German LED surgical booms, seamless anti-bacterial cladding, and HEPA air changes.</p>
+                    </div>
+                </div>
+
+                <!-- Facility 2 -->
+                <div class="group relative rounded-3xl overflow-hidden shadow-card bg-white border border-slate-200/80">
+                    <div class="h-56 bg-gradient-to-tr from-brand-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-laptop-medical text-6xl text-teal-400/40 group-hover:scale-110 transition-transform duration-500"></i>
+                        <span class="absolute top-4 right-4 bg-brand-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">3 Tesla MRI</span>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-display font-bold text-lg text-slate-900">Digital Imaging Diagnostics</h4>
+                        <p class="text-slate-600 text-xs mt-2 leading-relaxed">Ultra-low radiation 128-slice dual source CT scanners and real-time volumetric cardiac ultrasound.</p>
+                    </div>
+                </div>
+
+                <!-- Facility 3 -->
+                <div class="group relative rounded-3xl overflow-hidden shadow-card bg-white border border-slate-200/80">
+                    <div class="h-56 bg-gradient-to-tr from-teal-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-heart-pulse text-6xl text-emerald-400/40 group-hover:scale-110 transition-transform duration-500"></i>
+                        <span class="absolute top-4 right-4 bg-sky-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">1:1 Nurse Ratio</span>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-display font-bold text-lg text-slate-900">Multi-Parametric Level 3 ICU</h4>
+                        <p class="text-slate-600 text-xs mt-2 leading-relaxed">Dedicated invasive monitoring, ECMO support, continuous renal replacement therapy (CRRT).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transparent Health Packages / Pricing Section -->
+    <section id="pricing" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3.5 py-1.5 rounded-full">Transparent Healthcare</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mt-3 mb-4">
+                    Preventative Health Check Packages
+                </h2>
+                <p class="text-slate-600 text-base">
+                    No hidden bills. Comprehensive OPD testing and specialized doctor reviews wrapped in affordable packages.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+                <!-- Package 1 -->
+                <div class="rounded-3xl p-8 bg-slate-50 border border-slate-200 hover:shadow-card transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center text-xl mb-4 font-bold">
+                            <i class="fa-solid fa-notes-medical"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-slate-900">Basic Health Shield</h3>
+                        <p class="text-xs text-slate-500 mt-1 mb-6">Annual routine screening for individuals</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-4xl font-extrabold font-display text-slate-900">&#8377; 1,299</span>
+                            <span class="text-xs text-slate-500 font-medium">/ Comprehensive</span>
+                        </div>
+
+                        <ul class="space-y-3 text-xs text-slate-600 mb-8">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Complete Blood Count (CBC 24 items)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Fasting Blood Glucose & HbA1c</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Serum Creatinine & Kidney Function</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Physician Consultation Included</li>
+                            <li class="flex items-center gap-2 text-slate-400 line-through"><i class="fa-solid fa-circle-xmark"></i> Echocardiogram (2D Echo)</li>
+                        </ul>
+                    </div>
+                    <a href="#appointment" onclick="prefillReason('Booking Basic Health Shield Checkup')" class="w-full py-3 rounded-xl text-center text-xs font-bold text-brand-600 bg-white border border-brand-300 hover:bg-brand-600 hover:text-white transition-all shadow-sm">
+                        Select Package
+                    </a>
+                </div>
+
+                <!-- Package 2 (Popular Highlight) -->
+                <div class="rounded-3xl p-8 bg-slate-900 text-white relative shadow-glow flex flex-col justify-between md:-translate-y-3 border-2 border-brand-500">
+                    <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-500 to-teal-400 text-slate-950 text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md">
+                        Most Recommended
+                    </span>
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-brand-500 text-white flex items-center justify-center text-xl mb-4 font-bold">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-white">Executive Cardiac & Body</h3>
+                        <p class="text-xs text-slate-400 mt-1 mb-6">Complete cardiovascular & metabolic evaluation</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-4xl font-extrabold font-display text-white">&#8377; 2,999</span>
+                            <span class="text-xs text-slate-400 font-medium">/ Full Evaluation</span>
+                        </div>
+
+                        <ul class="space-y-3 text-xs text-slate-300 mb-8">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-brand-400"></i> All Tests in Basic Health Shield</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-brand-400"></i> 12-Lead Resting ECG & Treadmill Test</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-brand-400"></i> Lipid Profile (Cholesterol Fractions)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-brand-400"></i> Liver Function Tests (LFT Complete)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-brand-400"></i> Senior Cardiologist 1-on-1 Review</li>
+                        </ul>
+                    </div>
+                    <a href="#appointment" onclick="prefillReason('Booking Executive Cardiac & Body Checkup')" class="w-full py-3.5 rounded-xl text-center text-xs font-bold text-slate-950 bg-brand-400 hover:bg-brand-300 transition-all shadow-md">
+                        Book Executive Package
+                    </a>
+                </div>
+
+                <!-- Package 3 -->
+                <div class="rounded-3xl p-8 bg-slate-50 border border-slate-200 hover:shadow-card transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-xl mb-4 font-bold">
+                            <i class="fa-solid fa-person-cane"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-slate-900">Senior Citizen Comprehensive</h3>
+                        <p class="text-xs text-slate-500 mt-1 mb-6">Specially tailored for age 55+</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-4xl font-extrabold font-display text-slate-900">&#8377; 4,499</span>
+                            <span class="text-xs text-slate-500 font-medium">/ Complete Diagnostic</span>
+                        </div>
+
+                        <ul class="space-y-3 text-xs text-slate-600 mb-8">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Full Cardiac, Renal & Metabolic Panel</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Bone Mineral Density (Dexa Scan)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Prostate / Gynaecology Ultrasound</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Vitamin D3 & B12 Quantitation</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Home Sample Collection Available</li>
+                        </ul>
+                    </div>
+                    <a href="#appointment" onclick="prefillReason('Booking Senior Citizen Comprehensive Package')" class="w-full py-3 rounded-xl text-center text-xs font-bold text-brand-600 bg-white border border-brand-300 hover:bg-brand-600 hover:text-white transition-all shadow-sm">
+                        Select Package
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Continuous Marquee: Healthcare & Insurance Partners -->
+    <section class="py-12 bg-slate-100/70 border-y border-slate-200 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 mb-6 text-center">
+            <span class="text-xs font-bold tracking-widest uppercase text-slate-500">Recognized Cashless Network & Medical Partners</span>
+        </div>
+        <div class="relative w-full overflow-hidden">
+            <div class="marquee-track flex items-center gap-12 text-slate-500 font-display font-extrabold text-xl sm:text-2xl select-none">
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-shield-heart text-brand-500"></i> STAR HEALTH TPA</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-hospital text-brand-500"></i> ICICI LOMBARD</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-staff-snake text-brand-500"></i> BAJAJ ALLIANZ CARE</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-heart text-brand-500"></i> HDFC ERGO HEALTH</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-shield text-brand-500"></i> MAX BUPA HEALTH</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-building-columns text-brand-500"></i> MAHARASHTRA STATE POLICE TPA</span>
+                <!-- Duplicate for seamless infinite loop -->
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-shield-heart text-brand-500"></i> STAR HEALTH TPA</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-hospital text-brand-500"></i> ICICI LOMBARD</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-staff-snake text-brand-500"></i> BAJAJ ALLIANZ CARE</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-heart text-brand-500"></i> HDFC ERGO HEALTH</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-shield text-brand-500"></i> MAX BUPA HEALTH</span>
+                <span class="flex items-center gap-2 hover:text-brand-600 transition-colors"><i class="fa-solid fa-building-columns text-brand-500"></i> MAHARASHTRA STATE POLICE TPA</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Appointment Booking Section -->
+    <section id="appointment" class="py-24 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-brand-950 rounded-[2.5rem] shadow-2xl p-8 sm:p-12 lg:p-16 text-white relative overflow-hidden">
+                <!-- Background decoration -->
+                <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <!-- Left: Form Info -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-semibold">
+                            <span class="w-2 h-2 rounded-full bg-brand-400"></span> Instant Online Token System
+                        </div>
+                        <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white leading-tight">
+                            Book Your Doctor’s Appointment Online.
+                        </h2>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Skip physical queues. Pick your department, choose your preferred consultant, and instantly receive SMS & WhatsApp token confirmation on your phone.
+                        </p>
+
+                        <div class="space-y-4 pt-4">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-brand-400 flex-shrink-0 text-base">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Priority Fast-Track OPD</h4>
+                                    <p class="text-xs text-slate-400">Designated express registration desk for online reservations.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-teal-400 flex-shrink-0 text-base">
+                                    <i class="fa-solid fa-comment-sms"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Automated SMS Reminders</h4>
+                                    <p class="text-xs text-slate-400">Receive digital queue position alerts before heading to hospital.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-emerald-400 flex-shrink-0 text-base">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Confidential Medical Privacy</h4>
+                                    <p class="text-xs text-slate-400">Zero third-party health data sharing. 100% HIPAA protected.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Modern Interactive Appointment Form -->
+                   <div class="lg:col-span-7">
+  <form id="appointmentForm" action="/submit_appointment" method="POST" class="bg-white/95 text-slate-800 p-6 sm:p-8 rounded-3xl shadow-xl space-y-4 backdrop-blur-md">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Name *</label>
+        <div class="relative">
+          <i class="fa-regular fa-user absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+          <input type="text" name="patient_name" id="patientName" required placeholder="e.g. Ramesh Kulkarni" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number *</label>
+        <div class="relative">
+          <i class="fa-solid fa-phone absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+          <input type="tel" name="contact_number" id="patientPhone" required placeholder="+91 98765 43210" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50">
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
+        <div class="relative">
+          <i class="fa-regular fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+          <input type="email" name="email" id="patientEmail" placeholder="yourname@gmail.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Preferred Date *</label>
+        <div class="relative">
+          <i class="fa-regular fa-calendar absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+          <input type="date" name="appointment_date" id="appointmentDate" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50">
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Clinical Department *</label>
+        <div class="relative">
+          <select name="department" id="patientDepartment" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50 appearance-none">
+            <option value="">Select Specialty</option>
+            <option value="Cardiology">Cardiology & Heart</option>
+            <option value="Neurology">Neurology & Spine</option>
+            <option value="Dentistry">Dentistry & Maxillofacial</option>
+            <option value="Gastroenterology">Gastroenterology</option>
+            <option value="Ophthalmology">Eye Care & Surgery</option>
+            <option value="Orthopedics">Orthopedics & Joint Care</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3.5 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Preferred Consultant</label>
+        <div class="relative">
+          <select name="doctor" id="patientDoctor" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50 appearance-none">
+            <option value="Any Available Specialist">Any Available Senior Specialist</option>
+            <option value="Dr. Akther Hossain">Dr. Akther Hossain (Cardiology)</option>
+            <option value="Dr. Dery Alex">Dr. Dery Alex (Neurology)</option>
+            <option value="Dr. Jovis Karon">Dr. Jovis Karon (Orthopedics)</option>
+            <option value="Dr. Maya Sharma">Dr. Maya Sharma (Gastroenterology)</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3.5 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Symptoms or Reason for Visit</label>
+      <textarea name="reason" id="patientNotes" rows="3" placeholder="Briefly describe your symptoms or specific package requirement..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-slate-50"></textarea>
+    </div>
+
+    <button type="submit" class="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+      <i class="fa-solid fa-calendar-check"></i> Confirm Appointment Token
+    </button>
+  </form>
+</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Medical News & Health Education -->
+    <section id="news" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-100/70 px-3.5 py-1.5 rounded-full">Knowledge Hub</span>
+                    <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mt-3">
+                        Latest Health Insights & Hospital News
+                    </h2>
+                </div>
+                <a href="#newsletter" class="mt-4 md:mt-0 text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                    Subscribe For Weekly Health Bulletins <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Article 1 -->
+                <article class="bg-white rounded-3xl overflow-hidden shadow-card border border-slate-100 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+                    <div class="h-48 bg-gradient-to-tr from-brand-700 to-sky-500 p-6 flex flex-col justify-between text-white relative">
+                        <span class="bg-black/30 backdrop-blur-md self-start text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Cardiology</span>
+                        <div class="text-4xl opacity-30 text-right"><i class="fa-solid fa-heart-circle-bolt"></i></div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-400">Published 24 Oct, 2026</span>
+                            <h3 class="font-display font-bold text-lg text-slate-900 mt-2 group-hover:text-brand-600 transition-colors">
+                                Recognizing Early Warning Symptoms of Silent Myocardial Infarction.
+                            </h3>
+                            <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+                                Not all heart attacks present sudden acute chest clutches. Learn the subtle fatigue, shortness of breath, and neck jaw discomfort indicators.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 mt-6 flex items-center justify-between">
+                            <span class="text-xs font-bold text-brand-600 cursor-pointer hover:underline" onclick="showToast('Reading full clinical article...')">Read Medical Guide &rarr;</span>
+                            <span class="text-[11px] text-slate-400">4 Min Read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Article 2 -->
+                <article class="bg-white rounded-3xl overflow-hidden shadow-card border border-slate-100 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+                    <div class="h-48 bg-gradient-to-tr from-teal-700 to-emerald-500 p-6 flex flex-col justify-between text-white relative">
+                        <span class="bg-black/30 backdrop-blur-md self-start text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Dental Health</span>
+                        <div class="text-4xl opacity-30 text-right"><i class="fa-solid fa-teeth-open"></i></div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-400">Published 18 Oct, 2026</span>
+                            <h3 class="font-display font-bold text-lg text-slate-900 mt-2 group-hover:text-brand-600 transition-colors">
+                                Modern Ultrasonic & Laser Teeth Whitening: Facts vs Common Myths.
+                            </h3>
+                            <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+                                Our senior prosthodontist breaks down enamel preservation techniques and why professional clinic laser sessions outperform home kits.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 mt-6 flex items-center justify-between">
+                            <span class="text-xs font-bold text-brand-600 cursor-pointer hover:underline" onclick="showToast('Reading full clinical article...')">Read Medical Guide &rarr;</span>
+                            <span class="text-[11px] text-slate-400">3 Min Read</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Article 3 -->
+                <article class="bg-white rounded-3xl overflow-hidden shadow-card border border-slate-100 flex flex-col justify-between group hover:-translate-y-1 transition-transform">
+                    <div class="h-48 bg-gradient-to-tr from-indigo-800 to-purple-600 p-6 flex flex-col justify-between text-white relative">
+                        <span class="bg-black/30 backdrop-blur-md self-start text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Hospital Tech</span>
+                        <div class="text-4xl opacity-30 text-right"><i class="fa-solid fa-robot"></i></div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-400">Published 10 Oct, 2026</span>
+                            <h3 class="font-display font-bold text-lg text-slate-900 mt-2 group-hover:text-brand-600 transition-colors">
+                                Mediplus Commissions AI-Assisted Robotic Knee Joint Navigation.
+                            </h3>
+                            <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+                                Sub-millimeter accuracy during total knee and hip replacements cuts hospital stay duration in half and eliminates post-surgical pain.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 mt-6 flex items-center justify-between">
+                            <span class="text-xs font-bold text-brand-600 cursor-pointer hover:underline" onclick="showToast('Reading full clinical article...')">Read Medical Guide &rarr;</span>
+                            <span class="text-[11px] text-slate-400">5 Min Read</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modern Newsletter Subscription Section -->
+    <section id="newsletter" class="py-16 bg-white border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-brand-50 border border-brand-100 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl text-center md:text-left">
+                    <span class="text-xs font-bold tracking-wider uppercase text-brand-700">Stay Proactively Healthy</span>
+                    <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 mt-1">
+                        Get Doctor-Verified Health Tips in Your Inbox
+                    </h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mt-2">
+                        Subscribe to our monthly newsletter with seasonal wellness alerts, free OPD camp schedules, and specialist clinical articles.
+                    </p>
+                </div>
+
+                <div class="w-full md:w-auto flex-1 max-w-md">
+                    <form onsubmit="handleNewsletter(event)" class="flex flex-col sm:flex-row gap-2">
+                        <input type="email" id="newsletterEmail" required placeholder="Enter your email address" class="px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white flex-1">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-sm">
+                            Subscribe
+                        </button>
+                    </form>
+                    <p class="text-[11px] text-slate-400 mt-2 text-center md:text-left">Zero spam. You can unsubscribe anytime with a single click.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modern Dark Footer -->
+    <footer class="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+                <!-- Col 1: About & Info -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-white text-xl">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <span class="font-display font-black text-2xl text-white tracking-tight">
+                            Medi<span class="text-brand-400">plus</span>
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
+                        A flagship tertiary care hospital network catering to over 250,000 satisfied patients across Maharashtra with world-class clinical expertise, advanced intensive care and ethical standards.
+                    </p>
+                    <div class="flex items-center gap-3 pt-2">
+                        <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-brand-600 hover:text-white flex items-center justify-center text-sm transition-colors text-slate-400"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-brand-600 hover:text-white flex items-center justify-center text-sm transition-colors text-slate-400"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-brand-600 hover:text-white flex items-center justify-center text-sm transition-colors text-slate-400"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-brand-600 hover:text-white flex items-center justify-center text-sm transition-colors text-slate-400"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Clinical Departments -->
+                <div>
+                    <h4 class="font-display font-bold text-white text-sm tracking-wider uppercase mb-4">Specialties</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#services" class="hover:text-brand-300 transition-colors">Interventional Cardiology</a></li>
+                        <li><a href="#services" class="hover:text-brand-300 transition-colors">Brain & Spine Surgery</a></li>
+                        <li><a href="#services" class="hover:text-brand-300 transition-colors">Robotic Joint Replacement</a></li>
+                        <li><a href="#services" class="hover:text-brand-300 transition-colors">Laparoscopic Gastro Surgery</a></li>
+                        <li><a href="#services" class="hover:text-brand-300 transition-colors">Oncology Day Care</a></li>
+                        <li><a href="#services" class="hover:text-brand-300 transition-colors">Pediatric Neonatal ICU</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Quick Navigation -->
+                <div>
+                    <h4 class="font-display font-bold text-white text-sm tracking-wider uppercase mb-4">Patient Links</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#appointment" class="hover:text-brand-300 transition-colors">Book OPD Slot</a></li>
+                        <li><button onclick="openDoctorScheduleModal()" class="hover:text-brand-300 transition-colors">Consultant Duty Roster</button></li>
+                        <li><a href="#pricing" class="hover:text-brand-300 transition-colors">Preventative Packages</a></li>
+                        <li><a href="#portal" onclick="showToast('Opening Patient Lab Reports portal')" class="hover:text-brand-300 transition-colors">Download Lab Reports</a></li>
+                        <li><a href="#" onclick="showToast('Insurance helpdesk: 0241-234-5678 ext 102')" class="hover:text-brand-300 transition-colors">Cashless TPA Helpdesk</a></li>
+                        <li><a href="#" onclick="showToast('Patient rights booklet downloaded')" class="hover:text-brand-300 transition-colors">Citizen Charter & Rights</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Contact & Emergency -->
+                <div>
+                    <h4 class="font-display font-bold text-white text-sm tracking-wider uppercase mb-4">Emergency Desk</h4>
+                    <div class="space-y-3 text-xs">
+                        <p class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-location-dot text-brand-400 mt-0.5"></i>
+                            <span>Zandigate, Ahmednagar, Maharashtra 414001, India</span>
+                        </p>
+                        <p class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-phone text-brand-400"></i>
+                            <span class="text-white font-semibold">+91 (0241) 234-5678</span>
+                        </p>
+                        <p class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-envelope text-brand-400"></i>
+                            <span>care@mediplus-hospital.org</span>
+                        </p>
+                        <div class="pt-2">
+                            <span class="inline-block bg-emerald-950 border border-emerald-700/60 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                ● Ambulance: Dial 108 / 102
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom Line -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>&copy; 2026 Mediplus Super Speciality Healthcare Ltd. All Rights Reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="hover:text-slate-400">Privacy Policy</a>
+                    <a href="#" class="hover:text-slate-400">Terms of Care</a>
+                    <a href="#" class="hover:text-slate-400">Bio-Medical Waste Reports</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Appointment Confirmation Modal -->
+    <div id="bookingModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center relative">
+            <button onclick="closeModal('bookingModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="font-display font-extrabold text-2xl text-slate-900">Appointment Confirmed!</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-6">Your token has been allocated in the Mediplus Hospital OPD Roster.</p>
+            
+            <div class="bg-slate-50 rounded-2xl p-4 text-left space-y-2 text-xs border border-slate-200/80 mb-6 font-medium">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Token ID:</span>
+                    <span class="font-bold text-brand-600" id="modalTokenId">MP-9248</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Patient:</span>
+                    <span class="font-bold text-slate-900" id="modalPatientName">Ramesh Kulkarni</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Department:</span>
+                    <span class="font-bold text-slate-900" id="modalDepartment">Cardiology</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Doctor:</span>
+                    <span class="font-bold text-slate-900" id="modalDoctor">Dr. Akther Hossain</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Visit Date:</span>
+                    <span class="font-bold text-slate-900" id="modalDate">Tomorrow</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="printConfirmationSlip()" class="w-full py-3 rounded-xl bg-brand-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-brand-500 transition-colors">
+                    <i class="fa-solid fa-print mr-1"></i> Print / Save Token Slip
+                </button>
+                <button onclick="closeModal('bookingModal')" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Doctor Duty Schedule Modal -->
+    <div id="scheduleModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('scheduleModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg">
+                    <i class="fa-regular fa-calendar-days"></i>
+                </div>
+                <div>
+                    <h3 class="font-display font-extrabold text-xl text-slate-900">OPD & Doctor Duty Schedule</h3>
+                    <p class="text-xs text-slate-500">Live Weekly Specialist Availability at Ahmednagar Center</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-400 uppercase tracking-wider">
+                            <th class="py-3 px-3">Doctor</th>
+                            <th class="py-3 px-3">Specialty</th>
+                            <th class="py-3 px-3">Days</th>
+                            <th class="py-3 px-3">Timings</th>
+                            <th class="py-3 px-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tr>
+                            <td class="py-3.5 px-3 font-bold text-slate-900">Dr. Akther Hossain</td>
+                            <td class="py-3.5 px-3 text-brand-600">Cardiology</td>
+                            <td class="py-3.5 px-3">Mon, Wed, Fri</td>
+                            <td class="py-3.5 px-3">09:00 AM - 01:00 PM</td>
+                            <td class="py-3.5 px-3">
+                                <button onclick="selectDoctorAndBook('Dr. Akther Hossain', 'Cardiology'); closeModal('scheduleModal');" class="text-xs bg-brand-50 text-brand-600 hover:bg-brand-600 hover:text-white px-2.5 py-1 rounded-lg transition-colors">Book</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3.5 px-3 font-bold text-slate-900">Dr. Dery Alex</td>
+                            <td class="py-3.5 px-3 text-teal-600">Neurology</td>
+                            <td class="py-3.5 px-3">Tue, Thu, Sat</td>
+                            <td class="py-3.5 px-3">10:00 AM - 03:00 PM</td>
+                            <td class="py-3.5 px-3">
+                                <button onclick="selectDoctorAndBook('Dr. Dery Alex', 'Neurology'); closeModal('scheduleModal');" class="text-xs bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white px-2.5 py-1 rounded-lg transition-colors">Book</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3.5 px-3 font-bold text-slate-900">Dr. Jovis Karon</td>
+                            <td class="py-3.5 px-3 text-amber-600">Orthopedics</td>
+                            <td class="py-3.5 px-3">Mon through Sat</td>
+                            <td class="py-3.5 px-3">02:00 PM - 07:00 PM</td>
+                            <td class="py-3.5 px-3">
+                                <button onclick="selectDoctorAndBook('Dr. Jovis Karon', 'Orthopedics'); closeModal('scheduleModal');" class="text-xs bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white px-2.5 py-1 rounded-lg transition-colors">Book</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3.5 px-3 font-bold text-slate-900">Dr. Maya Sharma</td>
+                            <td class="py-3.5 px-3 text-rose-600">Gastroenterology</td>
+                            <td class="py-3.5 px-3">Mon, Tue, Thu</td>
+                            <td class="py-3.5 px-3">11:00 AM - 04:00 PM</td>
+                            <td class="py-3.5 px-3">
+                                <button onclick="selectDoctorAndBook('Dr. Maya Sharma', 'Gastroenterology'); closeModal('scheduleModal');" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white px-2.5 py-1 rounded-lg transition-colors">Book</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span>Emergency Casualty doctors on duty 24 hours every day.</span>
+                <button onclick="closeModal('scheduleModal')" class="px-4 py-2 bg-slate-100 rounded-xl font-semibold text-slate-700">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Hospital Tour Modal -->
+    <div id="videoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="bg-slate-900 rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl relative border border-slate-800 text-white">
+            <button onclick="closeModal('videoModal')" class="absolute -top-3 -right-3 text-slate-900 bg-white w-9 h-9 rounded-full flex items-center justify-center text-sm shadow-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="aspect-video bg-black rounded-2xl flex items-center justify-center relative overflow-hidden">
+                <!-- Interactive Simulated Hospital Video Player -->
+                <div class="text-center p-6 space-y-3">
+                    <div class="w-16 h-16 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-3xl mx-auto">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-lg text-white">Mediplus Campus & ICU Facilities Tour</h4>
+                    <p class="text-xs text-slate-400 max-w-md mx-auto">Showing automated laboratory systems, cath-lab suites, private recovery rooms, and patient cafeteria.</p>
+                    <span class="inline-block text-[11px] bg-slate-800 text-brand-400 px-3 py-1 rounded-full font-mono">Duration: 02:45 • Ultra-HD</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Box -->
+    <div id="toastBox" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800 text-xs sm:text-sm font-medium">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+            <span id="toastMessage">Action completed successfully.</span>
+        </div>
+    </div>
+
+    <!-- Vanilla JavaScript for Interactive State & Animations -->
+    <script>
+        // Set today's date as min for appointment date
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('appointmentDate');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', today);
+                dateInput.value = today;
+            }
+
+            // Init Counter Animation
+            initCounters();
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuIcon = document.getElementById('menuIcon');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                menuIcon.classList.remove('fa-xmark');
+                menuIcon.classList.add('fa-bars');
+            } else {
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-xmark');
+            }
+        });
+
+        // Close mobile menu when links are clicked
+        document.querySelectorAll('#mobileMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                menuIcon.classList.remove('fa-xmark');
+                menuIcon.classList.add('fa-bars');
+            });
+        });
+
+        // Interactive Department Filter Tabs
+        function filterServices(category, btn) {
+            const tabs = document.querySelectorAll('.service-tab-btn');
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'active');
+                tab.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+            });
+
+            btn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+            btn.classList.add('bg-brand-600', 'text-white', 'shadow-sm', 'active');
+
+            const cards = document.querySelectorAll('.service-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.classList.contains(category)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Animated Metric Counters using IntersectionObserver
+        function initCounters() {
+            const counters = document.querySelectorAll('.counter-val');
+            let animated = false;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !animated) {
+                        animated = true;
+                        counters.forEach(counter => {
+                            const target = +counter.getAttribute('data-target');
+                            const duration = 2000;
+                            const step = Math.ceil(target / (duration / 25));
+                            let current = 0;
+
+                            const timer = setInterval(() => {
+                                current += step;
+                                if (current >= target) {
+                                    counter.innerText = target.toLocaleString() + '+';
+                                    clearInterval(timer);
+                                } else {
+                                    counter.innerText = current.toLocaleString();
+                                }
+                            }, 25);
+                        });
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            const counterSection = document.querySelector('.counter-val');
+            if (counterSection) {
+                observer.observe(counterSection.closest('section'));
+            }
+        }
+
+        // Handle Appointment Form Submission
+        function handleAppointmentSubmit(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('patientName').value.trim();
+            const phone = document.getElementById('patientPhone').value.trim();
+            const date = document.getElementById('appointmentDate').value;
+            const dept = document.getElementById('patientDepartment').value || 'General Medicine';
+            const doctor = document.getElementById('patientDoctor').value;
+
+            // Generate Random Token ID
+            const tokenId = 'MP-' + Math.floor(1000 + Math.random() * 9000);
+
+            // Populate Modal
+            document.getElementById('modalTokenId').innerText = tokenId;
+            document.getElementById('modalPatientName').innerText = name;
+            document.getElementById('modalDepartment').innerText = dept;
+            document.getElementById('modalDoctor').innerText = doctor;
+            document.getElementById('modalDate').innerText = date;
+
+            // Open Confirmation Modal
+            openModal('bookingModal');
+
+            // Reset form fields
+            document.getElementById('appointmentForm').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').value = today;
+        }
+
+        // Preselect Department from cards
+        function preselectDept(deptName) {
+            const select = document.getElementById('patientDepartment');
+            if (select) {
+                select.value = deptName;
+                updateDoctorsList(deptName);
+            }
+        }
+
+        // Prefill reason from packages
+        function prefillReason(reasonText) {
+            const notes = document.getElementById('patientNotes');
+            if (notes) {
+                notes.value = reasonText;
+            }
+        }
+
+        // Select specific doctor and scroll to booking
+        function selectDoctorAndBook(doctorName, dept) {
+            preselectDept(dept);
+            const docSelect = document.getElementById('patientDoctor');
+            if (docSelect) {
+                docSelect.value = doctorName;
+            }
+            const formSection = document.getElementById('appointment');
+            if (formSection) {
+                formSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Dynamic Doctor dropdown based on department selection
+        function updateDoctorsList(dept) {
+            const docSelect = document.getElementById('patientDoctor');
+            if (!docSelect) return;
+
+            docSelect.innerHTML = '';
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = 'Any Available Specialist';
+            defaultOpt.text = 'Any Available Senior Specialist';
+            docSelect.appendChild(defaultOpt);
+
+            const doctorMap = {
+                'Cardiology': ['Dr. Akther Hossain', 'Dr. S. Mehta'],
+                'Neurology': ['Dr. Dery Alex', 'Dr. V. Kulkarni'],
+                'Dentistry': ['Dr. Jovis Karon', 'Dr. N. Roy'],
+                'Gastroenterology': ['Dr. Maya Sharma', 'Dr. P. Deshmukh'],
+                'Ophthalmology': ['Dr. Sunita Rao', 'Dr. K. Patel'],
+                'Orthopedics': ['Dr. Jovis Karon', 'Dr. A. Bhalerao']
+            };
+
+            if (doctorMap[dept]) {
+                doctorMap[dept].forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc;
+                    opt.text = `${doc} (${dept})`;
+                    docSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // Newsletter Subscription Handler
+        function handleNewsletter(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('newsletterEmail');
+            showToast(`Thank you! Subscription confirmed for ${emailInput.value}`);
+            emailInput.value = '';
+        }
+
+        // Modals Controller
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function openDoctorScheduleModal() {
+            openModal('scheduleModal');
+        }
+
+        function openVideoTourModal() {
+            openModal('videoModal');
+        }
+
+        function printConfirmationSlip() {
+            window.print();
+        }
+
+        // Toast feedback box
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            const toastMsg = document.getElementById('toastMessage');
+            if (toast && toastMsg) {
+                toastMsg.innerText = msg;
+                toast.classList.remove('translate-y-24', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-24', 'opacity-0');
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                }, 3500);
+            }
+        }
+
+  async function handleAppointmentSubmit(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    const payload = {
+      patientName: document.getElementById("patientName").value,
+      patientPhone: document.getElementById("patientPhone").value,
+      patientEmail: document.getElementById("patientEmail").value,
+      appointmentDate: document.getElementById("appointmentDate").value,
+      patientDepartment: document.getElementById("patientDepartment").value,
+      patientDoctor: document.getElementById("patientDoctor").value,
+      patientNotes: document.getElementById("patientNotes").value
+    };
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "Booking Token...";
+
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Appointment booked successfully! Token ID: #" + data.tokenId);
+        form.reset();
+      } else {
+        alert(data.message || "Failed to book appointment.");
+      }
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("Network error. Please check server logs.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  }
+</script>
+</body>
+</html>

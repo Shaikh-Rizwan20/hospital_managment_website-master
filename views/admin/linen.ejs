@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linen & Laundry Circulation | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --info: #38bdf8;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Restocked-in-Ward { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-In-Chemical-Wash { background: rgba(56, 189, 248, 0.15); color: var(--info); animation: pulse 1.5s infinite; }
+    .status-Sterilized---Pressed { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .status-Awaiting-Collection { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+    .tag-quarantine { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .iso-hazard { color: var(--danger); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .iso-std { color: var(--text-muted); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Linen & Laundry Infection Control</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('linenModal').style.display='flex'">
+      <i class="fa-solid fa-shirt"></i> Register Linen Batch
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Linen Inventory</h3>
+      <p><%= stats.total_linens %> <span style="font-size: 14px; color: var(--text-muted);">Pcs</span></p>
+    </div>
+    <div class="stat-card">
+      <h3>Ward Clean & Ready</h3>
+      <p style="color: var(--success);"><%= stats.total_clean %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active in Wash Plant</h3>
+      <p style="color: var(--info);"><%= stats.total_in_wash %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Bio-Hazard Isolation</h3>
+      <p style="color: var(--danger);"><%= stats.biohazard_batches %> <span style="font-size: 14px; color: var(--danger);">Batches</span></p>
+    </div>
+  </div>
+
+  <!-- Linen Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Batch Code & Item Type</th>
+          <th>Ward / Department</th>
+          <th>Stock Distribution</th>
+          <th>Disinfection Protocol</th>
+          <th>Last Laundering</th>
+          <th>Circulation Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (linens && linens.length > 0) { %>
+          <% linens.forEach(l => { %>
+            <tr>
+              <td>
+                <strong><%= l.item_type %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= l.batch_code %></div>
+              </td>
+              <td><strong><%= l.ward_department %></strong></td>
+              <td>
+                <div><span style="color: var(--success); font-weight: bold;"><%= l.clean_available %></span> Clean / <span style="color: var(--info);"><%= l.in_wash %></span> In Wash</div>
+                <small style="color: var(--text-muted);">Total: <%= l.total_units %> units</small>
+              </td>
+              <td>
+                <% if (l.hazard_quarantine.includes('Bio-Hazard')) { %>
+                  <span class="tag-quarantine iso-hazard"><i class="fa-solid fa-biohazard"></i> BIO-HAZARD ISOLATION</span>
+                <% } else { %>
+                  <span class="tag-quarantine iso-std"><i class="fa-solid fa-soap"></i> Standard Wash</span>
+                <% } %>
+              </td>
+              <td><%= new Date(l.last_laundered_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <form action="/admin/linen/update-status" method="POST">
+                  <input type="hidden" name="linen_id" value="<%= l.linen_id %>">
+                  <select name="status" onchange="this.form.submit()" class="status-select">
+                    <option value="Restocked in Ward" <%= l.status === 'Restocked in Ward' ? 'selected' : '' %>>Restocked in Ward</option>
+                    <option value="In Chemical Wash" <%= l.status === 'In Chemical Wash' ? 'selected' : '' %>>In Chemical Wash</option>
+                    <option value="Sterilized & Pressed" <%= l.status === 'Sterilized & Pressed' ? 'selected' : '' %>>Sterilized & Pressed</option>
+                    <option value="Awaiting Collection" <%= l.status === 'Awaiting Collection' ? 'selected' : '' %>>Awaiting Collection</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/linen/delete/<%= l.linen_id %>" class="btn btn-delete" onclick="return confirm('Deregister this linen batch?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No linen batches registered. Click "Register Linen Batch" to add laundry inventory.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Register Linen Batch -->
+  <div id="linenModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Linen Stock Batch</h3>
+        <span onclick="document.getElementById('linenModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/linen/save" method="POST">
+        <div class="form-group">
+          <label>Linen Item Type</label>
+          <select name="item_type" required>
+            <option value="Bed Sheet (Standard)">Bed Sheet (Standard)</option>
+            <option value="Fitted ICU Bedding">Fitted ICU Bedding</option>
+            <option value="Patient Gown">Patient Gown</option>
+            <option value="OT Surgical Drape">OT Surgical Drape</option>
+            <option value="Doctor Scrubs / Coat">Doctor Scrubs / Coat</option>
+            <option value="Pillow Cover & Blanket">Pillow Cover & Blanket</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Ward / Department Allocation</label>
+          <select name="ward_department" required>
+            <% departments.forEach(d => { %>
+              <option value="<%= d.department_name %>"><%= d.department_name %></option>
+            <% }) %>
+            <option value="ICU Wing B">ICU Wing B</option>
+            <option value="Operation Theater (OT-1)">Operation Theater (OT-1)</option>
+            <option value="General Ward">General Ward</option>
+            <option value="Emergency Trauma Bay">Emergency Trauma Bay</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Total Units In Batch</label>
+            <input type="number" name="total_units" value="50" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Units Currently in Wash</label>
+            <input type="number" name="in_wash" value="0" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Washing / Disinfection Category</label>
+          <select name="hazard_quarantine" required>
+            <option value="Standard Wash">Standard Wash (Commercial Detergent)</option>
+            <option value="Bio-Hazard Isolation Wash">Bio-Hazard Isolation Wash (Chlorine/Thermal Disinfection)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Laundering Date</label>
+            <input type="date" name="last_laundered_date" required>
+          </div>
+          <div class="form-group">
+            <label>Initial Status</label>
+            <select name="status" required>
+              <option value="Restocked in Ward">Restocked in Ward</option>
+              <option value="In Chemical Wash">In Chemical Wash</option>
+              <option value="Sterilized & Pressed">Sterilized & Pressed</option>
+              <option value="Awaiting Collection">Awaiting Collection</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Record Linen Batch
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infection Prevention & HAI Surveillance | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Active-Surveillance { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-Corrective-Action-Taken { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-Case-Resolved { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Reported-to-Health-Board { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+
+    .badge-iso { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .iso-airborne { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .iso-contact { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .iso-standard { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Infection Prevention & HAI Surveillance</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('auditModal').style.display='flex'">
+      <i class="fa-solid fa-shield-virus"></i> Log Infection Audit
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Audits Logged</h3>
+      <p><%= stats.total_audits %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Hospital Infections</h3>
+      <p style="color: var(--danger);"><%= stats.active_infections %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Isolated Patient Beds</h3>
+      <p style="color: var(--warning);"><%= stats.active_isolations %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Avg Hygiene Compliance</h3>
+      <p style="color: var(--success);"><%= stats.avg_hygiene_score %>%</p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Surveillance ID & Ward</th>
+          <th>Infection Type / Condition</th>
+          <th>Patient / Subject</th>
+          <th>Isolated Pathogen</th>
+          <th>Isolation Protocol</th>
+          <th>Score</th>
+          <th>Surveillance Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (audits && audits.length > 0) { %>
+          <% audits.forEach(a => { %>
+            <tr>
+              <td>
+                <strong><%= a.ward_department %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= a.surveillance_code %></div>
+                <small style="color: var(--text-muted);">Auditor: <%= a.auditor_name %></small>
+              </td>
+              <td>
+                <span style="font-weight: 600;"><%= a.infection_type %></span>
+              </td>
+              <td><%= a.patient_name %></td>
+              <td>
+                <span style="font-style: italic; color: #cbd5e1;"><%= a.isolated_organism %></span>
+              </td>
+              <td>
+                <span class="badge-iso <%= a.isolation_protocol.includes('Airborne') ? 'iso-airborne' : (a.isolation_protocol.includes('Contact') ? 'iso-contact' : 'iso-standard') %>">
+                  <%= a.isolation_protocol %>
+                </span>
+              </td>
+              <td>
+                <strong style="color: <%= a.audit_score_percentage >= 85 ? 'var(--success)' : 'var(--danger)' %>;">
+                  <%= parseFloat(a.audit_score_percentage).toFixed(1) %>%
+                </strong>
+              </td>
+              <td>
+                <span class="badge-status status-<%= a.status.replace(/\s+/g, '-') %>"><%= a.status %></span>
+                <% if (a.corrective_action) { %>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; max-width: 180px;"><%= a.corrective_action %></div>
+                <% } %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openResolveModal('<%= a.audit_id %>', '<%= a.surveillance_code %>', '<%= a.status %>', `<%= a.corrective_action || '' %>`)">
+                    <i class="fa-solid fa-clipboard-check"></i> Action
+                  </button>
+                  <a href="/admin/infection_control/delete/<%= a.audit_id %>" class="btn btn-delete" onclick="return confirm('Deregister audit record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No infection control audits logged. Click "Log Infection Audit" to record surveillance.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Log Infection Audit -->
+  <div id="auditModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Log Infection Prevention Audit</h3>
+        <span onclick="document.getElementById('auditModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/infection_control/save" method="POST">
+        <div class="form-group">
+          <label>Ward / Department Location</label>
+          <select name="ward_department" required>
+            <% departments.forEach(d => { %>
+              <option value="<%= d.department_name %>"><%= d.department_name %></option>
+            <% }) %>
+            <option value="ICU Wing B">ICU Wing B</option>
+            <option value="Operation Theater (OT-1)">Operation Theater (OT-1)</option>
+            <option value="Emergency Trauma Bay">Emergency Trauma Bay</option>
+            <option value="General Ward">General Ward</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Infection Classification / Condition</label>
+          <select name="infection_type" required>
+            <option value="Ventilator Pneumonia (VAP)">Ventilator Pneumonia (VAP)</option>
+            <option value="Central Line Infection (CLABSI)">Central Line Infection (CLABSI)</option>
+            <option value="Catheter-Associated UTI (CAUTI)">Catheter-Associated UTI (CAUTI)</option>
+            <option value="Surgical Site Infection (SSI)">Surgical Site Infection (SSI)</option>
+            <option value="MRSA / Resistant Pathogen">MRSA / Multi-Drug Resistant Organism</option>
+            <option value="Hand Hygiene Non-Compliance">Hand Hygiene Non-Compliance Audit</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Name (or Ward Sample)</label>
+            <input type="text" name="patient_name" placeholder="Patient Name / Staff Sample" required>
+          </div>
+          <div class="form-group">
+            <label>Isolated Organism / Bug</label>
+            <input type="text" name="isolated_organism" placeholder="e.g. Pseudomonas / MRSA / None">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Isolation Protocol</label>
+            <select name="isolation_protocol" required>
+              <option value="Standard Precautions">Standard Precautions</option>
+              <option value="Contact Isolation">Contact Isolation</option>
+              <option value="Droplet Precautions">Droplet Precautions</option>
+              <option value="Airborne Isolation (Negative Pressure)">Airborne Isolation (Negative Pressure)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Audit Score (%)</label>
+            <input type="number" step="0.1" name="audit_score_percentage" value="85.0" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Infection Control Officer</label>
+            <input type="text" name="auditor_name" value="Infection Control Nurse" required>
+          </div>
+          <div class="form-group">
+            <label>Audit Date</label>
+            <input type="date" name="audit_date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Immediate Corrective Plan</label>
+          <textarea name="corrective_action" rows="2" placeholder="Catheter pull, environmental deep clean, antibiotic change..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Submit Surveillance Record
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update Corrective Action -->
+  <div id="resolveModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalAuditTitle">Update Corrective Action</h3>
+        <span onclick="document.getElementById('resolveModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/infection_control/update-status" method="POST">
+        <input type="hidden" name="audit_id" id="modalAuditId">
+
+        <div class="form-group">
+          <label>Surveillance Resolution Status</label>
+          <select name="status" id="modalAuditStatus" required>
+            <option value="Active Surveillance">Active Surveillance</option>
+            <option value="Corrective Action Taken">Corrective Action Taken</option>
+            <option value="Case Resolved">Case Resolved</option>
+            <option value="Reported to Health Board">Reported to Health Board</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Corrective Action Log</label>
+          <textarea name="corrective_action" id="modalAuditAction" rows="3" placeholder="Describe actions taken, culture results, retraining..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Save Action Update
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openResolveModal(id, code, status, action) {
+      document.getElementById('modalAuditId').value = id;
+      document.getElementById('modalAuditTitle').innerText = 'Action Plan: ' + code;
+      document.getElementById('modalAuditStatus').value = status;
+      document.getElementById('modalAuditAction').value = action;
+      document.getElementById('resolveModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

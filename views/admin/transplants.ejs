@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organ Donation & Transplant Registry | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --info: #38bdf8;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #c084fc;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-type { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .type-donor { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .type-recipient { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .badge-urgency { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+    .urg-stat1a { color: var(--danger); background: rgba(239, 68, 68, 0.15); animation: pulse 1.5s infinite; }
+    .urg-stat1b { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
+    .urg-stat2 { color: var(--text-muted); background: rgba(255, 255, 255, 0.05); }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 500px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Organ Donation & Transplant Coordination</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('txModal').style.display='flex'">
+      <i class="fa-solid fa-hand-holding-heart"></i> Register Donor / Recipient
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Enrolled Cases</h3>
+      <p><%= stats.total_cases %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Available Organs / Donors</h3>
+      <p style="color: var(--success);"><%= stats.available_donors %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Waiting Queue (Recipients)</h3>
+      <p style="color: var(--info);"><%= stats.waiting_recipients %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Organ Transits</h3>
+      <p style="color: var(--danger);"><%= stats.active_transits %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Case Code & Patient</th>
+          <th>Type & Category</th>
+          <th>Organ & Blood</th>
+          <th>Urgency Tier</th>
+          <th>Govt Approval ID</th>
+          <th>Lead Transplant Surgeon</th>
+          <th>Stage Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (records && records.length > 0) { %>
+          <% records.forEach(r => { %>
+            <tr>
+              <td>
+                <strong><%= r.person_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= r.case_code %></div>
+                <small style="color: var(--text-muted);"><%= r.contact_number %></small>
+              </td>
+              <td>
+                <span class="badge-type <%= r.patient_type.startsWith('Organ Donor') ? 'type-donor' : 'type-recipient' %>">
+                  <%= r.patient_type %>
+                </span>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><%= r.donor_category %></div>
+              </td>
+              <td>
+                <div style="font-weight: bold; color: var(--purple);"><i class="fa-solid fa-heart-pulse"></i> <%= r.organ_name %></div>
+                <div style="font-size: 12px; color: #ef4444; font-weight: bold; margin-top: 2px;">Blood: <%= r.blood_group %></div>
+              </td>
+              <td>
+                <span class="badge-urgency <%= r.urgency_tier.includes('1A') ? 'urg-stat1a' : (r.urgency_tier.includes('1B') ? 'urg-stat1b' : 'urg-stat2') %>">
+                  <%= r.urgency_tier.split(' ')[0] + ' ' + r.urgency_tier.split(' ')[1] %>
+                </span>
+              </td>
+              <td>
+                <code style="color: #cbd5e1; font-size: 12px;"><%= r.government_approval_no %></code>
+              </td>
+              <td><%= r.attending_surgeon %></td>
+              <td>
+                <form action="/admin/transplants/update-status" method="POST">
+                  <input type="hidden" name="transplant_id" value="<%= r.transplant_id %>">
+                  <select name="status" onchange="this.form.submit()" class="status-select">
+                    <option value="Registered & Queued" <%= r.status === 'Registered & Queued' ? 'selected' : '' %>>Registered & Queued</option>
+                    <option value="Compatibility Match Found" <%= r.status === 'Compatibility Match Found' ? 'selected' : '' %>>Compatibility Match Found</option>
+                    <option value="Harvest / Transport in Progress" <%= r.status === 'Harvest / Transport in Progress' ? 'selected' : '' %>>Harvest / Transport in Progress</option>
+                    <option value="Transplant Completed" <%= r.status === 'Transplant Completed' ? 'selected' : '' %>>Transplant Completed</option>
+                    <option value="Cancelled / Deceased" <%= r.status === 'Cancelled / Deceased' ? 'selected' : '' %>>Cancelled / Deceased</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/transplants/delete/<%= r.transplant_id %>" class="btn btn-delete" onclick="return confirm('Deregister this transplant record?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No organ transplant records enrolled. Click "Register Donor / Recipient" to add an entry.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Register Donor / Recipient -->
+  <div id="txModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Organ Transplant Case</h3>
+        <span onclick="document.getElementById('txModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/transplants/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Registration Type</label>
+            <select name="patient_type" required>
+              <option value="Organ Donor">Organ Donor</option>
+              <option value="Organ Recipient (Waiting List)">Organ Recipient (Waiting List)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Organ</label>
+            <select name="organ_name" required>
+              <option value="Kidney">Kidney</option>
+              <option value="Liver">Liver</option>
+              <option value="Cornea / Eyes">Cornea / Eyes</option>
+              <option value="Heart">Heart</option>
+              <option value="Lungs">Lungs</option>
+              <option value="Pancreas">Pancreas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="person_name" placeholder="Patient / Donor Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="tel" name="contact_number" placeholder="+91 98225 XXXXX" required>
+          </div>
+          <div class="form-group">
+            <label>ABO Blood Group</label>
+            <select name="blood_group" required>
+              <option value="O+">O+</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="O-">O-</option>
+              <option value="A-">A-</option>
+              <option value="B-">B-</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Donor Category</label>
+          <select name="donor_category" required>
+            <option value="Recipient Awaiting Match">Recipient Awaiting Match</option>
+            <option value="Living Related Donor">Living Related Donor</option>
+            <option value="Brain-Dead Protocol (ICU)">Brain-Dead Protocol (ICU)</option>
+            <option value="Deceased / Cadaveric Donor">Deceased / Cadaveric Donor</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Urgency Tier</label>
+          <select name="urgency_tier" required>
+            <option value="Status 2 (Elective Outpatient)">Status 2 (Elective Outpatient)</option>
+            <option value="Status 1B (Urgent Hospitalized)">Status 1B (Urgent Hospitalized)</option>
+            <option value="Status 1A (Immediate Emergency)">Status 1A (Immediate Emergency / ICU Failure)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Govt Clearance / NOTTO Code</label>
+            <input type="text" name="government_approval_no" placeholder="NOTTO/ZTCC-XXXX" required>
+          </div>
+          <div class="form-group">
+            <label>Attending Surgeon</label>
+            <select name="attending_surgeon" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Registration Date</label>
+          <input type="date" name="registration_date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Register to National / State Network
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

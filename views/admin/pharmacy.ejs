@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharmacy Inventory | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+    
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .tag-category { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .stock-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+    .stock-ok { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .stock-low { background: rgba(239, 68, 68, 0.15); color: var(--danger); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-action { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid var(--border); }
+    .btn-action:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 440px; padding: 28px; color: #fff; }
+    .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 14px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Pharmacy & Medicine Inventory</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('addMedModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Add New Medicine
+    </button>
+  </div>
+
+  <!-- Dynamic Summary Cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Catalog Items</h3>
+      <p><%= stats.total_items %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Low Stock Alerts</h3>
+      <p style="color: var(--danger);"><%= stats.low_stock_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Expiring Soon (&lt;60 Days)</h3>
+      <p style="color: var(--warning);"><%= stats.expiring_soon_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Valuation</h3>
+      <p style="color: var(--success);">$<%= Number(stats.total_inventory_value || 0).toLocaleString(undefined, {minimumFractionDigits: 2}) %></p>
+    </div>
+  </div>
+
+  <!-- Inventory Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Medicine Name</th>
+          <th>Form</th>
+          <th>Batch #</th>
+          <th>In-Stock</th>
+          <th>Unit Price</th>
+          <th>Expiry Date</th>
+          <th>Manufacturer</th>
+          <th>Inventory Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (medicines && medicines.length > 0) { %>
+          <% medicines.forEach(m => { %>
+            <tr>
+              <td><strong><%= m.medicine_name %></strong></td>
+              <td><span class="tag-category"><%= m.category %></span></td>
+              <td style="color: var(--text-muted); font-size: 13px;"><%= m.batch_number %></td>
+              <td>
+                <% if (m.stock_quantity <= m.min_stock_alert) { %>
+                  <span class="stock-badge stock-low"><i class="fa-solid fa-triangle-exclamation"></i> <%= m.stock_quantity %> left</span>
+                <% } else { %>
+                  <span class="stock-badge stock-ok"><i class="fa-solid fa-check"></i> <%= m.stock_quantity %> units</span>
+                <% } %>
+              </td>
+              <td>$<%= parseFloat(m.unit_price).toFixed(2) %></td>
+              <td>
+                <%= new Date(m.expiry_date).toISOString().slice(0, 10) %>
+              </td>
+              <td style="color: var(--text-muted);"><%= m.manufacturer %></td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <!-- Restock +10 -->
+                  <form action="/admin/pharmacy/adjust-stock" method="POST" style="display:inline;">
+                    <input type="hidden" name="medicine_id" value="<%= m.medicine_id %>">
+                    <input type="hidden" name="adjustment_type" value="restock">
+                    <input type="hidden" name="quantity" value="10">
+                    <button type="submit" class="btn btn-action" title="Quick restock +10">
+                      <i class="fa-solid fa-plus"></i> 10
+                    </button>
+                  </form>
+
+                  <!-- Dispense -1 -->
+                  <form action="/admin/pharmacy/adjust-stock" method="POST" style="display:inline;">
+                    <input type="hidden" name="medicine_id" value="<%= m.medicine_id %>">
+                    <input type="hidden" name="adjustment_type" value="dispense">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-action" title="Dispense 1 unit">
+                      <i class="fa-solid fa-minus"></i> 1
+                    </button>
+                  </form>
+
+                  <!-- Delete Item -->
+                  <a href="/admin/pharmacy/delete/<%= m.medicine_id %>" class="btn btn-delete" onclick="return confirm('Remove this medicine from stock completely?')" title="Delete Record">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No pharmacy stock found. Click "Add New Medicine" to populate your inventory.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Add New Medicine -->
+  <div id="addMedModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3 style="font-size:18px;">Add Pharmaceutical Item</h3>
+        <span onclick="document.getElementById('addMedModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/pharmacy/add" method="POST">
+        <div class="form-group">
+          <label>Medicine Name</label>
+          <input type="text" name="medicine_name" placeholder="e.g. Paracetamol 650mg" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Form / Dosage</label>
+            <select name="category" required>
+              <option value="Tablet">Tablet</option>
+              <option value="Capsule">Capsule</option>
+              <option value="Syrup">Syrup</option>
+              <option value="Injection">Injection</option>
+              <option value="Ointment">Ointment</option>
+              <option value="IV Fluid">IV Fluid</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Batch Code</label>
+            <input type="text" name="batch_number" placeholder="BTH-XXXX" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Initial Units</label>
+            <input type="number" name="stock_quantity" placeholder="100" required>
+          </div>
+          <div class="form-group">
+            <label>Low Alert Floor</label>
+            <input type="number" name="min_stock_alert" value="15" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Unit Price ($)</label>
+            <input type="number" step="0.01" name="unit_price" placeholder="5.50" required>
+          </div>
+          <div class="form-group">
+            <label>Expiry Date</label>
+            <input type="date" name="expiry_date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Manufacturer / Supplier</label>
+          <input type="text" name="manufacturer" placeholder="e.g. Cipla, Sun Pharma">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 10px;">
+          Store In Inventory
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blood Bank & Donor Tracker | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --blood-red: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --primary: #6366f1;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Blood Group Grid */
+    .blood-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .blood-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align: center; position: relative; overflow: hidden; }
+    .blood-card.low { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); }
+    .blood-type { font-size: 26px; font-weight: 800; color: var(--blood-red); }
+    .blood-units { font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .blood-alert { font-size: 10px; color: #f87171; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+
+    /* Layout Split */
+    .content-split { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    @media (max-width: 992px) { .content-split { grid-template-columns: 1fr; } }
+
+    .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 22px; backdrop-filter: blur(12px); }
+    .section-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 12px; color: var(--text-muted); text-transform: uppercase; font-size: 11px; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+
+    .badge-trans { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .type-Donation { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .type-Issue { background: rgba(239, 68, 68, 0.15); color: var(--blood-red); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; }
+    .btn-green { background: linear-gradient(135deg, #10b981, #047857); color: #fff; }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 440px; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Hospital Blood Bank & Donor Registry</h1>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-green" onclick="document.getElementById('donateModal').style.display='flex'">
+        <i class="fa-solid fa-hand-holding-medical"></i> Log Donation
+      </button>
+      <button class="btn btn-red" onclick="document.getElementById('issueModal').style.display='flex'">
+        <i class="fa-solid fa-droplet"></i> Issue Blood Unit
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Stored Units</h3>
+      <p style="color: var(--blood-red);"><%= stats.total_units %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Low Stock Alerts</h3>
+      <p style="color: var(--warning);"><%= stats.low_stock_groups %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Donation Records</h3>
+      <p style="color: var(--success);"><%= stats.total_donations %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Transfusion / Issued</h3>
+      <p style="color: #38bdf8;"><%= stats.total_issued %></p>
+    </div>
+  </div>
+
+  <!-- Real-Time Blood Units Grid -->
+  <div class="blood-grid">
+    <% stock.forEach(s => { %>
+      <div class="blood-card <%= s.units_available <= s.min_alert_level ? 'low' : '' %>">
+        <div class="blood-type"><%= s.blood_group %></div>
+        <div class="blood-units"><%= s.units_available %> <span style="font-size: 11px; color: var(--text-muted);">Units</span></div>
+        <% if (s.units_available <= s.min_alert_level) { %>
+          <div class="blood-alert"><i class="fa-solid fa-triangle-exclamation"></i> Low Reserve</div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Split Transactions & Instructions -->
+  <div class="content-split">
+    
+    <!-- Recent Transactions Table -->
+    <div class="section-card">
+      <h2><i class="fa-solid fa-clock-rotate-left" style="color: #818cf8;"></i> Recent Blood Dispatches & Donations</h2>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Donor / Recipient</th>
+              <th>Type</th>
+              <th>Group</th>
+              <th>Units</th>
+              <th>Purpose / Case</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (transactions && transactions.length > 0) { %>
+              <% transactions.forEach(t => { %>
+                <tr>
+                  <td>
+                    <strong><%= t.person_name %></strong>
+                    <div style="font-size: 11px; color: var(--text-muted);"><%= t.contact_number %></div>
+                  </td>
+                  <td>
+                    <span class="badge-trans <%= t.transaction_type === 'Donation' ? 'type-Donation' : 'type-Issue' %>">
+                      <%= t.transaction_type %>
+                    </span>
+                  </td>
+                  <td><strong style="color: var(--blood-red);"><%= t.blood_group %></strong></td>
+                  <td><strong><%= t.units %></strong></td>
+                  <td style="color: var(--text-muted);"><%= t.purpose %></td>
+                  <td><%= new Date(t.transaction_date).toISOString().slice(0, 10) %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">No blood transactions logged yet.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cold-Storage SOP Guide -->
+    <div class="section-card">
+      <h2><i class="fa-solid fa-shield-virus" style="color: var(--warning);"></i> Storage & Compatibility</h2>
+      <div style="font-size: 13px; color: var(--text-muted); display: flex; flex-direction: column; gap: 14px;">
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border-left: 3px solid var(--blood-red);">
+          <strong style="color: #fff;">O- Negative (Universal Red Cell Donor)</strong>
+          <p style="margin-top: 4px;">Compatible with any blood type in extreme trauma resuscitation.</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border-left: 3px solid #38bdf8;">
+          <strong style="color: #fff;">AB+ Positive (Universal Recipient)</strong>
+          <p style="margin-top: 4px;">Can receive whole blood units from any ABO/Rh category.</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border-left: 3px solid var(--success);">
+          <strong style="color: #fff;">Cold-Storage Specs</strong>
+          <p style="margin-top: 4px;">Whole blood units maintained at 2°C to 6°C. Max storage window: 35–42 days.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal: Log Blood Donation -->
+  <div id="donateModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Log Blood Donation</h3>
+        <span onclick="document.getElementById('donateModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/blood_bank/donate" method="POST">
+        <div class="form-group">
+          <label>Donor Full Name</label>
+          <input type="text" name="person_name" placeholder="Donor Name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Phone</label>
+          <input type="tel" name="contact_number" placeholder="+91 98221 XXXXX" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Blood Group</label>
+            <select name="blood_group" required>
+              <option value="O+">O+</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="O-">O-</option>
+              <option value="A-">A-</option>
+              <option value="B-">B-</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Units Collected</label>
+            <input type="number" name="units" value="1" min="1" max="3" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Donation Campaign / Purpose</label>
+          <input type="text" name="purpose" placeholder="e.g. Voluntary Blood Camp / Family Replacement">
+        </div>
+
+        <button type="submit" class="btn btn-green" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Record Donation & Add to Stock
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Issue Blood Unit -->
+  <div id="issueModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; color: var(--blood-red);">Issue Blood Unit</h3>
+        <span onclick="document.getElementById('issueModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/blood_bank/issue" method="POST">
+        <div class="form-group">
+          <label>Patient / Recipient Name</label>
+          <input type="text" name="person_name" placeholder="Patient Name / Case #" required>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Phone</label>
+          <input type="tel" name="contact_number" placeholder="+91 98221 XXXXX" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Requested Group</label>
+            <select name="blood_group" required>
+              <option value="O+">O+</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="O-">O-</option>
+              <option value="A-">A-</option>
+              <option value="B-">B-</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Units Required</label>
+            <input type="number" name="units" value="1" min="1" max="4" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Transfusion Reason</label>
+          <input type="text" name="purpose" placeholder="e.g. OT Surgery Reserve / Severe Anemia" required>
+        </div>
+
+        <button type="submit" class="btn btn-red" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Authorize Issue & Deduct Stock
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

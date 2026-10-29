@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Appointments Report</title>
+  <style>
+    @page {
+      margin: 12mm;
+      size: A4 portrait;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      font-size: 11px;
+    }
+
+    .report-header {
+      margin-bottom: 18px;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 10px;
+    }
+
+    .report-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .report-meta {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tr {
+      page-break-inside: avoid;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #334155;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid #cbd5e1;
+      padding: 8px 6px;
+      text-align: left;
+    }
+
+    td {
+      border: 1px solid #e2e8f0;
+      padding: 7px 6px;
+      vertical-align: top;
+      word-wrap: break-word;
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .patient-phone {
+      color: #475569;
+      font-size: 9px;
+      margin-top: 2px;
+    }
+
+    .badge {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .empty-row {
+      text-align: center;
+      padding: 25px;
+      color: #94a3b8;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-header">
+    <table style="border: none; width: 100%;">
+      <tr style="background: none;">
+        <td style="border: none; padding: 0;">
+          <h1 class="report-title">WellCure Appointments Report</h1>
+          <div class="report-meta">
+            Generated on: <%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          </div>
+        </td>
+        <td style="border: none; padding: 0; text-align: right; vertical-align: bottom;">
+          <span style="font-size: 10px; color: #64748b;">
+            Total Records: <strong><%= details ? details.length : 0 %></strong>
+          </span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 7%;" class="text-center">ID</th>
+        <th style="width: 22%;">Patient Details</th>
+        <th style="width: 15%;">Department</th>
+        <th style="width: 18%;">Doctor</th>
+        <th style="width: 16%;">Schedule</th>
+        <th style="width: 22%;">Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (details && details.length > 0) { %>
+        <% details.forEach((d) => { %>
+          <tr>
+            <td class="text-center">#<%= d.appointment_id %></td>
+            <td>
+              <div class="badge"><%= d.patient_name %></div>
+              <div class="patient-phone"><%= d.contact_number %></div>
+              <% if (d.email) { %>
+                <div class="patient-phone"><%= d.email %></div>
+              <% } %>
+            </td>
+            <td><%= d.department || 'General' %></td>
+            <td><%= d.doctor || 'Any Specialist' %></td>
+            <td>
+              <%= d.appointment_date ? new Date(d.appointment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' %>
+              <div style="font-size: 9px; color: #64748b; margin-top: 2px;">
+                <%= d.appointment_time || '10:00 AM' %>
+              </div>
+            </td>
+            <td><%= d.reason ? d.reason : '—' %></td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr>
+          <td colspan="6" class="empty-row">No appointment records available.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+</body>
+</html>

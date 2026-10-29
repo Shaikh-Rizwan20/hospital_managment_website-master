@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radiology PACS & Imaging Worklist | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Radiologist-Reported { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Scan-Completed--Image-Acquired- { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-Study-Scheduled { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+    .status-Critical-Findings-Alerted { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .badge-prio { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .prio-stat { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); animation: pulse 1.5s infinite; }
+    .prio-urgent { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .prio-routine { background: rgba(255, 255, 255, 0.05); color: #cbd5e1; }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 560px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Radiology PACS & Diagnostic Imaging Worklist</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('radModal').style.display='flex'">
+      <i class="fa-solid fa-x-ray"></i> Schedule Imaging Scan
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Imaging Scans</h3>
+      <p><%= stats.total_studies %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Awaiting Radiologist Report</h3>
+      <p style="color: var(--info);"><%= stats.awaiting_reporting %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Critical Diagnostic Alerts</h3>
+      <p style="color: var(--danger);"><%= stats.critical_alerts %></p>
+    </div>
+    <div class="stat-card">
+      <h3>STAT Trauma Emergency</h3>
+      <p style="color: var(--warning);"><%= stats.stat_trauma_scans %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Accession # & Patient</th>
+          <th>Modality & Anatomy</th>
+          <th>Priority</th>
+          <th>Referring Doctor</th>
+          <th>Radiologist Impression</th>
+          <th>Worklist Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (studies && studies.length > 0) { %>
+          <% studies.forEach(s => { %>
+            <tr>
+              <td>
+                <strong style="font-size: 15px;"><%= s.patient_name %></strong> (<%= s.patient_age %>y / <%= s.patient_gender[0] %>)
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= s.accession_number %></div>
+                <small style="color: var(--text-muted);"><%= new Date(s.scheduled_datetime).toLocaleDateString() %></small>
+              </td>
+              <td>
+                <strong style="color: #fff;"><%= s.modality %></strong>
+                <div style="font-size: 12px; color: var(--info);"><i class="fa-solid fa-bone"></i> <%= s.anatomical_region %></div>
+              </td>
+              <td>
+                <span class="badge-prio <%= s.priority.includes('STAT') ? 'prio-stat' : (s.priority.includes('Urgent') ? 'prio-urgent' : 'prio-routine') %>">
+                  <%= s.priority.split(' ')[0] %>
+                </span>
+              </td>
+              <td>
+                <div><%= s.referring_doctor %></div>
+                <small style="color: var(--text-muted);">Rad: <%= s.reporting_radiologist %></small>
+              </td>
+              <td style="max-width: 250px; font-size: 12px; color: #cbd5e1;">
+                <% if (s.radiologist_impression) { %>
+                  <div style="font-weight: 600; color: #fff;"><%= s.radiologist_impression %></div>
+                <% } else { %>
+                  <span style="color: var(--text-muted); font-style: italic;">Scan pending radiologist review.</span>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge-status status-<%= s.study_status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= s.study_status %>
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openReportModal('<%= s.study_id %>', '<%= s.accession_number %>', '<%= s.modality %>', '<%= s.study_status %>', `<%= s.radiology_findings || '' %>`, `<%= s.radiologist_impression || '' %>`, '<%= s.reporting_radiologist %>')">
+                    <i class="fa-solid fa-file-medical"></i> Report
+                  </button>
+                  <a href="/admin/radiology/delete/<%= s.study_id %>" class="btn btn-delete" onclick="return confirm('Delete this radiology scan record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No diagnostic imaging studies in queue. Click "Schedule Imaging Scan" to register one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Schedule Imaging Study -->
+  <div id="radModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Schedule Diagnostic Imaging Scan</h3>
+        <span onclick="document.getElementById('radModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/radiology/save" method="POST">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Full Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Name" required>
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select name="patient_gender" required>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="patient_age" value="35" min="1" max="120" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Imaging Modality</label>
+            <select name="modality" required>
+              <option value="Digital X-Ray (CR/DR)">Digital X-Ray (CR/DR)</option>
+              <option value="Computed Tomography (CT)">Computed Tomography (CT)</option>
+              <option value="Magnetic Resonance Imaging (MRI)">Magnetic Resonance Imaging (MRI)</option>
+              <option value="Ultrasound / Sonography (USG)">Ultrasound / Sonography (USG)</option>
+              <option value="2D Doppler Echocardiography">2D Doppler Echocardiography</option>
+              <option value="Digital Mammography">Digital Mammography</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Anatomical Region / Protocol</label>
+            <input type="text" name="anatomical_region" placeholder="e.g. Chest PA / Brain MRI / Abdomen CT" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Referring Physician</label>
+            <select name="referring_doctor" required>
+              <% if (typeof doctors !== 'undefined' && doctors.length) { %>
+                <% doctors.forEach(doc => { %>
+                  <option value="Dr. <%= doc.first_name %> <%= doc.last_name %>">Dr. <%= doc.first_name %> <%= doc.last_name %></option>
+                <% }) %>
+              <% } %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Study Priority</label>
+            <select name="priority" required>
+              <option value="Routine">Routine</option>
+              <option value="Urgent / Inpatient">Urgent / Inpatient</option>
+              <option value="STAT / Emergency Trauma">STAT / Emergency Trauma</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Reporting Radiologist</label>
+            <input type="text" name="reporting_radiologist" value="Dr. S. Kulkarni (MD Radio)" required>
+          </div>
+          <div class="form-group">
+            <label>Scheduled Date & Time</label>
+            <input type="datetime-local" name="scheduled_datetime" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Schedule Study in PACS
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Enter Radiologist Findings -->
+  <div id="reportModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalStudyTitle">Radiologist Scan Reporting</h3>
+        <span onclick="document.getElementById('reportModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/radiology/update-report" method="POST">
+        <input type="hidden" name="study_id" id="modalStudyId">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Study Workflow Status</label>
+            <select name="study_status" id="modalStatusSelect" required>
+              <option value="Study Scheduled">Study Scheduled</option>
+              <option value="Scan Completed (Image Acquired)">Scan Completed (Image Acquired)</option>
+              <option value="Radiologist Reported">Radiologist Reported</option>
+              <option value="Critical Findings Alerted">Critical Findings Alerted (Direct Call to ER)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Reporting Radiologist Sign-Off</label>
+            <input type="text" name="reporting_radiologist" id="modalRadDoctor" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Detailed Radiological Findings</label>
+          <textarea name="radiology_findings" id="modalFindings" rows="4" placeholder="Detailed organ evaluation, tissue density, fractures, lymphadenopathy, vascular contrast flow..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Final Radiologist Impression / Conclusion</label>
+          <textarea name="radiologist_impression" id="modalImpression" rows="2" placeholder="Diagnostic impression, comparison with prior imaging, follow-up advice..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Sign & Finalize Radiology Report
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openReportModal(id, accNo, modality, status, findings, impression, radDoc) {
+      document.getElementById('modalStudyId').value = id;
+      document.getElementById('modalStudyTitle').innerText = modality + ' - ' + accNo;
+      document.getElementById('modalStatusSelect').value = status;
+      document.getElementById('modalFindings').value = findings;
+      document.getElementById('modalImpression').value = impression;
+      document.getElementById('modalRadDoctor').value = radDoc;
+      document.getElementById('reportModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

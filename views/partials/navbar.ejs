@@ -1,0 +1,36 @@
+<!-- Topbar Navigation -->
+<header class="app-topbar">
+  <div class="d-flex align-items-center gap-3">
+    <!-- Mobile Hamburger Button -->
+    <button class="btn btn-outline-light btn-sm d-lg-none py-2 px-3 rounded-3" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Hospital Status Indicator -->
+    <div class="hospital-badge">
+      <span class="pulse-dot"></span>
+      <span>WellCure General Medical Center</span>
+    </div>
+  </div>
+
+  <!-- Admin Account Dropdown -->
+  <div class="dropdown">
+    <a href="#" class="user-pill dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+      <img src="/admin_files/images/icon/avatar-01.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff'" alt="Avatar" class="user-avatar">
+      <span class="fw-semibold small d-none d-sm-inline">Dr. Rizwan</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom mt-2">
+      <li>
+        <div class="px-3 py-2 border-bottom border-secondary border-opacity-25 mb-1">
+          <h6 class="mb-0 text-white small fw-bold">Dr. Rizwan</h6>
+          <small class="text-secondary" style="font-size: 0.78rem;">admin@wellcure.com</small>
+        </div>
+      </li>
+      <li><a class="dropdown-item-custom" href="#"><i class="fa-regular fa-user text-info"></i> Account Profile</a></li>
+      <li><a class="dropdown-item-custom" href="#"><i class="fa-solid fa-sliders text-warning"></i> Settings</a></li>
+      <li><a class="dropdown-item-custom" href="#"><i class="fa-solid fa-credit-card text-success"></i> Billing Info</a></li>
+      <li><hr class="dropdown-divider border-secondary border-opacity-25 my-1"></li>
+      <li><a class="dropdown-item-custom text-danger" href="/admin/logout"><i class="fa-solid fa-power-off"></i> Sign Out</a></li>
+    </ul>
+  </div>
+</header>

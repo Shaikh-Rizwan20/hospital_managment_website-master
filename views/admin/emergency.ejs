@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency & Ambulance Dispatch | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --code-red: #ef4444;
+      --code-yellow: #f59e0b;
+      --code-green: #10b981;
+      --primary: #6366f1;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Layout Split */
+    .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 22px; backdrop-filter: blur(12px); }
+    .section-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 12px; color: var(--text-muted); text-transform: uppercase; font-size: 11px; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+
+    .badge-triage { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; display: inline-block; }
+    .triage-red { background: rgba(239, 68, 68, 0.2); color: var(--code-red); border: 1px solid rgba(239, 68, 68, 0.4); animation: pulse 1.5s infinite; }
+    .triage-yellow { background: rgba(245, 158, 11, 0.2); color: var(--code-yellow); }
+    .triage-green { background: rgba(16, 185, 129, 0.2); color: var(--code-green); }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    /* Ambulance List Cards */
+    .amb-card { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .amb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .amb-status { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px; }
+    .amb-avail { background: rgba(16, 185, 129, 0.15); color: var(--code-green); }
+    .amb-call { background: rgba(239, 68, 68, 0.15); color: var(--code-red); }
+    .amb-maint { background: rgba(245, 158, 11, 0.15); color: var(--code-yellow); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .btn-action { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid var(--border); padding: 5px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 440px; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Emergency Trauma & Dispatch</h1>
+    </div>
+    <button class="btn btn-red" onclick="document.getElementById('newCaseModal').style.display='flex'">
+      <i class="fa-solid fa-triangle-exclamation"></i> Log Emergency Case
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Recorded Cases</h3>
+      <p><%= stats.total_cases %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Immediate (Code Red)</h3>
+      <p style="color: var(--code-red);"><%= stats.red_cases %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active in ER</h3>
+      <p style="color: var(--code-yellow);"><%= stats.active_cases %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Ambulances Ready</h3>
+      <p style="color: var(--code-green);"><%= stats.available_ambulances %></p>
+    </div>
+  </div>
+
+  <!-- Split Grid -->
+  <div class="dashboard-grid">
+    
+    <!-- Active ER Queue -->
+    <div class="section-card">
+      <h2><i class="fa-solid fa-notes-medical" style="color: #ef4444;"></i> ER Admission & Triage Queue</h2>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Case Code</th>
+              <th>Patient</th>
+              <th>Triage Level</th>
+              <th>Attending</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (cases && cases.length > 0) { %>
+              <% cases.forEach(c => { %>
+                <tr>
+                  <td><strong><%= c.case_code %></strong></td>
+                  <td><%= c.patient_name %></td>
+                  <td>
+                    <% if (c.triage_level.includes('Code Red')) { %>
+                      <span class="badge-triage triage-red">CODE RED</span>
+                    <% } else if (c.triage_level.includes('Code Yellow')) { %>
+                      <span class="badge-triage triage-yellow">CODE YELLOW</span>
+                    <% } else { %>
+                      <span class="badge-triage triage-green">CODE GREEN</span>
+                    <% } %>
+                  </td>
+                  <td><%= c.assigned_doctor %></td>
+                  <td><small style="color: var(--text-muted);"><%= c.status %></small></td>
+                  <td>
+                    <form action="/admin/emergency/update-status" method="POST" style="display:inline-flex; gap: 4px;">
+                      <input type="hidden" name="case_id" value="<%= c.case_id %>">
+                      <select name="status" onchange="this.form.submit()" class="btn-action">
+                        <option value="Triaged" <%= c.status === 'Triaged' ? 'selected' : '' %>>Triaged</option>
+                        <option value="In Treatment" <%= c.status === 'In Treatment' ? 'selected' : '' %>>In Treatment</option>
+                        <option value="Admitted to Ward" <%= c.status === 'Admitted to Ward' ? 'selected' : '' %>>Admit to Ward</option>
+                        <option value="Discharged" <%= c.status === 'Discharged' ? 'selected' : '' %>>Discharge</option>
+                      </select>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">No active emergency cases.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Live Ambulance Dispatch Fleet -->
+    <div class="section-card">
+      <h2><i class="fa-solid fa-truck-medical" style="color: #38bdf8;"></i> Ambulance Fleet Status</h2>
+      <% ambulances.forEach(amb => { %>
+        <div class="amb-card">
+          <div class="amb-header">
+            <strong><%= amb.vehicle_number %></strong>
+            <span class="amb-status amb-<%= amb.status === 'Available' ? 'avail' : (amb.status === 'On Call' ? 'call' : 'maint') %>">
+              <%= amb.status %>
+            </span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">Type: <%= amb.vehicle_type %></p>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Driver: <%= amb.driver_name %> (<%= amb.driver_phone %>)</p>
+          <div style="font-size: 11px; color: #cbd5e1; margin-bottom: 8px;"><i class="fa-solid fa-location-dot"></i> <%= amb.current_location %></div>
+
+          <form action="/admin/emergency/ambulance-status" method="POST" style="display:flex; gap:6px;">
+            <input type="hidden" name="ambulance_id" value="<%= amb.ambulance_id %>">
+            <select name="status" class="btn-action">
+              <option value="Available" <%= amb.status === 'Available' ? 'selected' : '' %>>Available (Base)</option>
+              <option value="On Call" <%= amb.status === 'On Call' ? 'selected' : '' %>>On Call (Dispatched)</option>
+              <option value="Maintenance" <%= amb.status === 'Maintenance' ? 'selected' : '' %>>Maintenance</option>
+            </select>
+            <input type="text" name="current_location" value="<%= amb.current_location %>" placeholder="Location" class="btn-action" style="flex:1;">
+            <button type="submit" class="btn-action" style="background:#6366f1; color:#fff;">Update</button>
+          </form>
+        </div>
+      <% }) %>
+    </div>
+
+  </div>
+
+  <!-- Modal: Log Emergency Case -->
+  <div id="newCaseModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Log ER Case</h3>
+        <span onclick="document.getElementById('newCaseModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/emergency/create" method="POST">
+        <div class="form-group">
+          <label>Patient Name / Unknown Tag</label>
+          <input type="text" name="patient_name" placeholder="e.g. John Doe / Trauma Male #1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Triage Category</label>
+          <select name="triage_level" required>
+            <option value="Code Red (Immediate)">Code Red (Immediate Life Threat)</option>
+            <option value="Code Yellow (Urgent)">Code Yellow (Urgent / Serious)</option>
+            <option value="Code Green (Delayed)">Code Green (Non-Urgent / Minor)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned ER Physician</label>
+          <select name="assigned_doctor" required>
+            <% doctors.forEach(d => { %>
+              <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+            <% }) %>
+            <option value="Dr. Rizwan">Dr. Rizwan</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Dispatch Ambulance (Optional)</label>
+          <select name="assigned_ambulance_id">
+            <option value="">No ambulance needed / Walk-in</option>
+            <% ambulances.filter(a => a.status === 'Available').forEach(a => { %>
+              <option value="<%= a.ambulance_id %>"><%= a.vehicle_number %> (<%= a.vehicle_type %>)</option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Symptoms / Incident Summary</label>
+          <textarea name="incident_notes" rows="3" placeholder="Condition details, blood loss, trauma notes..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-red" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Admit to Emergency Queue
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

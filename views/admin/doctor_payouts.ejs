@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Commission & Payout Statements | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Disbursed---Paid { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Approved-by-Accounts { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-Pending-Audit { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-On-Hold { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 560px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Doctor Revenue Share & Payout Statements</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('payoutModal').style.display='flex'">
+      <i class="fa-solid fa-calculator"></i> Generate Statement
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Statements</h3>
+      <p><%= stats.total_statements %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Disbursed Volume</h3>
+      <p style="color: var(--success);">₹<%= Number(stats.total_disbursed_volume).toLocaleString('en-IN') %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Audit</h3>
+      <p style="color: var(--warning);"><%= stats.pending_audits %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Approved for Payment</h3>
+      <p style="color: var(--info);"><%= stats.approved_for_payment %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference # & Doctor</th>
+          <th>Department & Month</th>
+          <th>Gross Generated</th>
+          <th>Split & TDS</th>
+          <th>Final Payable</th>
+          <th>Status & Mode</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (payouts && payouts.length > 0) { %>
+          <% payouts.forEach(p => { %>
+            <tr>
+              <td>
+                <strong style="font-size: 15px;"><%= p.doctor_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= p.payout_reference %></div>
+              </td>
+              <td>
+                <strong><%= p.department %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= p.billing_month %></div>
+              </td>
+              <td>
+                <div style="font-weight: 700;">₹<%= Number(p.total_gross_revenue).toLocaleString('en-IN') %></div>
+                <small style="color: var(--text-muted);">
+                  OPD: <%= p.total_opd_consultations %> | IPD: <%= p.total_ipd_surgeries %>
+                </small>
+              </td>
+              <td style="font-size: 13px;">
+                <div>Share: <strong><%= p.doctor_share_percentage %>%</strong></div>
+                <small style="color: var(--danger);">TDS (10%): -₹<%= Number(p.tds_deduction_amount).toLocaleString('en-IN') %></small>
+              </td>
+              <td>
+                <div style="font-weight: 800; font-size: 16px; color: var(--success);">
+                  ₹<%= Number(p.final_payable_amount).toLocaleString('en-IN') %>
+                </div>
+              </td>
+              <td>
+                <span class="badge-status status-<%= p.payout_status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= p.payout_status %>
+                </span>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                  <%= p.disbursement_mode.split(' ')[0] %>
+                  <% if (p.transaction_ref && p.transaction_ref !== 'Pending Transfer') { %>
+                    <br><code style="color: var(--info);"><%= p.transaction_ref %></code>
+                  <% } %>
+                </div>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openPayoutStatusModal('<%= p.payout_id %>', '<%= p.payout_reference %>', '<%= p.payout_status %>', '<%= p.disbursement_mode %>', '<%= p.transaction_ref %>')">
+                    <i class="fa-solid fa-file-invoice"></i> Clear
+                  </button>
+                  <a href="/admin/doctor_payouts/delete/<%= p.payout_id %>" class="btn btn-delete" onclick="return confirm('Delete this payout record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No doctor payout statements generated. Click "Generate Statement" to calculate revenue splits.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Generate Statement -->
+  <div id="payoutModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Calculate Doctor Payout Statement</h3>
+        <span onclick="document.getElementById('payoutModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/doctor_payouts/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Consultant Doctor</label>
+            <select name="doctor_name" required>
+              <% if (typeof doctors !== 'undefined' && doctors.length) { %>
+                <% doctors.forEach(doc => { %>
+                  <option value="Dr. <%= doc.first_name %> <%= doc.last_name %>">Dr. <%= doc.first_name %> <%= doc.last_name %></option>
+                <% }) %>
+              <% } %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select name="department" required>
+              <% if (typeof departments !== 'undefined' && departments.length) { %>
+                <% departments.forEach(dept => { %>
+                  <option value="<%= dept.department_name %>"><%= dept.department_name %></option>
+                <% }) %>
+              <% } %>
+              <option value="General Surgery">General Surgery</option>
+              <option value="Cardiology">Cardiology</option>
+              <option value="Anesthesiology & ICU">Anesthesiology & ICU</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Billing Month & Year</label>
+            <input type="text" name="billing_month" value="October 2026" required>
+          </div>
+          <div class="form-group">
+            <label>Doctor Commission Share (%)</label>
+            <input type="number" name="doctor_share_percentage" value="70" min="1" max="100" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Total OPD Consultations</label>
+            <input type="number" name="total_opd_consultations" value="50" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Gross OPD Revenue (₹)</label>
+            <input type="number" step="0.01" name="gross_opd_revenue" value="25000" min="0" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Total IPD Surgeries/Procedures</label>
+            <input type="number" name="total_ipd_surgeries" value="10" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Gross IPD Revenue (₹)</label>
+            <input type="number" step="0.01" name="gross_ipd_revenue" value="150000" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Disbursement Method</label>
+          <select name="disbursement_mode" required>
+            <option value="Direct Bank Transfer (NEFT/RTGS)">Direct Bank Transfer (NEFT/RTGS)</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Pending Transfer">Pending Transfer</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Compute Statement & Queue
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Clear / Update Status -->
+  <div id="statusModal" class="modal-overlay">
+    <div class="modal-box" style="width: 480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalPayoutTitle">Update Payout Status</h3>
+        <span onclick="document.getElementById('statusModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/doctor_payouts/update-status" method="POST">
+        <input type="hidden" name="payout_id" id="modalPayoutId">
+
+        <div class="form-group">
+          <label>Approval / Payment Status</label>
+          <select name="payout_status" id="modalPayoutStatus" required>
+            <option value="Pending Audit">Pending Audit</option>
+            <option value="Approved by Accounts">Approved by Accounts</option>
+            <option value="Disbursed / Paid">Disbursed / Paid</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Disbursement Channel</label>
+          <select name="disbursement_mode" id="modalDisbursementMode" required>
+            <option value="Direct Bank Transfer (NEFT/RTGS)">Direct Bank Transfer (NEFT/RTGS)</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Pending Transfer">Pending Transfer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Bank Transaction UTR / Cheque Ref #</label>
+          <input type="text" name="transaction_ref" id="modalTransactionRef" placeholder="e.g. NEFT-HDFC-XXXXX" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Confirm Status
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openPayoutStatusModal(id, ref, status, mode, txRef) {
+      document.getElementById('modalPayoutId').value = id;
+      document.getElementById('modalPayoutTitle').innerText = 'Clear: ' + ref;
+      document.getElementById('modalPayoutStatus').value = status;
+      document.getElementById('modalDisbursementMode').value = mode;
+      document.getElementById('modalTransactionRef').value = txRef || '';
+      document.getElementById('statusModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

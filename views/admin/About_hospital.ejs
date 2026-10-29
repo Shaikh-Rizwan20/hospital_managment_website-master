@@ -1,0 +1,221 @@
+<%- include("index.ejs") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Welcare Hospital</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    width: 40%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+header {
+    background-color: #0066cc;
+    color: white;
+    padding: 10px 0;
+}
+
+header h1 {
+    font-size: 2.5em;
+    text-align: center;
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    text-align: center;
+    margin-top: 20px;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+/* Section Styles */
+section {
+    width: 70%;
+    margin-left: 400px;
+    padding: 20px;
+
+    background-color: white;
+    border-radius: 8px;
+}
+
+section h2 {
+    font-size: 2em;
+    color: #0066cc;
+    margin-bottom: 20px;
+}
+
+section p, section ul {
+    font-size: 1.1em;
+}
+
+section ul {
+    list-style-type: square;
+    margin-left: 20px;
+}
+
+section ul li {
+    margin-bottom: 10px;
+}
+
+section a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+section a:hover {
+    text-decoration: underline;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 30px;
+}
+
+footer p {
+    font-size: 1em;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+
+    nav ul li {
+        display: block;
+        margin: 10px 0;
+    }
+
+    section {
+        padding: 15px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Welcare Hospital</h1>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="about">
+        <div class="container">
+            <h2>Welcome to Welcare Hospital</h2>
+            <p>At Welcare Hospital, we are dedicated to providing compassionate care and advanced medical services. Our team of highly skilled healthcare professionals is committed to ensuring that every patient receives the best possible care in a safe, comfortable, and modern environment.</p>
+        </div>
+    </section>
+
+    <section class="mission">
+        <div class="container">
+            <h2>Our Mission</h2>
+            <p>Our mission is to deliver high-quality healthcare services with integrity, compassion, and professionalism. We aim to provide exceptional care, focusing on patient satisfaction and comfort, while utilizing the latest medical technologies and practices.</p>
+        </div>
+    </section>
+
+    <section class="vision">
+        <div class="container">
+            <h2>Our Vision</h2>
+            <p>To be recognized as a leading healthcare provider, committed to improving the health and well-being of the communities we serve. We aspire to create a world-class healthcare facility known for excellence, innovation, and personalized care.</p>
+        </div>
+    </section>
+
+    <section class="values">
+        <div class="container">
+            <h2>Our Values</h2>
+            <ul>
+                <li><strong>Compassion:</strong> We approach every patient with kindness and empathy.</li>
+                <li><strong>Excellence:</strong> We strive for the highest standards in patient care and service.</li>
+                <li><strong>Integrity:</strong> We adhere to the highest ethical standards in all aspects of healthcare.</li>
+                <li><strong>Innovation:</strong> We embrace new medical technologies and techniques to provide the best care possible.</li>
+                <li><strong>Collaboration:</strong> We believe in working as a team to provide optimal care.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <h2>Services We Offer</h2>
+            <ul>
+                <li><strong>Emergency Care:</strong> 24/7 emergency services for urgent medical needs.</li>
+                <li><strong>Surgical Services:</strong> Advanced surgical procedures in various specialties.</li>
+                <li><strong>Pediatrics:</strong> Comprehensive care for infants, children, and adolescents.</li>
+                <li><strong>Maternity Care:</strong> Complete prenatal, delivery, and postnatal care.</li>
+                <li><strong>Outpatient Services:</strong> Consultations and treatments for non-emergency conditions.</li>
+                <li><strong>Diagnostic Services:</strong> Imaging, lab tests, and screenings to aid in accurate diagnosis.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="why-choose">
+        <div class="container">
+            <h2>Why Choose Welcare Hospital?</h2>
+            <ul>
+                <li><strong>Experienced Medical Team:</strong> Our doctors, nurses, and staff are highly trained and experienced in their fields.</li>
+                <li><strong>State-of-the-Art Facilities:</strong> We use the latest medical technology to ensure accurate diagnoses and effective treatments.</li>
+                <li><strong>Patient-Centered Care:</strong> We focus on the needs and comfort of our patients, providing individualized care tailored to each person.</li>
+                <li><strong>Comprehensive Services:</strong> From emergency care to specialized treatments, we offer a wide range of services under one roof.</li>
+                <li><strong>Convenient Location:</strong> Centrally located to serve our community with easy access to essential medical services.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p><strong>Phone:</strong> [Insert phone number]</p>
+            <p><strong>Email:</strong> [Insert email address]</p>
+            <p><strong>Address:</strong> [Insert hospital address]</p>
+            <p><strong>Website:</strong> <a href="#">[Insert website URL]</a></p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Welcare Hospital. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

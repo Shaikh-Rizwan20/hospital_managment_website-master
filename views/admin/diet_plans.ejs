@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dietary & Nutrition Plans | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #38bdf8;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-diet { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .diet-regular { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .diet-special { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .diet-npo { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Inpatient Dietary & Nutrition Roster</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('dietModal').style.display='flex'">
+      <i class="fa-solid fa-utensils"></i> Prescribe Meal Plan
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Today's Planned Meals</h3>
+      <p><%= stats.total_meals %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Delivered to Beds</h3>
+      <p style="color: var(--success);"><%= stats.delivered_meals %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Strict NPO / Fasting</h3>
+      <p style="color: var(--danger);"><%= stats.npo_fasting_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Kitchen Prep</h3>
+      <p style="color: var(--warning);"><%= stats.pending_kitchen %></p>
+    </div>
+  </div>
+
+  <!-- Diet Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Bed & Patient</th>
+          <th>Prescribed Diet Type</th>
+          <th>Slot</th>
+          <th>Allergies & Restrictions</th>
+          <th>Dietitian Instructions</th>
+          <th>Kitchen Delivery Status</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (dietPlans && dietPlans.length > 0) { %>
+          <% dietPlans.forEach(d => { %>
+            <tr>
+              <td>
+                <strong><%= d.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8;"><i class="fa-solid fa-bed"></i> <%= d.bed_room_number %></div>
+              </td>
+              <td>
+                <span class="badge-diet <%= d.diet_type.includes('NPO') ? 'diet-npo' : (d.diet_type.includes('Regular') ? 'diet-regular' : 'diet-special') %>">
+                  <%= d.diet_type %>
+                </span>
+              </td>
+              <td><strong><%= d.meal_slot %></strong></td>
+              <td>
+                <% if (d.allergies_restrictions && d.allergies_restrictions.toLowerCase() !== 'none') { %>
+                  <span style="color: var(--danger); font-size: 12px; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> <%= d.allergies_restrictions %></span>
+                <% } else { %>
+                  <small style="color: var(--text-muted);">None</small>
+                <% } %>
+              </td>
+              <td style="max-width: 240px; font-size: 13px; color: #cbd5e1;">
+                <%= d.dietitian_instructions || 'Standard ward meal portion.' %>
+              </td>
+              <td>
+                <form action="/admin/diet_plans/update-status" method="POST">
+                  <input type="hidden" name="diet_id" value="<%= d.diet_id %>">
+                  <select name="delivery_status" onchange="this.form.submit()" class="status-select">
+                    <option value="Ordered" <%= d.delivery_status === 'Ordered' ? 'selected' : '' %>>Ordered</option>
+                    <option value="Preparing in Kitchen" <%= d.delivery_status === 'Preparing in Kitchen' ? 'selected' : '' %>>Preparing in Kitchen</option>
+                    <option value="Out for Delivery" <%= d.delivery_status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                    <option value="Delivered" <%= d.delivery_status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                  </select>
+                </form>
+              </td>
+              <td><%= new Date(d.schedule_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <a href="/admin/diet_plans/delete/<%= d.diet_id %>" class="btn btn-delete" onclick="return confirm('Remove diet prescription?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No meal plans prescribed for current inpatients. Click "Prescribe Meal Plan" to add one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Prescribe Diet Plan -->
+  <div id="dietModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Prescribe Inpatient Diet</h3>
+        <span onclick="document.getElementById('dietModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/diet_plans/save" method="POST">
+        <div class="form-group">
+          <label>Inpatient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Bed / Ward Location</label>
+            <input type="text" name="bed_room_number" placeholder="e.g. ICU-101 / GEN-201" required>
+          </div>
+          <div class="form-group">
+            <label>Meal Window Slot</label>
+            <select name="meal_slot" required>
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Evening Snack">Evening Snack</option>
+              <option value="Dinner">Dinner</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Prescribed Diet Regimen</label>
+          <select name="diet_type" required>
+            <option value="Regular / Standard">Regular / Standard (Full Diet)</option>
+            <option value="Diabetic (Sugar-Free)">Diabetic (Low Glycemic / Sugar-Free)</option>
+            <option value="Low Sodium / Renal">Low Sodium / Renal (Cardiac/Kidney Care)</option>
+            <option value="High Protein (Post-Op)">High Protein (Post-Op Tissue Healing)</option>
+            <option value="Liquid / Pureed">Liquid / Pureed (Dysphagia / GI Rest)</option>
+            <option value="NPO (Fasting / Pre-Op)">NPO (Nil Per Os - Strict Fasting)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Dietary Allergies & Food Intolerances</label>
+          <input type="text" name="allergies_restrictions" placeholder="e.g. Lactose Intolerant, Gluten, Peanut, Shellfish (or None)">
+        </div>
+
+        <div class="form-group">
+          <label>Dietitian Clinical Kitchen Notes</label>
+          <textarea name="dietitian_instructions" rows="2" placeholder="Portion size, caloric target, broth only, zero oil..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Delivery Date</label>
+          <input type="date" name="schedule_date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Send Order to Hospital Kitchen
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procurement & Vendor Purchase Orders | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-PO-Dispatched-to-Vendor { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-Shipped---In-Transit { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-GRN-Verified---Received { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Order-Cancelled { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 540px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Hospital Procurement & Supply Chain (PO / GRN)</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('poModal').style.display='flex'">
+      <i class="fa-solid fa-file-invoice-dollar"></i> Issue Purchase Order
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Cumulative POs Raised</h3>
+      <p><%= stats.total_pos %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active / In-Transit Deliveries</h3>
+      <p style="color: var(--warning);"><%= stats.active_in_transit %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Verified at Bay (GRN)</h3>
+      <p style="color: var(--success);"><%= stats.received_grn_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Spend Volume</h3>
+      <p style="color: var(--info);">₹<%= Number(stats.total_procurement_val).toLocaleString('en-IN') %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>PO # & Vendor</th>
+          <th>Procurement Category</th>
+          <th>Ordered Items Breakdown</th>
+          <th>Amount & Terms</th>
+          <th>Expected Arrival</th>
+          <th>Delivery / GRN Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (orders && orders.length > 0) { %>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td>
+                <strong style="font-size: 15px;"><%= o.vendor_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= o.po_number %></div>
+                <small style="color: var(--text-muted);"><%= o.vendor_contact %></small>
+              </td>
+              <td>
+                <div style="font-weight: 600;"><%= o.procurement_category %></div>
+                <small style="color: var(--text-muted);"><%= o.receiving_warehouse %></small>
+              </td>
+              <td style="max-width: 250px; font-size: 12px; color: #cbd5e1;">
+                <%= o.items_summary %>
+              </td>
+              <td>
+                <div style="font-weight: 800; font-size: 15px; color: #fff;">₹<%= Number(o.total_order_amount).toLocaleString('en-IN') %></div>
+                <small style="color: var(--text-muted);"><%= o.payment_terms %></small>
+              </td>
+              <td>
+                <div><%= new Date(o.expected_delivery_date).toISOString().slice(0, 10) %></div>
+                <small style="color: var(--text-muted);">By: <%= o.po_issued_by %></small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= o.delivery_status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= o.delivery_status %>
+                </span>
+                <% if (o.grn_number && o.grn_number !== 'Pending GRN') { %>
+                  <div style="font-size: 11px; color: var(--success); font-family: monospace; margin-top: 4px;">
+                    <i class="fa-solid fa-boxes-packing"></i> <%= o.grn_number %>
+                  </div>
+                <% } %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openGrnModal('<%= o.po_id %>', '<%= o.po_number %>', '<%= o.delivery_status %>', '<%= o.grn_number %>')">
+                    <i class="fa-solid fa-truck-ramp-box"></i> GRN
+                  </button>
+                  <a href="/admin/procurement/delete/<%= o.po_id %>" class="btn btn-delete" onclick="return confirm('Deregister this purchase order?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No procurement purchase orders created. Click "Issue Purchase Order" to raise an order.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Issue PO -->
+  <div id="poModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Issue Vendor Purchase Order</h3>
+        <span onclick="document.getElementById('poModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/procurement/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Vendor / Supplier Company</label>
+            <input type="text" name="vendor_name" placeholder="e.g. Cipla Distribution Ltd." required>
+          </div>
+          <div class="form-group">
+            <label>Vendor Phone / Rep Contact</label>
+            <input type="tel" name="vendor_contact" placeholder="+91 98220 XXXXX" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Procurement Category</label>
+          <select name="procurement_category" required>
+            <option value="Pharmaceutical Drugs & IV Fluids">Pharmaceutical Drugs & IV Fluids</option>
+            <option value="Surgical Consumables & PPE">Surgical Consumables & PPE</option>
+            <option value="Biomedical Equipment Spare Parts">Biomedical Equipment Spare Parts</option>
+            <option value="Linen & Housekeeping Chemicals">Linen & Housekeeping Chemicals</option>
+            <option value="Dietary & Kitchen Provisions">Dietary & Kitchen Provisions</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Itemized Quantity Summary</label>
+          <textarea name="items_summary" rows="3" placeholder="e.g. 500x Ceftriaxone 1g, 1000x NS 500ml, 50x Spinal Needles..." required></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Total PO Amount (₹)</label>
+            <input type="number" step="0.01" name="total_order_amount" placeholder="45000" required>
+          </div>
+          <div class="form-group">
+            <label>Payment Terms</label>
+            <select name="payment_terms" required>
+              <option value="Net 30 Days">Net 30 Days</option>
+              <option value="Net 15 Days">Net 15 Days</option>
+              <option value="Advance Payment">Advance Payment</option>
+              <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Expected Arrival Date</label>
+            <input type="date" name="expected_delivery_date" required>
+          </div>
+          <div class="form-group">
+            <label>Receiving Warehouse</label>
+            <input type="text" name="receiving_warehouse" value="Central Hospital Warehouse Basement" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Generate Purchase Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Receive Goods & GRN -->
+  <div id="grnModal" class="modal-overlay">
+    <div class="modal-box" style="width: 480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalPoTitle">Update Goods Delivery (GRN)</h3>
+        <span onclick="document.getElementById('grnModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/procurement/update-grn" method="POST">
+        <input type="hidden" name="po_id" id="modalPoId">
+
+        <div class="form-group">
+          <label>Delivery Status</label>
+          <select name="delivery_status" id="modalDeliveryStatus" required>
+            <option value="PO Dispatched to Vendor">PO Dispatched to Vendor</option>
+            <option value="Shipped / In Transit">Shipped / In Transit</option>
+            <option value="GRN Verified & Received">GRN Verified & Received</option>
+            <option value="Order Cancelled">Order Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Goods Received Note (GRN) #</label>
+          <input type="text" name="grn_number" id="modalGrnNumber" placeholder="e.g. GRN-2026-081" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Confirm Warehouse Intake
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openGrnModal(id, poNo, status, grn) {
+      document.getElementById('modalPoId').value = id;
+      document.getElementById('modalPoTitle').innerText = 'Intake for ' + poNo;
+      document.getElementById('modalDeliveryStatus').value = status;
+      document.getElementById('modalGrnNumber').value = (grn && grn !== 'Pending GRN') ? grn : 'GRN-' + Date.now().toString().slice(-4);
+      document.getElementById('grnModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

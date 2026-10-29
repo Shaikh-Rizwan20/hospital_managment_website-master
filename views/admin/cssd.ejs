@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSSD & Surgical Sterilization | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #38bdf8;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Sterile---Ready-for-OT { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-In-Autoclave-Cycle { background: rgba(56, 189, 248, 0.15); color: var(--info); animation: pulse 1.5s infinite; }
+    .status-Dirty---Awaiting-Wash { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-Expired---Reprocess { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .badge-indicator { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .bi-pass { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+    .bi-incubate { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+    .bi-fail { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">CSSD & Surgical Instrument Sterilization</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('cssdModal').style.display='flex'">
+      <i class="fa-solid fa-fire-burner"></i> Log Sterilization Cycle
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Tracked Instrument Trays</h3>
+      <p><%= stats.total_trays %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Sterile & OT Ready</h3>
+      <p style="color: var(--success);"><%= stats.sterile_ready %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active in Autoclave</h3>
+      <p style="color: var(--info);"><%= stats.active_cycles %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Expired / Need Reprocess</h3>
+      <p style="color: var(--danger);"><%= stats.expired_reprocess_count %></p>
+    </div>
+  </div>
+
+  <!-- Trays Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Tray Barcode & Kit Name</th>
+          <th>Origin Ward / OT</th>
+          <th>Sterilization Method & Machine</th>
+          <th>Biological Indicator</th>
+          <th>Sterilized On</th>
+          <th>Sterility Expiry</th>
+          <th>Sterile Release Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (trays && trays.length > 0) { %>
+          <% trays.forEach(t => { %>
+            <tr>
+              <td>
+                <strong><%= t.kit_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><i class="fa-solid fa-barcode"></i> <%= t.tray_barcode %></div>
+                <small style="color: var(--text-muted);">Operator: <%= t.sterilized_by %></small>
+              </td>
+              <td><span style="font-weight: 600;"><%= t.origin_ward_ot %></span></td>
+              <td style="font-size: 13px;">
+                <div><%= t.sterilization_method %></div>
+                <small style="color: var(--text-muted);"><%= t.autoclave_machine_no %></small>
+              </td>
+              <td>
+                <% if (t.biological_indicator === 'Passed (Negative)') { %>
+                  <span class="badge-indicator bi-pass"><i class="fa-solid fa-check"></i> Passed</span>
+                <% } else if (t.biological_indicator === 'Incubating') { %>
+                  <span class="badge-indicator bi-incubate"><i class="fa-solid fa-clock"></i> Incubating</span>
+                <% } else { %>
+                  <span class="badge-indicator bi-fail"><i class="fa-solid fa-xmark"></i> Failed</span>
+                <% } %>
+              </td>
+              <td><%= new Date(t.sterilization_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <strong><%= new Date(t.expiry_date).toISOString().slice(0, 10) %></strong>
+                <% if (new Date(t.expiry_date) < new Date()) { %>
+                  <div style="font-size: 11px; color: var(--danger); font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> EXPIRED</div>
+                <% } %>
+              </td>
+              <td>
+                <form action="/admin/cssd/update-status" method="POST">
+                  <input type="hidden" name="tray_id" value="<%= t.tray_id %>">
+                  <select name="status" onchange="this.form.submit()" class="status-select">
+                    <option value="In Autoclave Cycle" <%= t.status === 'In Autoclave Cycle' ? 'selected' : '' %>>In Autoclave Cycle</option>
+                    <option value="Sterile / Ready for OT" <%= t.status === 'Sterile / Ready for OT' ? 'selected' : '' %>>Sterile / Ready for OT</option>
+                    <option value="Dirty / Awaiting Wash" <%= t.status === 'Dirty / Awaiting Wash' ? 'selected' : '' %>>Dirty / Awaiting Wash</option>
+                    <option value="Expired / Reprocess" <%= t.status === 'Expired / Reprocess' ? 'selected' : '' %>>Expired / Reprocess</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/cssd/delete/<%= t.tray_id %>" class="btn btn-delete" onclick="return confirm('Deregister this surgical instrument tray?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No surgical instrument trays registered. Click "Log Sterilization Cycle" to add a tray.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Log Sterilization Cycle -->
+  <div id="cssdModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Log Sterilization Cycle</h3>
+        <span onclick="document.getElementById('cssdModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/cssd/save" method="POST">
+        <div class="form-group">
+          <label>Instrument Tray / Surgical Kit Name</label>
+          <input type="text" name="kit_name" placeholder="e.g. Major Laparotomy Set #1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Designated Theater / Ward Origin</label>
+          <select name="origin_ward_ot" required>
+            <option value="Operation Theater (OT-1)">Operation Theater (OT-1)</option>
+            <option value="Operation Theater (OT-2)">Operation Theater (OT-2)</option>
+            <option value="Operation Theater (OT-3)">Operation Theater (OT-3)</option>
+            <option value="Minor OT">Minor OT</option>
+            <option value="Emergency Trauma Bay">Emergency Trauma Bay</option>
+            <option value="Labor & Delivery Room (LDR)">Labor & Delivery Room (LDR)</option>
+            <option value="ICU Wing">ICU Wing</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Sterilization Method</label>
+            <select name="sterilization_method" required>
+              <option value="Steam Autoclave (134°C)">Steam Autoclave (134°C)</option>
+              <option value="Ethylene Oxide (ETO Gas)">Ethylene Oxide (ETO Gas)</option>
+              <option value="Plasma / Hydrogen Peroxide">Plasma / Hydrogen Peroxide</option>
+              <option value="Dry Heat">Dry Heat</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Machine / Chamber ID</label>
+            <input type="text" name="autoclave_machine_no" placeholder="e.g. Autoclave Unit A-1" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>CSSD Technician</label>
+            <input type="text" name="sterilized_by" placeholder="e.g. Tech. Santosh More" required>
+          </div>
+          <div class="form-group">
+            <label>Biological Indicator (BI)</label>
+            <select name="biological_indicator" required>
+              <option value="Passed (Negative)">Passed (Negative)</option>
+              <option value="Incubating">Incubating</option>
+              <option value="Failed (Positive)">Failed (Positive)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Sterilization Date</label>
+            <input type="date" name="sterilization_date" required>
+          </div>
+          <div class="form-group">
+            <label>Sterility Expiry Date</label>
+            <input type="date" name="expiry_date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Initial Status</label>
+          <select name="status" required>
+            <option value="In Autoclave Cycle">In Autoclave Cycle</option>
+            <option value="Sterile / Ready for OT">Sterile / Ready for OT</option>
+            <option value="Dirty / Awaiting Wash">Dirty / Awaiting Wash</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Record Sterilization Cycle
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

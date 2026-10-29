@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book an Appointment | WellCure Modern Medical</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 & Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --card-bg: rgba(15, 23, 42, 0.72);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --input-bg: rgba(255, 255, 255, 0.04);
+      --input-focus-bg: rgba(255, 255, 255, 0.08);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #d946ef);
+      --accent-hover: linear-gradient(135deg, #4f46e5, #c026d3);
+      --cyan-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+      --emerald-gradient: linear-gradient(135deg, #10b981, #059669);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Interactive Mouse Follow Glow */
+    .mouse-glow-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.16), rgba(217, 70, 239, 0.08), transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Subtle background grid pattern */
+    .bg-grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Navigation Bar */
+    .modern-navbar {
+      background: rgba(13, 17, 28, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 0.85rem 0;
+    }
+
+    .brand-logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-link-custom {
+      color: var(--text-muted) !important;
+      font-size: 0.92rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem !important;
+      transition: all 0.25s ease;
+    }
+
+    .nav-link-custom:hover, .nav-link-custom.active {
+      color: #fff !important;
+    }
+
+    /* Page Content Layout */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 1rem 5rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Form Fields */
+    .form-label-custom {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-control-custom {
+      background-color: var(--input-bg) !important;
+      border: 1px solid var(--card-border) !important;
+      border-radius: 12px !important;
+      color: #fff !important;
+      font-size: 0.95rem;
+      padding: 12px 16px !important;
+      transition: all 0.25s ease;
+    }
+
+    .form-control-custom:focus {
+      background-color: var(--input-focus-bg) !important;
+      border-color: #818cf8 !important;
+      box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2) !important;
+    }
+
+    .form-control-custom::placeholder {
+      color: #475569;
+    }
+
+    select.form-control-custom option {
+      background-color: #0f172a;
+      color: #fff;
+    }
+
+    /* Custom Gender Pill Selector */
+    .gender-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .gender-pill-option input[type="radio"] {
+      display: none;
+    }
+
+    .gender-pill-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+      margin: 0;
+    }
+
+    .gender-pill-option input[type="radio"]:checked + label {
+      background: var(--accent-gradient);
+      border-color: transparent;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* Submit Button */
+    .btn-submit-appointment {
+      background: var(--accent-gradient);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 24px;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .btn-submit-appointment:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(217, 70, 239, 0.45);
+      color: #fff;
+    }
+
+    /* Info Side Panel */
+    .hours-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+    }
+
+    .hours-list-item:last-child {
+      border-bottom: none;
+    }
+
+    .emergency-banner {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(244, 63, 94, 0.15));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Footer */
+    .modern-footer {
+      background: rgba(9, 13, 22, 0.95);
+      border-top: 1px solid var(--card-border);
+      padding: 4rem 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-heading {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.65rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #38bdf8;
+    }
+
+    .social-btn {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.25s ease;
+      margin-right: 8px;
+    }
+
+    .social-btn:hover {
+      background: var(--accent-gradient);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Glow Layer -->
+  <div class="mouse-glow-canvas" id="mouseGlowLayer"></div>
+  <div class="bg-grid-overlay"></div>
+
+  <!-- Modern Navigation Bar -->
+  <nav class="navbar navbar-expand-lg modern-navbar">
+    <div class="container">
+      <a class="brand-logo" href="/">
+        <i class="fa-solid fa-heart-pulse text-primary fs-3"></i>
+        <span>WellCure</span>
+      </a>
+
+      <button class="navbar-toggler border-0 text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="/doctors">Doctors</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="/service">Services</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom active" href="/appointment">Appointment</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="/contact">Contact</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <a href="tel:+880123456789" class="btn btn-outline-light rounded-pill px-3 py-2 btn-sm border-secondary text-nowrap">
+            <i class="fa-solid fa-phone me-1 text-primary"></i> +880 1234 56789
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Booking Area -->
+  <main class="page-wrapper container">
+    <div class="text-center mb-5">
+      <span class="hero-badge">
+        <i class="fa-solid fa-circle-check text-success"></i> Real-time Slot Availability
+      </span>
+      <h1 class="section-title">Schedule Your Consultation</h1>
+      <p class="text-secondary mx-auto" style="max-width: 600px;">
+        Connect with our experienced medical professionals for personalized diagnostics, second opinions, or follow-up consultations.
+      </p>
+    </div>
+
+    <div class="row g-4 align-items-start">
+      <!-- Appointment Form -->
+      <div class="col-lg-7 col-xl-8">
+        <div class="glass-card">
+          <h3 class="fw-bold mb-4 text-white d-flex align-items-center gap-2">
+            <i class="bi bi-calendar-check text-primary"></i> Patient & Visit Details
+          </h3>
+
+          <form action="/submit_appointment" method="POST">
+            <div class="row g-3">
+              <!-- Full Name -->
+              <div class="col-md-6">
+                <label for="patient-name" class="form-label-custom">
+                  <i class="fa-regular fa-user"></i> Patient Name
+                </label>
+                <input type="text" id="patient-name" name="patient_name" class="form-control form-control-custom" required placeholder="John Doe">
+              </div>
+
+              <!-- Phone -->
+              <div class="col-md-6">
+                <label for="contact-number" class="form-label-custom">
+                  <i class="fa-solid fa-phone"></i> Contact Phone
+                </label>
+                <input type="tel" id="contact-number" name="contact_number" class="form-control form-control-custom" required placeholder="+1 (555) 000-0000">
+              </div>
+
+              <!-- Email -->
+              <div class="col-12">
+                <label for="email" class="form-label-custom">
+                  <i class="fa-regular fa-envelope"></i> Email Address <span class="text-muted fw-normal">(Optional)</span>
+                </label>
+                <input type="email" id="email" name="email" class="form-control form-control-custom" placeholder="name@example.com">
+              </div>
+
+              <!-- Doctor Select -->
+              <div class="col-12">
+                <label for="doctor" class="form-label-custom">
+                  <i class="fa-solid fa-user-doctor"></i> Select Specialist
+                </label>
+                <select id="doctor" name="doctor" class="form-select form-control-custom" required>
+                  <option value="" selected disabled>Choose your physician...</option>
+                  <option value="dr-john">Dr. John Doe — Cardiology Specialist</option>
+                  <option value="dr-jane">Dr. Jane Smith — Dental & Oral Surgery</option>
+                  <option value="dr-alex">Dr. Alex Brown — Pediatric Medicine</option>
+                  <option value="dr-olivia">Dr. Olivia White — Clinical Neurology</option>
+                </select>
+              </div>
+
+              <!-- Date & Time -->
+              <div class="col-md-6">
+                <label for="appointment-date" class="form-label-custom">
+                  <i class="fa-regular fa-calendar-days"></i> Preferred Date
+                </label>
+                <input type="date" id="appointment-date" name="appointment_date" class="form-control form-control-custom" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="appointment-time" class="form-label-custom">
+                  <i class="fa-regular fa-clock"></i> Preferred Time
+                </label>
+                <input type="time" id="appointment-time" name="appointment_time" class="form-control form-control-custom" required>
+              </div>
+
+              <!-- Reason -->
+              <div class="col-12">
+                <label for="reason" class="form-label-custom">
+                  <i class="fa-solid fa-notes-medical"></i> Reason for Appointment
+                </label>
+                <textarea id="reason" name="reason" rows="3" class="form-control form-control-custom" required placeholder="Describe any symptoms, diagnosis, or routine checkup details..."></textarea>
+              </div>
+
+              <!-- Gender -->
+              <div class="col-12">
+                <label class="form-label-custom mb-2">Gender</label>
+                <div class="gender-selector">
+                  <div class="gender-pill-option">
+                    <input type="radio" id="gender-male" name="gender" value="male" checked>
+                    <label for="gender-male"><i class="fa-solid fa-mars"></i> Male</label>
+                  </div>
+                  <div class="gender-pill-option">
+                    <input type="radio" id="gender-female" name="gender" value="female">
+                    <label for="gender-female"><i class="fa-solid fa-venus"></i> Female</label>
+                  </div>
+                  <div class="gender-pill-option">
+                    <input type="radio" id="gender-other" name="gender" value="other">
+                    <label for="gender-other"><i class="fa-solid fa-genderless"></i> Other</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn-submit-appointment">
+                  <i class="fa-regular fa-calendar-check fs-5"></i> Confirm & Book Appointment
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Working Hours & Emergency Card -->
+      <div class="col-lg-5 col-xl-4">
+        <!-- Working Hours Card -->
+        <div class="glass-card mb-4">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 44px; height: 44px;">
+              <i class="fa-regular fa-clock fs-5"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold text-white mb-0">Consulting Hours</h5>
+              <small class="text-secondary">Standard on-site OPD timings</small>
+            </div>
+          </div>
+
+          <div class="hours-list">
+            <div class="hours-list-item">
+              <span class="text-secondary">Monday</span>
+              <span class="fw-semibold text-white">9:00 AM - 5:00 PM</span>
+            </div>
+            <div class="hours-list-item">
+              <span class="text-secondary">Tuesday</span>
+              <span class="fw-semibold text-white">9:00 AM - 5:00 PM</span>
+            </div>
+            <div class="hours-list-item">
+              <span class="text-secondary">Wednesday</span>
+              <span class="fw-semibold text-white">9:00 AM - 5:00 PM</span>
+            </div>
+            <div class="hours-list-item">
+              <span class="text-secondary">Thursday</span>
+              <span class="fw-semibold text-white">9:00 AM - 5:00 PM</span>
+            </div>
+            <div class="hours-list-item">
+              <span class="text-secondary">Friday</span>
+              <span class="fw-semibold text-white">9:00 AM - 5:00 PM</span>
+            </div>
+            <div class="hours-list-item">
+              <span class="text-secondary">Saturday</span>
+              <span class="fw-semibold text-warning">10:00 AM - 2:00 PM</span>
+            </div>
+            <div class="hours-list-item">
+              <span class="text-secondary">Sunday</span>
+              <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 px-2 py-1">Emergency Only</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Support Banner -->
+        <div class="emergency-banner">
+          <div class="d-flex gap-3">
+            <i class="fa-solid fa-truck-medical text-danger fs-3 mt-1"></i>
+            <div>
+              <h6 class="fw-bold text-white mb-1">Need Immediate Care?</h6>
+              <p class="text-secondary small mb-2">Our trauma center and emergency hotline are active 24 hours a day, 7 days a week.</p>
+              <a href="tel:+880123456789" class="text-danger fw-bold text-decoration-none small d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-phone-volume"></i> Call Emergency Desk
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modern Footer -->
+  <footer class="modern-footer">
+    <div class="container">
+      <div class="row g-4 mb-5">
+        <div class="col-lg-4 col-md-6">
+          <div class="brand-logo mb-3">
+            <i class="fa-solid fa-heart-pulse text-primary fs-3"></i>
+            <span>WellCure</span>
+          </div>
+          <p class="text-secondary small mb-4" style="line-height: 1.7;">
+            Delivering advanced clinical precision, cutting-edge outpatient treatment, and continuous compassionate care across multiple disciplines.
+          </p>
+          <div class="d-flex">
+            <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-6">
+          <h5 class="footer-heading">Specialties</h5>
+          <ul class="footer-links">
+            <li><a href="#">Cardiology</a></li>
+            <li><a href="#">Dental Care</a></li>
+            <li><a href="#">Neurology</a></li>
+            <li><a href="#">Pediatrics</a></li>
+            <li><a href="#">Orthopedics</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-6">
+          <h5 class="footer-heading">Quick Links</h5>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Specialists</a></li>
+            <li><a href="#">Pricing & Plans</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Contact Support</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <h5 class="footer-heading">Reach Out</h5>
+          <p class="text-secondary small mb-2"><i class="fa-solid fa-location-dot me-2 text-primary"></i> Zandigate, Ahmednagar, Maharashtra 414001</p>
+          <p class="text-secondary small mb-2"><i class="fa-solid fa-phone me-2 text-primary"></i> +880 1234 56789</p>
+          <p class="text-secondary small mb-4"><i class="fa-solid fa-envelope me-2 text-primary"></i> support@wellcure.com</p>
+        </div>
+      </div>
+
+      <div class="pt-4 border-top border-secondary border-opacity-10 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <small class="text-secondary">© 2026 WellCure Medical Center. All Rights Reserved.</small>
+        <small class="text-secondary">Designed with modern responsive glassmorphism UI.</small>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Dynamic Mouse Spotlight Follow
+    const mouseGlow = document.getElementById('mouseGlowLayer');
+    if (mouseGlow) {
+      window.addEventListener('mousemove', (e) => {
+        mouseGlow.style.left = `${e.clientX}px`;
+        mouseGlow.style.top = `${e.clientY}px`;
+      });
+    }
+
+    // Set default date to today's date
+    const dateInput = document.getElementById('appointment-date');
+    if (dateInput) {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.min = today;
+    }
+  </script>
+</body>
+</html>

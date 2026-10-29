@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Duty Roster | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-ward { background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+    .badge-shift { color: #cbd5e1; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 440px; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Staff & Nurse Duty Roster</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('addShiftModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Assign Shift
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Scheduled Shifts</h3>
+      <p><%= stats.total_shifts %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active On Duty</h3>
+      <p style="color: var(--success);"><%= stats.on_duty_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>ICU Floor Staff</h3>
+      <p style="color: #818cf8;"><%= stats.icu_staff_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>On Leave</h3>
+      <p style="color: var(--warning);"><%= stats.leave_count %></p>
+    </div>
+  </div>
+
+  <!-- Roster Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Staff Member</th>
+          <th>Designation</th>
+          <th>Assigned Ward</th>
+          <th>Shift Timing</th>
+          <th>Date</th>
+          <th>Shift Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (roster && roster.length > 0) { %>
+          <% roster.forEach(r => { %>
+            <tr>
+              <td>
+                <strong><%= r.staff_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= r.contact_number %></div>
+              </td>
+              <td><%= r.role %></td>
+              <td><span class="badge-ward"><%= r.assigned_ward %></span></td>
+              <td>
+                <span class="badge-shift">
+                  <i class="fa-solid fa-clock" style="color: var(--warning);"></i> <%= r.shift_type %>
+                </span>
+              </td>
+              <td><%= new Date(r.duty_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <form action="/admin/staff_roster/update-status" method="POST" style="display:inline;">
+                  <input type="hidden" name="roster_id" value="<%= r.roster_id %>">
+                  <select name="status" onchange="this.form.submit()" class="status-select">
+                    <option value="On Duty" <%= r.status === 'On Duty' ? 'selected' : '' %>>On Duty</option>
+                    <option value="Completed" <%= r.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                    <option value="On Leave" <%= r.status === 'On Leave' ? 'selected' : '' %>>On Leave</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/staff_roster/delete/<%= r.roster_id %>" class="btn btn-delete" onclick="return confirm('Remove shift assignment?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No staff shifts scheduled. Click "Assign Shift" to build your roster.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Assign Shift -->
+  <div id="addShiftModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3 style="font-size:18px;">Schedule Duty Shift</h3>
+        <span onclick="document.getElementById('addShiftModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/staff_roster/save" method="POST">
+        <div class="form-group">
+          <label>Staff Member Full Name</label>
+          <input type="text" name="staff_name" placeholder="e.g. Pooja Kulkarni" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Staff Role</label>
+            <select name="role" required>
+              <option value="Head Nurse">Head Nurse</option>
+              <option value="Staff Nurse">Staff Nurse</option>
+              <option value="Ward Boy">Ward Boy</option>
+              <option value="OT Technician">OT Technician</option>
+              <option value="Pharmacist Assistant">Pharmacist Assistant</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assigned Zone / Ward</label>
+            <select name="assigned_ward" required>
+              <option value="General Ward">General Ward</option>
+              <option value="ICU">ICU</option>
+              <option value="Emergency">Emergency</option>
+              <option value="Pediatric">Pediatric</option>
+              <option value="OT">Operation Theater (OT)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Shift Window</label>
+          <select name="shift_type" required>
+            <option value="Morning (08:00 - 16:00)">Morning (08:00 - 16:00)</option>
+            <option value="Evening (16:00 - 00:00)">Evening (16:00 - 00:00)</option>
+            <option value="Night (00:00 - 08:00)">Night (00:00 - 08:00)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Duty Date</label>
+            <input type="date" name="duty_date" required>
+          </div>
+          <div class="form-group">
+            <label>Mobile Contact</label>
+            <input type="tel" name="contact_number" placeholder="+91 98231 XXXXX" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 10px;">
+          Confirm Roster Shift
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

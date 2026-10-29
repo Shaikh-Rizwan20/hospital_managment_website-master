@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In / Register Form</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and Main Container */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgb(4, 94, 94);
+}
+
+.form-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 400px;
+    background-color: #fff;
+    border: 2px groove red;
+    border-radius: 8px;
+    box-shadow: 6px 10px 12px rgba(136, 14, 14, 0.856);
+    transition: all 0.3s ease;
+}
+
+/* Mobile responsiveness: stack forms vertically on small screens */
+@media (max-width: 600px) {
+    .form-container {
+        flex-direction: column;
+        width: 90%;
+        height: auto;
+    }
+
+    .form-box {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+}
+
+/* Form box styling */
+.form-box {
+    padding: 30px;
+    width: 100%;
+}
+
+/* Title styling */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #302d2d;
+}
+
+/* Input fields and label styles */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: #007bff;
+}
+
+/* Button styling */
+.btn-submit {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/* Toggle form link */
+.toggle-form {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.toggle-form a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.toggle-form a:hover {
+    text-decoration: underline;
+}
+
+    </style>
+</head>
+<body>
+<div class="form-container">
+        <div class="form-box">
+<h2>register into account or </h2>
+
+            <h2>Sign In</h2>
+            <form action="/admin/admin_l" method="POST">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+            <p class="toggle-form">
+                Don't have an account? <a href="javascript:void(0);" onclick="toggleForm()">Register</a>
+            </p>
+        </div>
+
+        <div class="form-box" id="register-form" style="display: none;">
+            <h2>Register</h2>
+            <form action="/admin/save_admin" method="POST">
+                <div class="input-group">
+                    <label for="new-email">Email</label>
+                    <input type="email" id="new-email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="new-password">Password</label>
+                    <input type="password" id="new-password" name="password" required>
+                </div>
+                <div class="input-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn-submit">Register</button>
+            </form>
+            <p class="toggle-form">
+                Already have an account? <a href="javascript:void(0);" onclick="toggleForm()">Sign In</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const signInForm = document.querySelector('.form-container .form-box:first-child');
+            const registerForm = document.getElementById('register-form');
+
+            signInForm.style.display = signInForm.style.display === 'none' ? 'block' : 'none';
+            registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
+<!-- CREATE TABLE a_login(login_id INT PRIMARY KRY AUTO_INCREMENT,email VARCHAR(100),password VARCHAR(100),confirm_password VARCHAR(100)) -->

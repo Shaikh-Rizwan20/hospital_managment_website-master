@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Department List | WellCure Admin</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #d946ef);
+      --accent-hover: linear-gradient(135deg, #4f46e5, #c026d3);
+      --cyan-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #f1f5f9;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Interactive Mouse Spotlight */
+    .mouse-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12), rgba(217, 70, 239, 0.04), transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    /* Layout */
+    .app-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: rgba(13, 17, 28, 0.85);
+      backdrop-filter: blur(16px);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1050;
+    }
+
+    .brand {
+      font-size: 1.45rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .profile-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 24px;
+    }
+
+    .profile-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid rgba(99, 102, 241, 0.5);
+    }
+
+    .nav-link-custom {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .nav-link-custom i {
+      font-size: 1.1rem;
+      width: 22px;
+      text-align: center;
+    }
+
+    .nav-link-custom:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .nav-link-custom.active {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Content Area */
+    .main-content {
+      flex: 1;
+      padding: 2.2rem;
+      overflow-y: auto;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Search & Inputs */
+    .custom-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: #f1f5f9;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+    }
+
+    .custom-input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #818cf8;
+      box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15);
+      color: #fff;
+    }
+
+    .custom-input::placeholder {
+      color: #64748b;
+    }
+
+    /* Action Buttons */
+    .btn-gradient-primary {
+      background: var(--accent-gradient);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 22px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+      text-decoration: none;
+    }
+
+    .btn-gradient-primary:hover {
+      background: var(--accent-hover);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 70, 239, 0.45);
+    }
+
+    .btn-gradient-danger {
+      background: linear-gradient(135deg, #ef4444, #f43f5e);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 16px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-gradient-danger:hover {
+      background: linear-gradient(135deg, #dc2626, #e11d48);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-gradient-info {
+      background: var(--cyan-gradient);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 16px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-gradient-info:hover {
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* Table Styling */
+    .table-custom {
+      margin-bottom: 0;
+      color: #cbd5e1;
+    }
+
+    .table-custom th {
+      background: rgba(255, 255, 255, 0.03);
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.75px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .table-custom td {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: transparent;
+      color: #e2e8f0;
+      font-size: 0.92rem;
+    }
+
+    .table-custom tbody tr {
+      transition: all 0.2s ease;
+    }
+
+    .table-custom tbody tr:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .dept-id-badge {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    /* Pagination */
+    .pagination {
+      gap: 6px;
+    }
+
+    .pagination .page-link {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: #cbd5e1;
+      border-radius: 10px !important;
+      padding: 9px 15px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    .pagination .page-link:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .pagination .page-item.active .page-link {
+      background: var(--accent-gradient);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Mobile Drawer */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        padding: 1.4rem;
+      }
+
+      .content-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 1040;
+        display: none;
+      }
+
+      .content-overlay.show {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Dynamic Cursor Spotlight -->
+<div class="mouse-glow" id="mouseGlow"></div>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar p-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <a href="/admin/dashboard" class="brand">
+        <i class="fa-solid fa-heart-pulse me-2"></i>WellCure
+      </a>
+      <button class="btn btn-sm text-secondary d-lg-none" onclick="toggleSidebar()">
+        <i class="fa-solid fa-xmark fs-5"></i>
+      </button>
+    </div>
+
+    <!-- Admin Profile Badge -->
+    <div class="profile-card d-flex align-items-center gap-3">
+      <img src="/admin_files/images/icon/avatar-01.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff'" class="profile-img" alt="Profile" />
+      <div class="overflow-hidden">
+        <h6 class="mb-0 text-white text-truncate fw-semibold">Admin Panel</h6>
+        <small class="text-secondary">admin@wellcure.com</small>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="d-flex flex-column flex-grow-1">
+      <a href="/admin/departments" class="nav-link-custom active">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Departments</span>
+      </a>
+      <a href="/admin/treatment" class="nav-link-custom">
+        <i class="fa-solid fa-syringe"></i>
+        <span>Treatments</span>
+      </a>
+      <a href="/admin/appointment" class="nav-link-custom">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Appointments</span>
+      </a>
+      <a href="/admin/doctors" class="nav-link-custom">
+        <i class="fa-solid fa-user-doctor"></i>
+        <span>Doctors</span>
+      </a>
+      <a href="/admin/avaibility" class="nav-link-custom">
+        <i class="fa-regular fa-clock"></i>
+        <span>Availability</span>
+      </a>
+
+      <hr style="border-color: var(--card-border);" class="my-3" />
+
+      <a href="/admin/login" class="nav-link-custom">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Login</span>
+      </a>
+      <a href="/admin/register" class="nav-link-custom">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Register</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Mobile Hamburger -->
+    <div class="d-lg-none mb-3">
+      <button class="btn btn-outline-light btn-sm px-3 py-2 rounded-3" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars me-2"></i>Menu
+      </button>
+    </div>
+
+    <!-- Header & Action Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <h2 class="fw-bold mb-1 text-white">Department Directory</h2>
+        <p class="text-secondary mb-0 small">Manage, organize, and monitor hospital departments.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="/admin/departments/download-pdf" class="btn btn-gradient-danger">
+          <i class="fa-solid fa-file-pdf"></i> Export PDF
+        </a>
+        <a href="/admin/create_deparments" class="btn btn-gradient-primary">
+          <i class="fa-solid fa-plus"></i> Add Department
+        </a>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="glass-card p-3 mb-4">
+      <div class="input-group">
+        <span class="input-group-text bg-transparent border-0 text-secondary ps-3">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control custom-input border-0"
+          placeholder="Filter by name or department head..."
+          onkeyup="filterDepartments()"
+        />
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="glass-card overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-custom align-middle">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 100px;">ID</th>
+              <th scope="col">Department Name</th>
+              <th scope="col">Department Head</th>
+              <th scope="col" class="text-end" style="width: 200px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="departmentTableBody">
+            <% for (var i = 0; i < details.length; i++) { %>
+            <tr>
+              <td><span class="dept-id-badge">#<%= details[i].department_id %></span></td>
+              <td class="fw-semibold text-white"><%= details[i].department_name %></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-regular fa-user text-secondary"></i>
+                  <span><%= details[i].department_head %></span>
+                </div>
+              </td>
+              <td class="text-end">
+                <a href="/admin/update_department/<%= details[i].department_id %>" class="btn-gradient-info me-1">
+                  <i class="fa-regular fa-pen-to-square"></i> Edit
+                </a>
+                <a href="/admin/delete_department/<%= details[i].department_id %>" 
+                   class="btn-gradient-danger" 
+                   onclick="return confirm('Are you sure you want to delete this department?')">
+                  <i class="fa-regular fa-trash-can"></i> Delete
+                </a>
+              </td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="p-3 border-top" style="border-color: var(--card-border) !important;">
+        <nav aria-label="Department pagination">
+          <ul class="pagination justify-content-center mb-0">
+            <% for (let i = 1; i <= pages; i++) { %>
+              <li class="page-item <%= (i === current) ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Overlay -->
+<div id="overlay" class="content-overlay" onclick="toggleSidebar()"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Mouse Follow Spotlight Effect
+  const glow = document.getElementById('mouseGlow');
+  window.addEventListener('mousemove', (e) => {
+    glow.style.left = `${e.clientX}px`;
+    glow.style.top = `${e.clientY}px`;
+  });
+
+  // Department Search Filter
+  function filterDepartments() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll("#departmentTableBody tr");
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("td");
+      // Search across ID, Name, and Head columns
+      const matches = Array.from(cells).slice(0, 3).some(td => 
+        td.textContent.toLowerCase().includes(filter)
+      );
+      row.style.display = matches ? "" : "none";
+    });
+  }
+
+  // Sidebar Toggle for Mobile
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('show');
+    overlay.classList.toggle('show');
+  }
+</script>
+
+</body>
+</html>

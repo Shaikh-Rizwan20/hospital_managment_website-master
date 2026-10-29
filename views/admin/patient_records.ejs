@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Medical Records | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .tag-blood { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .allergy-warn { color: var(--danger); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 500px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Patient Electronic Health Records (EHR)</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('newRecordModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> New Clinical Record
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Case Histories</h3>
+      <p><%= stats.total_records %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Unique Patients</h3>
+      <p style="color: var(--success);"><%= stats.unique_patients %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Allergy Alert Cases</h3>
+      <p style="color: var(--danger);"><%= stats.allergy_flag_count %></p>
+    </div>
+  </div>
+
+  <!-- Records Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient Profile</th>
+          <th>Age / Blood</th>
+          <th>Allergies & Conditions</th>
+          <th>Clinical Diagnosis</th>
+          <th>Rx / Prescriptions</th>
+          <th>Attending Doctor</th>
+          <th>Visit Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (records && records.length > 0) { %>
+          <% records.forEach(r => { %>
+            <tr>
+              <td>
+                <strong><%= r.patient_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= r.patient_phone %></div>
+              </td>
+              <td>
+                <%= r.age %>y / <%= r.gender %>
+                <div style="margin-top: 4px;"><span class="tag-blood"><%= r.blood_group %></span></div>
+              </td>
+              <td style="max-width: 180px;">
+                <% if (r.allergies && r.allergies.toLowerCase() !== 'none') { %>
+                  <div class="allergy-warn"><i class="fa-solid fa-triangle-exclamation"></i> <%= r.allergies %></div>
+                <% } else { %>
+                  <small style="color: var(--text-muted);">No allergies</small>
+                <% } %>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Chronic: <%= r.chronic_conditions %></div>
+              </td>
+              <td style="max-width: 200px;">
+                <strong><%= r.diagnosis %></strong>
+              </td>
+              <td style="max-width: 220px; font-size: 13px; color: #cbd5e1;">
+                <%= r.prescription || 'No medications prescribed' %>
+              </td>
+              <td><%= r.attending_doctor %></td>
+              <td><%= new Date(r.visit_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <a href="/admin/patient_records/delete/<%= r.record_id %>" class="btn btn-delete" onclick="return confirm('Delete this medical record?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No medical records registered. Click "New Clinical Record" to log a patient visit.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: New Clinical Record -->
+  <div id="newRecordModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3 style="font-size:18px;">Add Medical Record</h3>
+        <span onclick="document.getElementById('newRecordModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/patient_records/save" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Full Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="patient_phone" placeholder="+91 98765 00000" required>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="age" placeholder="e.g. 35" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Gender</label>
+            <select name="gender" required>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Blood Group</label>
+            <select name="blood_group" required>
+              <option value="O+">O+</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="O-">O-</option>
+              <option value="A-">A-</option>
+              <option value="B-">B-</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Known Allergies</label>
+            <input type="text" name="allergies" placeholder="e.g. Penicillin, Peanuts (or None)">
+          </div>
+          <div class="form-group">
+            <label>Chronic Conditions</label>
+            <input type="text" name="chronic_conditions" placeholder="e.g. Diabetes, Asthma">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Clinical Diagnosis</label>
+          <textarea name="diagnosis" rows="2" placeholder="Symptoms & assessment..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Prescription / Treatment Plan</label>
+          <textarea name="prescription" rows="2" placeholder="Drugs, dosages, and frequency..."></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Attending Doctor</label>
+            <select name="attending_doctor" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Visit Date</label>
+            <input type="date" name="visit_date" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 10px;">
+          Save Clinical Record
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

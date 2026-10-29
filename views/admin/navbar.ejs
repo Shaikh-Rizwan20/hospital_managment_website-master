@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>WellCure Admin | Modern Healthcare Dashboard</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Shared Layout Dimensions */
+      --admin-sidebar-width: 270px;
+      --admin-topbar-height: 75px;
+
+      /* Dark Theme & Glass Tokens */
+      --bg-dark: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --topbar-bg: rgba(13, 17, 28, 0.85);
+
+      /* Brilliant Gradient Accents */
+      --accent-gradient: linear-gradient(135deg, #6366f1, #d946ef);
+      --accent-hover: linear-gradient(135deg, #4f46e5, #c026d3);
+      --cyan-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+      --emerald-gradient: linear-gradient(135deg, #10b981, #059669);
+      --amber-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+      --danger-gradient: linear-gradient(135deg, #ef4444, #f43f5e);
+
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Interactive Mouse Follow Glow */
+    .mouse-spotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.14), rgba(217, 70, 239, 0.05), transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    /* Fixed Desktop Sidebar */
+    .app-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--admin-sidebar-width);
+      background: rgba(13, 17, 28, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 1050;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .brand-section {
+      height: var(--admin-topbar-height);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .brand-link {
+      font-size: 1.45rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-menu-wrapper {
+      flex: 1;
+      padding: 1.25rem 1rem;
+      overflow-y: auto;
+    }
+
+    .sidebar-menu-wrapper::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .sidebar-menu-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .nav-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #64748b;
+      margin: 1rem 0 0.5rem 0.75rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .sidebar-link i {
+      font-size: 1.05rem;
+      width: 22px;
+      text-align: center;
+      color: #818cf8;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .sidebar-link:hover i {
+      transform: scale(1.15);
+    }
+
+    .sidebar-link.active {
+      background: var(--accent-gradient);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+    }
+
+    .sidebar-link.active i {
+      color: #fff;
+    }
+
+    /* Fixed Topbar */
+    .app-topbar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: var(--admin-sidebar-width);
+      height: var(--admin-topbar-height);
+      background: var(--topbar-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      z-index: 1040;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      transition: left 0.35s ease;
+    }
+
+    .hospital-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 14px;
+      border-radius: 50px;
+      border: 1px solid var(--card-border);
+    }
+
+    .hospital-badge .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* Admin Dropdown */
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px 6px 8px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .user-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(129, 140, 248, 0.4);
+      color: #fff;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #818cf8;
+    }
+
+    .dropdown-menu-dark-custom {
+      background: rgba(15, 23, 42, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
+      padding: 8px !important;
+      min-width: 210px;
+    }
+
+    .dropdown-item-custom {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-item-custom:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    /* Main View Area Offset */
+    .app-main-viewport {
+      position: relative;
+      z-index: 1;
+      margin-left: var(--admin-sidebar-width);
+      padding-top: calc(var(--admin-topbar-height) + 1.8rem);
+      padding-left: 2rem;
+      padding-right: 2rem;
+      padding-bottom: 3rem;
+      min-height: 100vh;
+      transition: margin-left 0.35s ease;
+    }
+
+    /* Glass Cards & Metric Widgets */
+    .stat-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+      animation: cardEntrance 0.5s ease backwards;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    .stat-card.cyan::after { background: #06b6d4; }
+    .stat-card.magenta::after { background: #d946ef; }
+    .stat-card.emerald::after { background: #10b981; }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon.cyan-bg { background: var(--cyan-gradient); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35); }
+    .stat-icon.magenta-bg { background: var(--accent-gradient); box-shadow: 0 4px 15px rgba(217, 70, 239, 0.35); }
+    .stat-icon.emerald-bg { background: var(--emerald-gradient); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); }
+
+    .stat-number {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Mobile Drawer */
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1045;
+      display: none;
+    }
+
+    .mobile-overlay.active {
+      display: block;
+    }
+
+    @media (max-width: 991.98px) {
+      .app-sidebar {
+        transform: translateX(-100%);
+      }
+      .app-sidebar.show {
+        transform: translateX(0);
+      }
+      .app-topbar {
+        left: 0;
+        padding: 0 1.25rem;
+      }
+      .app-main-viewport {
+        margin-left: 0;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .hospital-badge {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Cursor Spotlight -->
+  <div class="mouse-spotlight" id="mouseSpotlight"></div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="app-sidebar" id="appSidebar">
+    <div class="brand-section">
+      <a href="/admin" class="brand-link">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>WellCure</span>
+      </a>
+      <button class="btn btn-sm text-secondary d-lg-none ms-auto" onclick="toggleSidebar()">
+        <i class="fa-solid fa-xmark fs-5"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-menu-wrapper">
+      <div class="nav-label">Main Dashboard</div>
+      <a href="/admin" class="sidebar-link active">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/About_hospital" class="sidebar-link">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>About Hospital</span>
+      </a>
+
+      <div class="nav-label">Management</div>
+      <a href="/admin/departments" class="sidebar-link">
+        <i class="fa-solid fa-building-columns"></i>
+        <span>Departments</span>
+      </a>
+      <a href="/admin/billing" class="sidebar-link">
+  <i class="fa-solid fa-file-invoice-dollar"></i>
+  <span>Billing & Invoices</span>
+</a>
+      <a href="/admin/treatment" class="sidebar-link">
+        <i class="fa-solid fa-syringe"></i>
+        <span>Add Treatment</span>
+      </a>
+      <a href="/admin/appointment" class="sidebar-link">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Appointments</span>
+      </a>
+      <a href="/admin/doctors" class="sidebar-link">
+        <i class="fa-solid fa-user-doctor"></i>
+        <span>Doctors</span>
+      </a>
+      <a href="/admin/avaibility" class="sidebar-link">
+        <i class="fa-regular fa-clock"></i>
+        <span>Availability</span>
+      </a>
+
+      <div class="nav-label">Authentication</div>
+      <a href="/admin/login" class="sidebar-link">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Login</span>
+      </a>
+      <a href="/admin/register" class="sidebar-link">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Register</span>
+      </a>
+      <a href="forget-pass.html" class="sidebar-link">
+        <i class="fa-solid fa-key"></i>
+        <span>Reset Password</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Topbar -->
+  <header class="app-topbar">
+    <div class="d-flex align-items-center gap-3">
+      <!-- Mobile Hamburger Button -->
+      <button class="btn btn-outline-light btn-sm d-lg-none py-2 px-3 rounded-3" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <!-- Hospital Status Indicator -->
+      <div class="hospital-badge">
+        <span class="pulse-dot"></span>
+        <span>WellCure General Medical Center</span>
+      </div>
+    </div>
+
+    <!-- Admin Account Dropdown -->
+    <div class="dropdown">
+      <a href="#" class="user-pill dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="/admin_files/images/icon/avatar-01.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff'" alt="Avatar" class="user-avatar">
+        <span class="fw-semibold small d-none d-sm-inline">Dr. Rizwan</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom mt-2">
+        <li>
+          <div class="px-3 py-2 border-bottom border-secondary border-opacity-25 mb-1">
+            <h6 class="mb-0 text-white small fw-bold">Dr. Rizwan</h6>
+            <small class="text-secondary" style="font-size: 0.78rem;">admin@wellcure.com</small>
+          </div>
+        </li>
+        <li><a class="dropdown-item-custom" href="#"><i class="fa-regular fa-user text-info"></i> Account Profile</a></li>
+        <li><a class="dropdown-item-custom" href="#"><i class="fa-solid fa-sliders text-warning"></i> Settings</a></li>
+        <li><a class="dropdown-item-custom" href="#"><i class="fa-solid fa-credit-card text-success"></i> Billing Info</a></li>
+        <li><hr class="dropdown-divider border-secondary border-opacity-25 my-1"></li>
+        <li><a class="dropdown-item-custom text-danger" href="/admin/logout"><i class="fa-solid fa-power-off"></i> Sign Out</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content Viewport (Child views render directly below or inside here) -->
+  <main class="app-main-viewport">
+    
+    <!-- Default Dashboard Widgets (active when accessing /admin directly) -->
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="stat-card cyan">
+          <div class="stat-icon cyan-bg">
+            <i class="fa-solid fa-bed-pulse"></i>
+          </div>
+          <div class="stat-number">1,248</div>
+          <div class="stat-label">Total Registered Patients</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card magenta" style="animation-delay: 0.1s;">
+          <div class="stat-icon magenta-bg">
+            <i class="fa-solid fa-user-doctor"></i>
+          </div>
+          <div class="stat-number">84</div>
+          <div class="stat-label">Active Doctors & Specialists</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="stat-card emerald" style="animation-delay: 0.2s;">
+          <div class="stat-icon emerald-bg">
+            <i class="fa-solid fa-hospital"></i>
+          </div>
+          <div class="stat-number">16</div>
+          <div class="stat-label">Hospital Departments</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Smooth Mouse Spotlight Tracking
+    const spotlight = document.getElementById('mouseSpotlight');
+    window.addEventListener('mousemove', (e) => {
+      spotlight.style.left = `${e.clientX}px`;
+      spotlight.style.top = `${e.clientY}px`;
+    });
+
+    // Mobile Sidebar Drawer Toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>

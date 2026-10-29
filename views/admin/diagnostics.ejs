@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostics & Lab Reports | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --pending: #f59e0b;
+      --progress: #3b82f6;
+      --completed: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+    
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
+    .badge-Pending { background: rgba(245, 158, 11, 0.15); color: var(--pending); }
+    .badge-In-Progress { background: rgba(59, 130, 246, 0.15); color: var(--progress); }
+    .badge-Completed { background: rgba(16, 185, 129, 0.15); color: var(--completed); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 440px; padding: 28px; color: #fff; }
+    .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 14px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Laboratory & Diagnostic Reports</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('newTestModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Order New Test
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Tests Ordered</h3>
+      <p><%= stats.total_tests %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Tests</h3>
+      <p style="color: var(--pending);"><%= stats.pending_tests %></p>
+    </div>
+    <div class="stat-card">
+      <h3>In Progress</h3>
+      <p style="color: var(--progress);"><%= stats.in_progress_tests %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Completed Reports</h3>
+      <p style="color: var(--completed);"><%= stats.completed_tests %></p>
+    </div>
+  </div>
+
+  <!-- Records Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Test Details</th>
+          <th>Fee</th>
+          <th>Status</th>
+          <th>Findings</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (reports && reports.length > 0) { %>
+          <% reports.forEach(r => { %>
+            <tr>
+              <td><strong><%= r.report_code %></strong></td>
+              <td><%= r.patient_name %></td>
+              <td><%= r.doctor_name %></td>
+              <td>
+                <div><strong><%= r.test_name %></strong></div>
+                <small style="color: var(--text-muted);"><%= r.test_type %></small>
+              </td>
+              <td>$<%= parseFloat(r.test_charge).toFixed(2) %></td>
+              <td>
+                <span class="badge badge-<%= r.status.replace(' ', '-') %>"><%= r.status %></span>
+              </td>
+              <td style="max-width: 200px; color: var(--text-muted); font-size: 13px;">
+                <%= r.result_summary || 'Awaiting lab findings...' %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-edit" onclick="openResultModal('<%= r.report_id %>', '<%= r.report_code %>', `<%= r.result_summary || '' %>`, '<%= r.status %>')">
+                    <i class="fa-solid fa-file-pen"></i> Findings
+                  </button>
+                  <a href="/admin/diagnostics/delete/<%= r.report_id %>" class="btn btn-delete" onclick="return confirm('Delete this diagnostic report?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No diagnostic tests recorded. Click "Order New Test" to register one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Order New Test -->
+  <div id="newTestModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3 style="font-size:18px;">Order Diagnostic Test</h3>
+        <span onclick="document.getElementById('newTestModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/diagnostics/create" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Prescribing Doctor</label>
+          <select name="doctor_name" required>
+            <% doctors.forEach(d => { %>
+              <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+            <% }) %>
+            <option value="Dr. Rizwan">Dr. Rizwan</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Test Category</label>
+          <select name="test_type" required>
+            <option value="Pathology">Pathology (Blood, Urine, Biopsy)</option>
+            <option value="Radiology">Radiology (X-Ray, CT, MRI)</option>
+            <option value="Cardiology">Cardiology (ECG, ECHO)</option>
+            <option value="General">General Screening</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Test Name</label>
+          <input type="text" name="test_name" placeholder="e.g. Complete Blood Count (CBC)" required>
+        </div>
+
+        <div class="form-group">
+          <label>Standard Fee ($)</label>
+          <input type="number" step="0.01" name="test_charge" placeholder="600.00" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 10px;">
+          Submit Test Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update Findings / Status -->
+  <div id="resultModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3 style="font-size:18px;" id="resultModalTitle">Update Findings</h3>
+        <span onclick="document.getElementById('resultModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/diagnostics/update-result" method="POST">
+        <input type="hidden" name="report_id" id="modalReportId">
+
+        <div class="form-group">
+          <label>Report Status</label>
+          <select name="status" id="modalStatus" required>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Clinical Findings / Result Summary</label>
+          <textarea name="result_summary" id="modalSummary" rows="4" placeholder="Enter test observation, values, and summary..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 10px;">
+          Save Diagnostic Findings
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openResultModal(id, code, summary, status) {
+      document.getElementById('modalReportId').value = id;
+      document.getElementById('resultModalTitle').innerText = 'Findings for ' + code;
+      document.getElementById('modalSummary').value = summary;
+      document.getElementById('modalStatus').value = status;
+      document.getElementById('resultModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

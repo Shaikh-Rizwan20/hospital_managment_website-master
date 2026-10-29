@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Utilities & Energy Reserves | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Plant Card Grid */
+    .utility-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .plant-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 22px; backdrop-filter: blur(12px); position: relative; }
+    .plant-card.alert { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); }
+
+    .badge-status { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; }
+    .stat-optimal { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .stat-moderate { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .stat-critical { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    /* Progress Fill Bar */
+    .progress-bar-bg { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; margin: 14px 0 8px 0; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 8px; transition: width 0.4s ease; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-action { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid var(--border); padding: 6px 10px; font-size: 12px; border-radius: 6px; cursor: pointer; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Hospital Utilities & Emergency Energy Reserves</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('utilityModal').style.display='flex'">
+      <i class="fa-solid fa-plus"></i> Add Utility Plant
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Active Utility Monitors</h3>
+      <p><%= stats.total_monitors %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Critical Utility Alarms</h3>
+      <p style="color: <%= stats.critical_alerts > 0 ? 'var(--danger)' : 'var(--success)' %>;">
+        <i class="fa-solid fa-triangle-exclamation"></i> <%= stats.critical_alerts %> Low Reserves
+      </p>
+    </div>
+    <div class="stat-card">
+      <h3>Optimal Reserves</h3>
+      <p style="color: var(--success);"><%= stats.optimal_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Liquid Oxygen Reserve</h3>
+      <p style="color: var(--info);"><%= Number(stats.lmo_current).toLocaleString() %> <span style="font-size: 14px;">L</span></p>
+    </div>
+  </div>
+
+  <!-- Utility Monitoring Cards -->
+  <div class="utility-grid">
+    <% utilities.forEach(u => { 
+        const pct = Math.min(100, Math.round((u.current_level / u.total_capacity) * 100));
+        let fillColor = 'var(--success)';
+        if (pct <= 25 || u.status === 'Critical Shortage') fillColor = 'var(--danger)';
+        else if (pct <= 45 || u.status === 'Moderate Reserve') fillColor = 'var(--warning)';
+    %>
+      <div class="plant-card <%= u.status === 'Critical Shortage' ? 'alert' : '' %>">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <div>
+            <strong style="font-size: 16px;"><%= u.utility_name %></strong>
+            <div style="font-size: 12px; color: var(--text-muted);"><%= u.location_plant %></div>
+          </div>
+          <span class="badge-status <%= u.status === 'Optimal Level' ? 'stat-optimal' : (u.status === 'Critical Shortage' ? 'stat-critical' : 'stat-moderate') %>">
+            <%= u.status %>
+          </span>
+        </div>
+
+        <div style="font-size: 12px; color: var(--info); font-weight: 600; margin-top: 4px;"><%= u.utility_type %></div>
+
+        <div class="progress-bar-bg">
+          <div class="progress-fill" style="width: <%= pct %>%; background: <%= fillColor %>;"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+          <div style="font-size: 22px; font-weight: 800; color: #fff;">
+            <%= Number(u.current_level).toLocaleString() %> <span style="font-size: 13px; color: var(--text-muted);"><%= u.unit_of_measure %></span>
+          </div>
+          <small style="color: var(--text-muted);"><%= pct %>% of <%= Number(u.total_capacity).toLocaleString() %> <%= u.unit_of_measure %></small>
+        </div>
+
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+          Alert Level: &le; <%= Number(u.min_alert_threshold).toLocaleString() %> <%= u.unit_of_measure %> | Refilled: <%= new Date(u.last_refilled_date).toISOString().slice(0, 10) %>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
+          <form action="/admin/utilities/update-level" method="POST" style="display: flex; gap: 6px; flex: 1;">
+            <input type="hidden" name="utility_id" value="<%= u.utility_id %>">
+            <input type="number" step="0.1" name="current_level" value="<%= u.current_level %>" class="btn-action" style="width: 110px;">
+            <button type="submit" class="btn-action" style="background: #6366f1; color: #fff;">Log Meter</button>
+          </form>
+          <a href="/admin/utilities/delete/<%= u.utility_id %>" class="btn btn-delete" onclick="return confirm('Deregister this utility plant?')">
+            <i class="fa-solid fa-trash"></i>
+          </a>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Modal: Add Utility Plant -->
+  <div id="utilityModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Utility Storage Plant</h3>
+        <span onclick="document.getElementById('utilityModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/utilities/save" method="POST">
+        <div class="form-group">
+          <label>Utility Name / Identification</label>
+          <input type="text" name="utility_name" placeholder="e.g. Primary Cryogenic LMO Tank" required>
+        </div>
+
+        <div class="form-group">
+          <label>Utility Plant Type</label>
+          <select name="utility_type" required>
+            <option value="Liquid Oxygen Tank (LMO)">Liquid Oxygen Tank (LMO)</option>
+            <option value="Diesel Generator (DG Fuel)">Diesel Generator (DG Fuel Reserve)</option>
+            <option value="RO / Sterile Water Supply">RO / Sterile Water Supply</option>
+            <option value="Medical Vacuum Central Unit">Medical Vacuum Central Unit</option>
+            <option value="UPS Battery Bank Backup">UPS Battery Bank Backup</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Plant Location</label>
+          <input type="text" name="location_plant" placeholder="e.g. Substation Ground / Terrace Tank Bay" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Current Volume / Level</label>
+            <input type="number" step="0.1" name="current_level" placeholder="e.g. 8500" required>
+          </div>
+          <div class="form-group">
+            <label>Total Tank Capacity</label>
+            <input type="number" step="0.1" name="total_capacity" placeholder="e.g. 10000" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Unit of Measure</label>
+            <input type="text" name="unit_of_measure" value="Liters" required>
+          </div>
+          <div class="form-group">
+            <label>Minimum Alert Level</label>
+            <input type="number" step="0.1" name="min_alert_threshold" placeholder="e.g. 2000" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Last Refill Date</label>
+          <input type="date" name="last_refilled_date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Register Utility Plant
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

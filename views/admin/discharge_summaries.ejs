@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinical Discharge Summary & Home Care | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Draft---In-Review { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-Approved-by-Consultant { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-Handed-to-Patient---Bed-Cleared { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-print { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 620px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Clinical Discharge Summaries & Bed Clearance</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('dscModal').style.display='flex'">
+      <i class="fa-solid fa-file-waveform"></i> Generate Discharge Summary
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Discharges Logged</h3>
+      <p><%= stats.total_discharges %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Approved & Ready for Handoff</h3>
+      <p style="color: var(--info);"><%= stats.approved_pending_handoff %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Beds Cleared & Discharged</h3>
+      <p style="color: var(--success);"><%= stats.cleared_discharges %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Against Medical Advice (LAMA)</h3>
+      <p style="color: var(--danger);"><%= stats.lama_cases %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Summary # & Patient</th>
+          <th>Bed / Ward</th>
+          <th>Primary Diagnosis & Surgeries</th>
+          <th>Stay Period</th>
+          <th>Discharge Meds & Follow-Up</th>
+          <th>Summary Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (summaries && summaries.length > 0) { %>
+          <% summaries.forEach(s => { %>
+            <tr>
+              <td>
+                <strong style="font-size: 15px;"><%= s.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= s.discharge_code %></div>
+                <small style="color: var(--text-muted);">Consultant: <%= s.attending_doctor %></small>
+              </td>
+              <td>
+                <span style="font-weight: bold; color: var(--info);"><i class="fa-solid fa-bed"></i> <%= s.bed_room_no %></span>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><%= s.discharge_type %></div>
+              </td>
+              <td>
+                <div style="font-weight: 600;"><%= s.primary_diagnosis %></div>
+                <% if (s.surgical_procedures_done && s.surgical_procedures_done !== 'None') { %>
+                  <small style="color: var(--warning);"><i class="fa-solid fa-scissors"></i> <%= s.surgical_procedures_done %></small>
+                <% } %>
+              </td>
+              <td>
+                <div style="font-size: 12px;">Adm: <%= new Date(s.admission_date).toISOString().slice(0, 10) %></div>
+                <div style="font-size: 12px;">Dis: <%= new Date(s.discharge_date).toISOString().slice(0, 10) %></div>
+              </td>
+              <td style="max-width: 240px; font-size: 12px; color: #cbd5e1;">
+                <div style="white-space: pre-line; margin-bottom: 6px;"><%= s.discharge_medications %></div>
+                <div style="color: var(--info); font-weight: bold;">Follow-Up: <%= new Date(s.follow_up_datetime).toLocaleDateString() %></div>
+              </td>
+              <td>
+                <span class="badge-status status-<%= s.status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= s.status %>
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openStatusModal('<%= s.summary_id %>', '<%= s.discharge_code %>', '<%= s.status %>', '<%= s.bed_room_no %>')">
+                    <i class="fa-solid fa-signature"></i> Sign/Clear
+                  </button>
+                  <a href="/admin/discharge_summaries/delete/<%= s.summary_id %>" class="btn btn-delete" onclick="return confirm('Delete this discharge summary?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No clinical discharge summaries prepared. Click "Generate Discharge Summary" to create one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Generate Summary -->
+  <div id="dscModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Prepare Inpatient Discharge Summary</h3>
+        <span onclick="document.getElementById('dscModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/discharge_summaries/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Full Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Name" required>
+          </div>
+          <div class="form-group">
+            <label>Assigned Bed Number</label>
+            <input type="text" name="bed_room_no" placeholder="e.g. ICU-101 / GEN-201" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Admission Date</label>
+            <input type="date" name="admission_date" required>
+          </div>
+          <div class="form-group">
+            <label>Discharge Date</label>
+            <input type="date" name="discharge_date" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Attending Consultant Doctor</label>
+            <select name="attending_doctor" required>
+              <% if (typeof doctors !== 'undefined' && doctors.length) { %>
+                <% doctors.forEach(doc => { %>
+                  <option value="Dr. <%= doc.first_name %> <%= doc.last_name %>">Dr. <%= doc.first_name %> <%= doc.last_name %></option>
+                <% }) %>
+              <% } %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Discharge Type</label>
+            <select name="discharge_type" required>
+              <option value="Regular / Stable">Regular / Stable</option>
+              <option value="Against Medical Advice (AMA / LAMA)">Against Medical Advice (AMA / LAMA)</option>
+              <option value="Transfer to Higher Center">Transfer to Higher Center</option>
+              <option value="Deceased">Deceased</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Primary Diagnosis</label>
+          <input type="text" name="primary_diagnosis" placeholder="e.g. Acute Perforated Appendicitis" required>
+        </div>
+
+        <div class="form-group">
+          <label>Surgical / Interventional Procedures Performed</label>
+          <input type="text" name="surgical_procedures_done" placeholder="e.g. Emergency Laparoscopic Appendectomy (or None)">
+        </div>
+
+        <div class="form-group">
+          <label>Hospital Course Summary</label>
+          <textarea name="hospital_course_summary" rows="3" placeholder="Clinical presentation, treatment given, fever curve, improvement..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Take-Home Medications & Regimen</label>
+          <textarea name="discharge_medications" rows="3" placeholder="1. Tab. Amoxicillin-Clav 625mg BD x 5d&#10;2. Tab. Pantoprazole 40mg OD x 7d" required></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Dietary & Activity Directives</label>
+            <textarea name="diet_and_activity_advice" rows="2" placeholder="Low salt diet, no heavy lifting for 3 weeks..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Red-Flag Warning Signs (Return to ER)</label>
+            <textarea name="urgent_warning_signs" rows="2" placeholder="High fever, persistent vomiting, wound discharge..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Scheduled Follow-Up Consultation</label>
+          <input type="datetime-local" name="follow_up_datetime" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Save & Queue for Consultant Sign-off
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update Status / Sign & Clear Bed -->
+  <div id="statusModal" class="modal-overlay">
+    <div class="modal-box" style="width: 480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalDscTitle">Authorize Discharge & Bed Clearance</h3>
+        <span onclick="document.getElementById('statusModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/discharge_summaries/update-status" method="POST">
+        <input type="hidden" name="summary_id" id="modalSummaryId">
+        <input type="hidden" name="bed_room_no" id="modalBedNo">
+
+        <div class="form-group">
+          <label>Discharge Stage Status</label>
+          <select name="status" id="modalStatusSelect" required>
+            <option value="Draft / In Review">Draft / In Review</option>
+            <option value="Approved by Consultant">Approved by Consultant</option>
+            <option value="Handed to Patient / Bed Cleared">Handed to Patient / Bed Cleared (Frees Bed)</option>
+          </select>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          Selecting <strong>"Handed to Patient / Bed Cleared"</strong> will automatically release the inpatient bed back to the hospital vacancy pool.
+        </p>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+          Confirm Status Update
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openStatusModal(id, code, status, bedNo) {
+      document.getElementById('modalSummaryId').value = id;
+      document.getElementById('modalBedNo').value = bedNo;
+      document.getElementById('modalDscTitle').innerText = 'Authorize: ' + code;
+      document.getElementById('modalStatusSelect').value = status;
+      document.getElementById('statusModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

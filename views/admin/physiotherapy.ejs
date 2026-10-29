@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physiotherapy & Physical Rehabilitation | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --info: #38bdf8;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --teal: #14b8a6;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Session-Completed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-In-Progress { background: rgba(56, 189, 248, 0.15); color: var(--info); animation: pulse 1.5s infinite; }
+    .status-Scheduled { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+    .status-Missed---Rescheduled { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .badge-power { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; background: rgba(20, 184, 166, 0.15); color: var(--teal); border: 1px solid rgba(20, 184, 166, 0.3); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Physiotherapy & Physical Rehabilitation</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('ptModal').style.display='flex'">
+      <i class="fa-solid fa-person-walking"></i> Prescribe Therapy Session
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Active Rehab Patients</h3>
+      <p><%= stats.total_enrolled %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Completed Today</h3>
+      <p style="color: var(--success);"><%= stats.completed_today %></p>
+    </div>
+    <div class="stat-card">
+      <h3>In-Session Active Now</h3>
+      <p style="color: var(--info);"><%= stats.active_now %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Bedside Inpatients</h3>
+      <p style="color: var(--teal);"><%= stats.bedside_inpatient_count %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Program Code & Patient</th>
+          <th>Location / Bed</th>
+          <th>Rehab Category & Modality</th>
+          <th>Session Progress</th>
+          <th>Muscle Power Grade</th>
+          <th>Session Status</th>
+          <th>Clinical Notes</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (sessions && sessions.length > 0) { %>
+          <% sessions.forEach(s => { %>
+            <tr>
+              <td>
+                <strong><%= s.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= s.program_code %></div>
+                <small style="color: var(--text-muted);"><%= s.patient_contact %></small>
+              </td>
+              <td>
+                <div><%= s.patient_type %></div>
+                <small style="color: var(--info); font-weight: bold;"><%= s.bed_room_no %></small>
+              </td>
+              <td>
+                <div style="font-weight: 600;"><%= s.rehab_category %></div>
+                <small style="color: var(--text-muted);"><%= s.prescribed_modality %></small>
+              </td>
+              <td>
+                <div style="font-weight: bold; font-size: 13px;">
+                  Session <%= s.session_number %> of <%= s.total_prescribed_sessions %>
+                </div>
+                <div style="width: 100px; height: 5px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 4px; overflow: hidden;">
+                  <div style="width: <%= Math.min(100, (s.session_number / s.total_prescribed_sessions) * 100) %>%; height: 100%; background: var(--teal);"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge-power"><%= s.muscle_power_grade.split(' ')[0] + ' ' + s.muscle_power_grade.split(' ')[1] %></span>
+              </td>
+              <td>
+                <span class="badge-status status-<%= s.session_status.replace(/\s+/g, '-') %>"><%= s.session_status %></span>
+              </td>
+              <td style="max-width: 200px; font-size: 12px; color: #cbd5e1;">
+                <%= s.therapist_progress_notes || 'No milestones recorded yet.' %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openProgressModal('<%= s.session_id %>', '<%= s.program_code %>', '<%= s.session_status %>', '<%= s.muscle_power_grade %>', `<%= s.therapist_progress_notes || '' %>`)">
+                    <i class="fa-solid fa-pen-to-square"></i> Progress
+                  </button>
+                  <a href="/admin/physiotherapy/delete/<%= s.session_id %>" class="btn btn-delete" onclick="return confirm('Remove therapy record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No physiotherapy sessions enrolled. Click "Prescribe Therapy Session" to register a patient.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Prescribe Session -->
+  <div id="ptModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Prescribe Physical Rehabilitation</h3>
+        <span onclick="document.getElementById('ptModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/physiotherapy/save" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Phone</label>
+            <input type="tel" name="patient_contact" placeholder="+91 98226 XXXXX" required>
+          </div>
+          <div class="form-group">
+            <label>Care Type</label>
+            <select name="patient_type" required>
+              <option value="Inpatient (Bedside)">Inpatient (Bedside)</option>
+              <option value="Outpatient (Rehab Clinic)">Outpatient (Rehab Clinic)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bed / Ward Location / Rehab Bay</label>
+          <input type="text" name="bed_room_no" placeholder="e.g. ICU-101 / Rehab Bay 1" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Rehabilitation Domain</label>
+            <select name="rehab_category" required>
+              <option value="Post-Op Orthopedic">Post-Op Orthopedic</option>
+              <option value="Neurological Rehab (Stroke/Spine)">Neurological Rehab (Stroke/Spine)</option>
+              <option value="Cardiopulmonary Conditioning">Cardiopulmonary Conditioning</option>
+              <option value="Sports Injury & Muscle Rehab">Sports Injury & Muscle Rehab</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Prescribed Modality</label>
+            <select name="prescribed_modality" required>
+              <option value="Passive/Active ROM Exercises">Passive/Active ROM Exercises</option>
+              <option value="Gait Training & Parallel Bars">Gait Training & Parallel Bars</option>
+              <option value="TENS & Electrical Stimulation">TENS & Electrical Stimulation</option>
+              <option value="Therapeutic Ultrasound">Therapeutic Ultrasound</option>
+              <option value="Hydrotherapy & Balance">Hydrotherapy & Balance</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Current Session #</label>
+            <input type="number" name="session_number" value="1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Total Prescribed Sessions</label>
+            <input type="number" name="total_prescribed_sessions" value="10" min="1" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Baseline Muscle Power Grade (MRC Scale)</label>
+          <select name="muscle_power_grade" required>
+            <option value="Grade 0 (No Movement)">Grade 0 (No Movement / Paralysis)</option>
+            <option value="Grade 1 (Flicker/Trace)">Grade 1 (Trace Flicker of Contraction)</option>
+            <option value="Grade 2 (Movement without Gravity)">Grade 2 (Movement with Gravity Eliminated)</option>
+            <option value="Grade 3 (Movement against Gravity)" selected>Grade 3 (Active Movement Against Gravity)</option>
+            <option value="Grade 4 (Movement against Moderate Resistance)">Grade 4 (Active Movement Against Moderate Resistance)</option>
+            <option value="Grade 5 (Normal Power)">Grade 5 (Normal Functional Muscle Power)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Lead Physiotherapist</label>
+            <input type="text" name="lead_physiotherapist" value="Dr. Ananya Joshi (PT)" required>
+          </div>
+          <div class="form-group">
+            <label>Session Date</label>
+            <input type="date" name="session_date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Therapist Assessment Notes</label>
+          <textarea name="therapist_progress_notes" rows="2" placeholder="Range of motion angles, pain scale, ambulatory tolerance..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Enroll In Rehab Program
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update Session Milestones -->
+  <div id="progressModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalProgressTitle">Update Therapy Milestone</h3>
+        <span onclick="document.getElementById('progressModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/physiotherapy/update-status" method="POST">
+        <input type="hidden" name="session_id" id="modalSessionId">
+
+        <div class="form-group">
+          <label>Session Execution Status</label>
+          <select name="session_status" id="modalStatus" required>
+            <option value="Scheduled">Scheduled</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Session Completed">Session Completed</option>
+            <option value="Missed / Rescheduled">Missed / Rescheduled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Updated Muscle Power Grade</label>
+          <select name="muscle_power_grade" id="modalGrade" required>
+            <option value="Grade 0 (No Movement)">Grade 0 (No Movement)</option>
+            <option value="Grade 1 (Flicker/Trace)">Grade 1 (Flicker/Trace)</option>
+            <option value="Grade 2 (Movement without Gravity)">Grade 2 (Movement without Gravity)</option>
+            <option value="Grade 3 (Movement against Gravity)">Grade 3 (Movement against Gravity)</option>
+            <option value="Grade 4 (Movement against Moderate Resistance)">Grade 4 (Movement against Moderate Resistance)</option>
+            <option value="Grade 5 (Normal Power)">Grade 5 (Normal Functional Power)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Therapist Progress Milestones / Angle Notes</label>
+          <textarea name="therapist_progress_notes" id="modalNotes" rows="3" placeholder="Flexion degrees, independent walking steps, pain reduction..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Save Milestone Progress
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openProgressModal(id, code, status, grade, notes) {
+      document.getElementById('modalSessionId').value = id;
+      document.getElementById('modalProgressTitle').innerText = 'Progress: ' + code;
+      document.getElementById('modalStatus').value = status;
+      document.getElementById('modalGrade').value = grade;
+      document.getElementById('modalNotes').value = notes;
+      document.getElementById('progressModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

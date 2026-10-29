@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maternity, LDR & Neonatal Registry | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --pink: #ec4899;
+      --blue: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-gender { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+    .gen-Female { background: rgba(236, 72, 153, 0.15); color: var(--pink); border: 1px solid rgba(236, 72, 153, 0.3); }
+    .gen-Male { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .badge-nursery { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .nur-room { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .nur-nicu { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .nur-photo { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .nur-disch { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 500px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Maternity, Labor & Delivery (LDR) Registry</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('birthModal').style.display='flex'">
+      <i class="fa-solid fa-baby"></i> Register Delivery & Birth
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Births Registered</h3>
+      <p><%= stats.total_births %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Normal Deliveries</h3>
+      <p style="color: var(--success);"><%= stats.normal_deliveries %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Cesarean (C-Section)</h3>
+      <p style="color: var(--blue);"><%= stats.c_sections %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active in NICU / Incubator</h3>
+      <p style="color: var(--danger);"><%= stats.active_nicu_cases %></p>
+    </div>
+  </div>
+
+  <!-- Registry Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Birth Code & Parents</th>
+          <th>Baby Gender & Weight</th>
+          <th>Delivery Mode & Team</th>
+          <th>Date & Time</th>
+          <th>APGAR (1m / 5m)</th>
+          <th>Nursery Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (records && records.length > 0) { %>
+          <% records.forEach(r => { %>
+            <tr>
+              <td>
+                <strong>Mother: <%= r.mother_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);">Father: <%= r.father_name %></div>
+                <div style="font-size: 11px; color: #818cf8; font-family: monospace;"><%= r.birth_certificate_code %></div>
+              </td>
+              <td>
+                <span class="badge-gender gen-<%= r.baby_gender.startsWith('Female') ? 'Female' : 'Male' %>">
+                  <i class="fa-solid <%= r.baby_gender.startsWith('Female') ? 'fa-venus' : 'fa-mars' %>"></i> <%= r.baby_gender %>
+                </span>
+                <div style="font-size: 12px; margin-top: 4px; font-weight: bold;"><%= parseFloat(r.birth_weight_kg).toFixed(2) %> kg</div>
+              </td>
+              <td>
+                <div><%= r.delivery_type %></div>
+                <small style="color: var(--text-muted);">Obs: <%= r.lead_obstetrician %></small>
+                <div style="font-size: 11px; color: var(--text-muted);">Peds: <%= r.attending_pediatrician %></div>
+              </td>
+              <td>
+                <div><%= new Date(r.delivery_datetime).toLocaleDateString() %></div>
+                <small style="color: var(--text-muted);"><%= new Date(r.delivery_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
+              </td>
+              <td>
+                <span style="font-weight: 800; color: <%= r.apgar_score_5min >= 8 ? 'var(--success)' : 'var(--warning)' %>;">
+                  <%= r.apgar_score_1min %> / <%= r.apgar_score_5min %>
+                </span>
+              </td>
+              <td>
+                <form action="/admin/maternity/update-status" method="POST">
+                  <input type="hidden" name="record_id" value="<%= r.record_id %>">
+                  <select name="nursery_status" onchange="this.form.submit()" class="status-select">
+                    <option value="Rooming-In with Mother" <%= r.nursery_status === 'Rooming-In with Mother' ? 'selected' : '' %>>Rooming-In with Mother</option>
+                    <option value="NICU Incubator" <%= r.nursery_status === 'NICU Incubator' ? 'selected' : '' %>>NICU Incubator</option>
+                    <option value="Phototherapy Unit" <%= r.nursery_status === 'Phototherapy Unit' ? 'selected' : '' %>>Phototherapy Unit</option>
+                    <option value="Discharged" <%= r.nursery_status === 'Discharged' ? 'selected' : '' %>>Discharged</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/maternity/delete/<%= r.record_id %>" class="btn btn-delete" onclick="return confirm('Delete this birth record?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No delivery records found. Click "Register Delivery & Birth" to record one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Register Delivery -->
+  <div id="birthModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Delivery & Newborn Birth</h3>
+        <span onclick="document.getElementById('birthModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/maternity/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Mother's Full Name</label>
+            <input type="text" name="mother_name" placeholder="Mother's Name" required>
+          </div>
+          <div class="form-group">
+            <label>Father's Full Name</label>
+            <input type="text" name="father_name" placeholder="Father's Name" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Emergency Contact Phone</label>
+          <input type="tel" name="contact_number" placeholder="+91 98224 XXXXX" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Delivery Mode</label>
+            <select name="delivery_type" required>
+              <option value="Normal Vaginal Delivery">Normal Vaginal Delivery</option>
+              <option value="Cesarean Section (C-Section)">Cesarean Section (C-Section)</option>
+              <option value="Assisted Vacuum / Forceps">Assisted Vacuum / Forceps</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lead Obstetrician</label>
+            <select name="lead_obstetrician" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Attending Pediatrician</label>
+            <input type="text" name="attending_pediatrician" placeholder="e.g. Dr. S. Kulkarni" required>
+          </div>
+          <div class="form-group">
+            <label>Delivery Date & Time</label>
+            <input type="datetime-local" name="delivery_datetime" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Baby Gender</label>
+            <select name="baby_gender" required>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Twins - Male/Female">Twins - Male/Female</option>
+              <option value="Twins - Both Male">Twins - Both Male</option>
+              <option value="Twins - Both Female">Twins - Both Female</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Birth Weight (kg)</label>
+            <input type="number" step="0.01" name="birth_weight_kg" placeholder="e.g. 3.15" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>APGAR at 1 Min (0-10)</label>
+            <input type="number" name="apgar_score_1min" min="0" max="10" value="8" required>
+          </div>
+          <div class="form-group">
+            <label>APGAR at 5 Min (0-10)</label>
+            <input type="number" name="apgar_score_5min" min="0" max="10" value="9" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Initial Nursery Allocation</label>
+          <select name="nursery_status" required>
+            <option value="Rooming-In with Mother">Rooming-In with Mother</option>
+            <option value="NICU Incubator">NICU Incubator (Intensive Observation)</option>
+            <option value="Phototherapy Unit">Phototherapy Unit (Neonatal Jaundice)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Clinical Observations / Notes</label>
+          <textarea name="clinical_notes" rows="2" placeholder="Gestational age, cry, congenital reflex notes..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Generate Birth Certificate Record
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<h2>doctor</h2>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Doctor</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #507211a9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-container {
+    background-color: #0c504a;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(138, 41, 41, 0.822);
+    width: 100%;
+    max-width: 600px;
+    margin-top: auto;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #f5f2f2;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #fffafa;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.input-group textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2 class="form-title"> <%=u_doctor.doctor_id%><br>
+        <br></h2>
+        <form action="/admin/update_d" method="post">
+            <div class="input-group">
+                <input type="hidden" name="doctor_id" required  value="<%=u_doctor.doctor_id%>">
+                <br>
+
+                <label for="first-name">First Name</label>
+                <input type="text" name="first_name" required  value="<%=u_doctor.first_name%>">
+            </div>
+
+            <div class="input-group">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last_name" required value="<%=u_doctor.last_name%>">
+            </div>
+
+            <div class="input-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" required value="<%=u_doctor.age%>">
+            </div>
+
+            <div class="input-group">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" required >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+
+            <div class="input-group">
+                <label for="email">Email ID</label>
+                <input type="email" id="email" name="email" required value="<%=u_doctor.email%>">
+            </div>
+
+            <div class="input-group">
+                <label for="mobile">Mobile Number</label>
+                <input type="tel" id="mobile" name="mobile" required value="<%=u_doctor.mobile%>">
+            </div>
+
+            <div class="input-group">
+                <label for="marital-status">Marital Status</label>
+                <select id="marital-status" name="marital_status" required>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="qualification">Qualification</label>
+                <input type="text" id="qualification" name="qualification" required value="<%=u_doctor.qualification%>">
+            </div>
+
+            <div class="input-group">
+                <label for="designation">Designation</label>
+                <input type="text" id="designation" name="designation" required value="<%=u_doctor.designation%>">
+            </div>
+
+            <div class="input-group">
+                <label for="blood-group">Blood Group</label>
+                <input type="text" id="blood-group" name="blood_group" required value="<%=u_doctor.blood_group%>">
+            </div>
+
+
+            <div class="input-group">
+                <label for="country">Country</label>
+                <input type="text" id="country" name="country" required value="<%=u_doctor.country%>">
+            </div>
+
+            <div class="input-group">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" required value="<%=u_doctor.state%>">
+            </div>
+
+            <div class="input-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" required value="<%=u_doctor.city%>">
+            </div>
+
+            <button class="submit-btn">Submit</button>
+        </form>
+    </div>
+
+</body>
+</html>
+<!-- CREATE TABLE a_doctor(doctor_id INT PRIMARY KEY AUTO_INCREMENT,first_name VARCHAR(100),last_name VARCHAR(100),age  INT,gender VARCHAR(100),doctor_id VARCHAR(100), email VARCHAR(100),mobile VARCHAR(100), marital_status VARCHAR(100),designation VARCHAR(100),qualification VARCHAR(100),blood_group VARCHAR(100),city VARCHAR(100),state VARCHAR(100),country VARCHAR(100)) -->

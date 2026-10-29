@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal Login | WellCure</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            darkBg: '#090d16',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #d946ef);
+      --accent-hover: linear-gradient(135deg, #4f46e5, #c026d3);
+      --cyan-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Ambient background gradient orbs */
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      opacity: 0.35;
+      animation: floatOrb 10s ease-in-out infinite alternate;
+    }
+
+    .bg-orb-1 {
+      top: 10%;
+      left: 15%;
+      width: 380px;
+      height: 380px;
+      background: #6366f1;
+    }
+
+    .bg-orb-2 {
+      bottom: 10%;
+      right: 15%;
+      width: 420px;
+      height: 420px;
+      background: #d946ef;
+      animation-delay: -5s;
+    }
+
+    .bg-orb-3 {
+      top: 45%;
+      left: 60%;
+      width: 300px;
+      height: 300px;
+      background: #06b6d4;
+      opacity: 0.25;
+      animation-duration: 14s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0px, 0px) scale(1); }
+      100% { transform: translate(35px, -45px) scale(1.1); }
+    }
+
+    /* Interactive Mouse Follow Glow */
+    .mouse-spotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18), rgba(217, 70, 239, 0.06), transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    /* Glassmorphism Card */
+    .glass-login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(99, 102, 241, 0.15);
+      position: relative;
+      z-index: 2;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Gradient Title */
+    .gradient-brand-title {
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    /* Input Field Styling */
+    .custom-input {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #818cf8;
+      box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2), 0 0 20px rgba(99, 102, 241, 0.15);
+      outline: none;
+    }
+
+    /* Submit Button */
+    .btn-gradient {
+      background: var(--accent-gradient);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-gradient:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 10px 28px rgba(217, 70, 239, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-gradient:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+  <!-- Ambient background glow elements -->
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <!-- Mouse Spotlight tracking layer -->
+  <div class="mouse-spotlight" id="mouseSpotlight"></div>
+
+  <!-- Central Glassmorphism Login Container -->
+  <div id="loginCard" class="glass-login-card p-8 sm:p-10 rounded-3xl w-full max-w-md transition-transform duration-200 ease-out">
+    
+    <!-- Brand & Portal Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-lg shadow-indigo-500/30 mb-4">
+        <div class="w-full h-full bg-[#0c111d] rounded-2xl flex items-center justify-center">
+          <i class="fa-solid fa-heart-pulse text-2xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-fuchsia-400"></i>
+        </div>
+      </div>
+      <h1 class="text-3xl font-extrabold gradient-brand-title tracking-tight">WellCure Admin</h1>
+      <p class="text-slate-400 text-sm mt-1">Sign in to manage clinical workflows & records</p>
+    </div>
+
+    <!-- Form Section -->
+    <form action="/admin/l_login" method="POST" class="space-y-5">
+      
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+          Work Email
+        </label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+            <i class="fa-regular fa-envelope"></i>
+          </span>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            placeholder="admin@wellcure.com"
+            class="custom-input block w-full pl-11 pr-4 py-3.5 rounded-xl text-sm placeholder-slate-500 focus:text-white"
+          />
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+            Password
+          </label>
+          <a href="forget-pass.html" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition duration-200">
+            Forgot password?
+          </a>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            placeholder="••••••••••••"
+            class="custom-input block w-full pl-11 pr-11 py-3.5 rounded-xl text-sm placeholder-slate-500 focus:text-white"
+          />
+          <!-- Password toggle visibility button -->
+          <button 
+            type="button" 
+            onclick="togglePasswordVisibility()" 
+            class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-200 transition"
+            aria-label="Toggle password visibility"
+          >
+            <i id="eyeIcon" class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Remember Me -->
+      <div class="flex items-center justify-between pt-1">
+        <label class="flex items-center cursor-pointer select-none">
+          <input type="checkbox" name="remember" class="w-4 h-4 rounded bg-white/5 border-white/10 text-indigo-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+          <span class="ml-2.5 text-xs font-medium text-slate-400">Remember this device</span>
+        </label>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn-gradient w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer mt-2"
+      >
+        <span>Access Dashboard</span>
+        <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+      </button>
+
+    </form>
+
+    <!-- Footer Register CTA -->
+    <div class="mt-8 pt-6 border-t border-white/5 text-center">
+      <p class="text-sm text-slate-400">
+        Need administrator authorization?
+        <a href="/admin/admin_registration" class="text-indigo-400 hover:text-indigo-300 font-semibold transition ml-1 hover:underline">
+          Request Access
+        </a>
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+    // Cursor-following glow effect
+    const spotlight = document.getElementById('mouseSpotlight');
+    const card = document.getElementById('loginCard');
+
+    window.addEventListener('mousemove', (e) => {
+      spotlight.style.left = `${e.clientX}px`;
+      spotlight.style.top = `${e.clientY}px`;
+
+      // Subtle 3D card tilt effect based on cursor position relative to screen center
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const mouseX = e.clientX - centerX;
+      const mouseY = e.clientY - centerY;
+      
+      const rotateX = (-mouseY / centerY) * 4; // Max 4 degrees
+      const rotateY = (mouseX / centerX) * 4;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+
+    // Reset tilt on mouse leave
+    window.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    });
+
+    // Password view toggle
+    function togglePasswordVisibility() {
+      const pwd = document.getElementById('password');
+      const icon = document.getElementById('eyeIcon');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        pwd.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+  </script>
+
+</body>
+</html>

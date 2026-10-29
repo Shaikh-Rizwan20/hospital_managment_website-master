@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency Codes & Mass Casualty Disaster Command | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+      --pink: #ec4899;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Split Sections */
+    .section-title { font-size: 18px; font-weight: 700; margin: 28px 0 16px 0; display: flex; align-items: center; gap: 8px; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-code { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
+    .code-blue { background: rgba(56, 189, 248, 0.2); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.4); animation: pulse 1.5s infinite; }
+    .code-red { background: rgba(239, 68, 68, 0.25); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.5); animation: pulse 1.5s infinite; }
+    .code-pink { background: rgba(236, 72, 153, 0.2); color: var(--pink); border: 1px solid rgba(236, 72, 153, 0.4); animation: pulse 1.5s infinite; }
+    .code-yellow { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); animation: pulse 1.5s infinite; }
+    .code-std { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+    .tag-mci { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+    .mci-Red { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .mci-Yellow { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .mci-Green { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .mci-Black { background: rgba(15, 23, 42, 0.6); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-warning { background: var(--warning); color: #000; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Emergency Codes & Mass Casualty Command</h1>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-danger" onclick="document.getElementById('codeModal').style.display='flex'">
+        <i class="fa-solid fa-bullhorn"></i> Trigger Emergency Code
+      </button>
+      <button class="btn btn-warning" onclick="document.getElementById('mciModal').style.display='flex'">
+        <i class="fa-solid fa-truck-medical"></i> Enroll Disaster Triage
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Active Emergency Codes</h3>
+      <p style="color: <%= stats.active_codes_count > 0 ? 'var(--danger)' : 'var(--success)' %>;">
+        <i class="fa-solid fa-bell"></i> <%= stats.active_codes_count %> Active
+      </p>
+    </div>
+    <div class="stat-card">
+      <h3>Red Tag (Immediate / CPR)</h3>
+      <p style="color: var(--danger);"><%= stats.red_immediate_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Yellow Tag (Urgent / Surgery)</h3>
+      <p style="color: var(--warning);"><%= stats.yellow_delayed_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total MCI Ingest</h3>
+      <p style="color: var(--info);"><%= stats.total_disaster_victims %></p>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Active Emergency Codes Broadcast -->
+  <div class="section-title"><i class="fa-solid fa-tower-broadcast" style="color: var(--danger);"></i> Hospital-Wide Emergency Codes (Broadcast Registry)</div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Alert # & Code Type</th>
+          <th>Physical Location Zone</th>
+          <th>Initiator</th>
+          <th>Rapid Response Lead</th>
+          <th>Situation Assessment</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (codes && codes.length > 0) { %>
+          <% codes.forEach(c => { %>
+            <tr>
+              <td>
+                <span class="badge-code <%= c.code_type.includes('Blue') ? 'code-blue' : (c.code_type.includes('Red') ? 'code-red' : (c.code_type.includes('Pink') ? 'code-pink' : (c.code_type.includes('Yellow') ? 'code-yellow' : 'code-std'))) %>">
+                  <i class="fa-solid fa-triangle-exclamation"></i> <%= c.code_type.split(' ')[0] + ' ' + c.code_type.split(' ')[1] %>
+                </span>
+                <div style="font-size: 11px; color: var(--text-muted); font-family: monospace; margin-top: 4px;"><%= c.alert_code %></div>
+              </td>
+              <td><strong><%= c.location_zone %></strong></td>
+              <td><%= c.triggered_by %></td>
+              <td><i class="fa-solid fa-user-shield" style="color: #818cf8;"></i> <%= c.response_team_lead %></td>
+              <td style="max-width: 250px; font-size: 12px; color: #cbd5e1;"><%= c.situation_notes || 'Response team en-route.' %></td>
+              <td>
+                <form action="/admin/disaster_management/stand-down-code" method="POST">
+                  <input type="hidden" name="alert_id" value="<%= c.alert_id %>">
+                  <select name="status" onchange="this.form.submit()" class="status-select">
+                    <option value="Active Alert" <%= c.status === 'Active Alert' ? 'selected' : '' %>>Active Alert</option>
+                    <option value="Team On Site" <%= c.status === 'Team On Site' ? 'selected' : '' %>>Team On Site</option>
+                    <option value="All Clear / Stood Down" <%= c.status === 'All Clear / Stood Down' ? 'selected' : '' %>>All Clear / Stood Down</option>
+                    <option value="Drill / False Alarm" <%= c.status === 'Drill / False Alarm' ? 'selected' : '' %>>Drill / False Alarm</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">No active emergency codes broadcast.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 2: Mass Casualty Incident Triage Intake -->
+  <div class="section-title"><i class="fa-solid fa-users-rays" style="color: var(--warning);"></i> Mass Casualty Incident (MCI) Triage Sorting</div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>MCI Tag & Patient Identifier</th>
+          <th>Triage Priority Tag</th>
+          <th>Incident Event</th>
+          <th>Demographics</th>
+          <th>Assigned Bay</th>
+          <th>Primary Trauma Findings</th>
+          <th>Disposition</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (mciPatients && mciPatients.length > 0) { %>
+          <% mciPatients.forEach(p => { %>
+            <tr>
+              <td>
+                <strong><%= p.patient_identifier %></strong>
+                <div style="font-size: 11px; color: #818cf8; font-family: monospace;"><%= p.mci_tag_code %></div>
+              </td>
+              <td>
+                <span class="tag-mci mci-<%= p.triage_color_tag.split(' ')[0] %>">
+                  <%= p.triage_color_tag %>
+                </span>
+              </td>
+              <td><%= p.incident_event_name %></td>
+              <td><%= p.estimated_age_gender %></td>
+              <td><span style="font-weight: 600; color: var(--info);"><%= p.assigned_clinical_zone %></span></td>
+              <td style="max-width: 240px; font-size: 12px; color: #cbd5e1;"><%= p.primary_injury_assessment %></td>
+              <td>
+                <form action="/admin/disaster_management/update-mci-status" method="POST">
+                  <input type="hidden" name="triage_id" value="<%= p.triage_id %>">
+                  <select name="disposition_status" onchange="this.form.submit()" class="status-select">
+                    <option value="Under Resuscitation" <%= p.disposition_status === 'Under Resuscitation' ? 'selected' : '' %>>Under Resuscitation</option>
+                    <option value="Shifted to OT" <%= p.disposition_status === 'Shifted to OT' ? 'selected' : '' %>>Shifted to OT</option>
+                    <option value="Admitted to ICU" <%= p.disposition_status === 'Admitted to ICU' ? 'selected' : '' %>>Admitted to ICU</option>
+                    <option value="Discharged Ambulatory" <%= p.disposition_status === 'Discharged Ambulatory' ? 'selected' : '' %>>Discharged Ambulatory</option>
+                    <option value="Shifted to Mortuary" <%= p.disposition_status === 'Shifted to Mortuary' ? 'selected' : '' %>>Shifted to Mortuary</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <a href="/admin/disaster_management/delete-mci/<%= p.triage_id %>" class="btn btn-delete" onclick="return confirm('Deregister patient from disaster registry?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No mass casualty patients active. Click "Enroll Disaster Triage" during an MCI event.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Broadcast Emergency Code -->
+  <div id="codeModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; color: var(--danger);"><i class="fa-solid fa-bullhorn"></i> Broadcast Emergency Code</h3>
+        <span onclick="document.getElementById('codeModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/disaster_management/trigger-code" method="POST">
+        <div class="form-group">
+          <label>Emergency Code Type</label>
+          <select name="code_type" required>
+            <option value="Code Blue (Cardiac/Resp. Arrest)">Code Blue (Cardiac / Respiratory Arrest)</option>
+            <option value="Code Red (Fire Hazard)">Code Red (Fire Hazard / Smoke)</option>
+            <option value="Code Pink (Infant Abduction)">Code Pink (Infant / Child Abduction)</option>
+            <option value="Code Yellow (Mass Casualty / Disaster)">Code Yellow (Mass Casualty / Disaster)</option>
+            <option value="Code Black (Bomb Threat / Weapon)">Code Black (Bomb Threat / Weapon Threat)</option>
+            <option value="Code Orange (Hazardous Spill / CBRN)">Code Orange (Hazardous Spill / CBRN)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Location Zone / Department</label>
+          <input type="text" name="location_zone" placeholder="e.g. ICU Wing B, Bed 104 / Ground Floor Lobby" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Triggered By</label>
+            <input type="text" name="triggered_by" value="Hospital Command Center" required>
+          </div>
+          <div class="form-group">
+            <label>Response Lead</label>
+            <input type="text" name="response_team_lead" value="Dr. Rizwan" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Situation Assessment Notes</label>
+          <textarea name="situation_notes" rows="2" placeholder="Clinical state, evacuation needed, hazard details..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Broadcast Alarm Hospital-Wide
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Enroll Disaster Patient -->
+  <div id="mciModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; color: var(--warning);"><i class="fa-solid fa-truck-medical"></i> Enroll MCI Triage Patient</h3>
+        <span onclick="document.getElementById('mciModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/disaster_management/save-mci-patient" method="POST">
+        <div class="form-group">
+          <label>Incident Disaster Event Name</label>
+          <input type="text" name="incident_event_name" placeholder="e.g. Industrial Fire / Bus Collision" required>
+        </div>
+
+        <div class="form-group">
+          <label>Disaster Triage Tag (START Protocol)</label>
+          <select name="triage_color_tag" required>
+            <option value="Red (Immediate / Resuscitation)">Red Tag (Immediate / Severe Airway/Bleed)</option>
+            <option value="Yellow (Delayed / Urgent)">Yellow Tag (Delayed / Serious Fractures/Burns)</option>
+            <option value="Green (Minor / Walking Wounded)">Green Tag (Minor / Walking Ambulatory)</option>
+            <option value="Black (Expectant / Deceased)">Black Tag (Expectant / Deceased)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Identifier / Name</label>
+            <input type="text" name="patient_identifier" placeholder="e.g. Unknown Male #3 / Full Name" required>
+          </div>
+          <div class="form-group">
+            <label>Estimated Demographics</label>
+            <input type="text" name="estimated_age_gender" placeholder="e.g. Adult Female (~30y)" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Designated Triage Bay</label>
+          <input type="text" name="assigned_clinical_zone" value="Resuscitation Bay A" required>
+        </div>
+
+        <div class="form-group">
+          <label>Primary Injury Findings</label>
+          <textarea name="primary_injury_assessment" rows="2" placeholder="Blast injury, blunt trauma, severe burn, hemorrhage control..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-warning" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Admit to Disaster Queue
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

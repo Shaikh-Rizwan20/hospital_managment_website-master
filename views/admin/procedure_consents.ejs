@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informed Consents & Authorizations | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Signed---Legally-Validated { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Draft-Awaiting-Signatures { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-Consent-Revoked---Withdrawn { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    .tag-cat { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 540px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Informed Consents & Surgical Authorizations</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('consentModal').style.display='flex'">
+      <i class="fa-solid fa-file-signature"></i> Record Informed Consent
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Consents Logged</h3>
+      <p><%= stats.total_consents %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Legally Validated</h3>
+      <p style="color: var(--success);"><%= stats.validated_consents %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Signatures</h3>
+      <p style="color: var(--warning);"><%= stats.pending_signatures %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Surgical Authorizations</h3>
+      <p style="color: var(--info);"><%= stats.surgical_consents %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Consent # & Patient</th>
+          <th>Signee / Attendant</th>
+          <th>Procedure & Category</th>
+          <th>Clinical Team</th>
+          <th>Language & Witness</th>
+          <th>Legal Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (consents && consents.length > 0) { %>
+          <% consents.forEach(c => { %>
+            <tr>
+              <td>
+                <strong style="font-size: 15px;"><%= c.patient_name %></strong> (<%= c.patient_age %>y)
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= c.consent_code %></div>
+                <small style="color: var(--text-muted);"><%= new Date(c.consent_datetime).toLocaleDateString() %></small>
+              </td>
+              <td>
+                <div><%= c.signee_name %></div>
+                <small style="color: var(--info); font-weight: 600;"><%= c.signee_type %></small>
+                <div style="font-size: 11px; color: var(--text-muted);"><%= c.signee_contact %></div>
+              </td>
+              <td>
+                <strong style="color: #fff;"><%= c.procedure_name %></strong>
+                <div><span class="tag-cat"><%= c.procedure_category %></span></div>
+              </td>
+              <td style="font-size: 12px;">
+                <div>Surgeon: <strong><%= c.explaining_surgeon %></strong></div>
+                <div style="color: var(--text-muted);">Anesthesia: <%= c.anesthesiologist_name %></div>
+              </td>
+              <td style="font-size: 12px;">
+                <div><i class="fa-solid fa-language"></i> <%= c.language_explained %></div>
+                <small style="color: var(--text-muted);">Witness: <%= c.witness_staff_name %></small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= c.signature_status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= c.signature_status %>
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openValidateModal('<%= c.consent_id %>', '<%= c.consent_code %>', '<%= c.signature_status %>', '<%= c.witness_staff_name %>')">
+                    <i class="fa-solid fa-stamp"></i> Review
+                  </button>
+                  <a href="/admin/procedure_consents/delete/<%= c.consent_id %>" class="btn btn-delete" onclick="return confirm('Deregister this consent record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No informed consent authorizations registered. Click "Record Informed Consent" to draft one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Record Informed Consent -->
+  <div id="consentModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Record Procedure Informed Consent</h3>
+        <span onclick="document.getElementById('consentModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/procedure_consents/save" method="POST">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Full Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Name" required>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="patient_age" value="35" min="1" max="120" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Signee Relationship</label>
+            <select name="signee_type" required>
+              <option value="Self (Patient)">Self (Patient)</option>
+              <option value="Spouse">Spouse</option>
+              <option value="Parent / Legal Guardian">Parent / Legal Guardian</option>
+              <option value="Next of Kin / Relative">Next of Kin / Relative</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Signee Name</label>
+            <input type="text" name="signee_name" placeholder="Name of Person Consenting" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Signee Contact Number</label>
+          <input type="tel" name="signee_contact" placeholder="+91 98223 XXXXX" required>
+        </div>
+
+        <div class="form-group">
+          <label>Procedure Category</label>
+          <select name="procedure_category" required>
+            <option value="Major Surgical Operation">Major Surgical Operation</option>
+            <option value="General / Regional Anesthesia">General / Regional Anesthesia</option>
+            <option value="Blood & Component Transfusion">Blood & Component Transfusion</option>
+            <option value="High-Risk Invasive Diagnostic / Cath Lab">High-Risk Invasive Diagnostic / Cath Lab</option>
+            <option value="Chemotherapy / Radiotherapy">Chemotherapy / Radiotherapy</option>
+            <option value="High-Risk ICU Intervention">High-Risk ICU Intervention (Intubation/Dialysis)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Specific Procedure Name</label>
+          <input type="text" name="procedure_name" placeholder="e.g. Laparoscopic Appendectomy / Blood Transfusion" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Explaining Surgeon / Clinician</label>
+            <select name="explaining_surgeon" required>
+              <% if (typeof doctors !== 'undefined' && doctors.length) { %>
+                <% doctors.forEach(doc => { %>
+                  <option value="Dr. <%= doc.first_name %> <%= doc.last_name %>">Dr. <%= doc.first_name %> <%= doc.last_name %></option>
+                <% }) %>
+              <% } %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Anesthesiologist</label>
+            <input type="text" name="anesthesiologist_name" value="Dr. K. Saxena">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Language Explained In</label>
+            <select name="language_explained" required>
+              <option value="English">English</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Marathi">Marathi</option>
+              <option value="Other Regional">Other Regional</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Witness Staff Nurse</label>
+            <input type="text" name="witness_staff_name" value="Sr. Nurse Sunita" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Risks & Complications Explained (Verbal Acknowledgement)</label>
+          <textarea name="risks_and_notes" rows="3" placeholder="Bleeding, infection, anesthesia reactions, alternatives explained, patient consented without duress..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Authorize Informed Consent
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Validate / Review Status -->
+  <div id="validateModal" class="modal-overlay">
+    <div class="modal-box" style="width: 480px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalConsentTitle">Review Consent Status</h3>
+        <span onclick="document.getElementById('validateModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/procedure_consents/update-status" method="POST">
+        <input type="hidden" name="consent_id" id="modalConsentId">
+
+        <div class="form-group">
+          <label>Verification Legal Status</label>
+          <select name="signature_status" id="modalStatusSelect" required>
+            <option value="Signed & Legally Validated">Signed & Legally Validated</option>
+            <option value="Draft Awaiting Signatures">Draft Awaiting Signatures</option>
+            <option value="Consent Revoked / Withdrawn">Consent Revoked / Withdrawn</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Verifying Witness Name</label>
+          <input type="text" name="witness_staff_name" id="modalWitness" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Save Status Update
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openValidateModal(id, code, status, witness) {
+      document.getElementById('modalConsentId').value = id;
+      document.getElementById('modalConsentTitle').innerText = 'Review: ' + code;
+      document.getElementById('modalStatusSelect').value = status;
+      document.getElementById('modalWitness').value = witness;
+      document.getElementById('validateModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

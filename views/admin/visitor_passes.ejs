@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitor Management & Gate Pass | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #38bdf8;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Active-Inside { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); animation: pulse 1.5s infinite; }
+    .status-Checked-Out { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+    .status-Denied---Blocked { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-checkout { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .btn-checkout:hover { background: var(--warning); color: #000; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Hospital Visitor Gate Pass & Security</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('passModal').style.display='flex'">
+      <i class="fa-solid fa-id-badge"></i> Issue Gate Pass
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Cumulative Gate Passes</h3>
+      <p><%= stats.total_passes %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Currently Inside Hospital</h3>
+      <p style="color: var(--success);"><%= stats.currently_inside %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active ICU Attendants</h3>
+      <p style="color: var(--danger);"><%= stats.icu_attendants %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Checked Out Passes</h3>
+      <p style="color: var(--info);"><%= stats.checked_out_today %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Pass Code & Visitor</th>
+          <th>ID Verification</th>
+          <th>Visiting Patient</th>
+          <th>Ward / Bed</th>
+          <th>Slot Permitted</th>
+          <th>Check-In Time</th>
+          <th>Badge Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (passes && passes.length > 0) { %>
+          <% passes.forEach(p => { %>
+            <tr>
+              <td>
+                <strong><%= p.visitor_name %></strong>
+                <div style="font-size: 12px; color: #818cf8;"><%= p.pass_code %></div>
+                <small style="color: var(--text-muted);"><%= p.visitor_phone %></small>
+              </td>
+              <td>
+                <div><%= p.id_proof_type %></div>
+                <small style="color: var(--text-muted); font-family: monospace;"><%= p.id_proof_number %></small>
+              </td>
+              <td>
+                <strong><%= p.patient_name %></strong>
+                <div style="font-size: 11px; color: var(--text-muted);">(<%= p.relation_to_patient %>)</div>
+              </td>
+              <td>
+                <span style="font-weight: bold; color: var(--info);"><i class="fa-solid fa-bed"></i> <%= p.bed_room_number %></span>
+              </td>
+              <td style="font-size: 13px; color: #cbd5e1;">
+                <%= p.allowed_slot %>
+              </td>
+              <td>
+                <div><%= new Date(p.check_in_time).toLocaleDateString() %></div>
+                <small style="color: var(--text-muted);"><%= new Date(p.check_in_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= p.status.replace(/\s+/g, '-') %>"><%= p.status %></span>
+                <% if (p.check_out_time) { %>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Out: <%= new Date(p.check_out_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></div>
+                <% } %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <% if (p.status === 'Active Inside') { %>
+                    <form action="/admin/visitor_passes/checkout" method="POST" style="display:inline;">
+                      <input type="hidden" name="pass_id" value="<%= p.pass_id %>">
+                      <button type="submit" class="btn btn-checkout">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Check Out
+                      </button>
+                    </form>
+                  <% } %>
+                  <a href="/admin/visitor_passes/delete/<%= p.pass_id %>" class="btn btn-delete" onclick="return confirm('Delete this visitor pass record?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No visitor gate passes issued. Click "Issue Gate Pass" to record security entry.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Issue Gate Pass -->
+  <div id="passModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Issue Visitor Gate Pass</h3>
+        <span onclick="document.getElementById('passModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/visitor_passes/save" method="POST">
+        <div class="form-group">
+          <label>Visitor Full Name</label>
+          <input type="text" name="visitor_name" placeholder="Visitor Name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Visitor Contact Phone</label>
+          <input type="tel" name="visitor_phone" placeholder="+91 98223 XXXXX" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Government ID Type</label>
+            <select name="id_proof_type" required>
+              <option value="Aadhaar">Aadhaar Card</option>
+              <option value="Driving License">Driving License</option>
+              <option value="Passport">Passport</option>
+              <option value="Voter ID">Voter ID</option>
+              <option value="Other">Other Institutional ID</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>ID Document Number</label>
+            <input type="text" name="id_proof_number" placeholder="ID Number" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Inpatient Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Name" required>
+          </div>
+          <div class="form-group">
+            <label>Ward / Bed Room No.</label>
+            <input type="text" name="bed_room_number" placeholder="e.g. ICU-101 / GEN-201" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Relation to Patient</label>
+            <input type="text" name="relation_to_patient" placeholder="e.g. Spouse, Sibling, Friend" required>
+          </div>
+          <div class="form-group">
+            <label>Visiting Window Slot</label>
+            <select name="allowed_slot" required>
+              <option value="Evening (17:00 - 19:00)">Evening (17:00 - 19:00)</option>
+              <option value="Morning (10:00 - 12:00)">Morning (10:00 - 12:00)</option>
+              <option value="Special ICU Attendant (24/7)">Special ICU Attendant (24/7)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Authorize Security Pass & Admit
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

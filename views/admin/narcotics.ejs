@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controlled Narcotics & Formulary Register | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+      --purple: #c084fc;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    .section-title { font-size: 18px; font-weight: 700; margin: 28px 0 16px 0; display: flex; align-items: center; gap: 8px; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-sched { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; display: inline-block; }
+    .sched-narc { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .sched-h1 { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Controlled Narcotics & Dangerous Drugs Register</h1>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-primary" onclick="document.getElementById('drugModal').style.display='flex'">
+        <i class="fa-solid fa-plus"></i> Add Formulary Drug
+      </button>
+      <button class="btn btn-danger" onclick="document.getElementById('dispenseModal').style.display='flex'">
+        <i class="fa-solid fa-syringe"></i> Dispense Narcotic
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Monitored Narcotics</h3>
+      <p><%= stats.total_drugs %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Vault Stock</h3>
+      <p style="color: var(--purple);"><%= stats.total_vials %> <span style="font-size: 14px;">Vials</span></p>
+    </div>
+    <div class="stat-card">
+      <h3>Dispensed Today</h3>
+      <p style="color: var(--info);"><%= stats.dispensed_today %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Low Stock Alerts</h3>
+      <p style="color: var(--danger);"><%= stats.low_stock_alerts %></p>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Master Controlled Substances Stock Vault -->
+  <div class="section-title"><i class="fa-solid fa-vault" style="color: var(--purple);"></i> Double-Lock Narcotic Safe & Drug Formulary</div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Drug Code & Generic Name</th>
+          <th>Commercial Brand</th>
+          <th>Form & Strength</th>
+          <th>Control Schedule</th>
+          <th>Vault Stock</th>
+          <th>Secure Locker Location</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (drugs && drugs.length > 0) { %>
+          <% drugs.forEach(d => { %>
+            <tr>
+              <td>
+                <strong><%= d.generic_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= d.drug_code %></div>
+              </td>
+              <td><%= d.brand_name %></td>
+              <td>
+                <div><%= d.dosage_form %></div>
+                <small style="color: var(--text-muted);"><%= d.strength %></small>
+              </td>
+              <td>
+                <span class="badge-sched <%= d.controlled_schedule.includes('Schedule X') ? 'sched-narc' : 'sched-h1' %>">
+                  <%= d.controlled_schedule %>
+                </span>
+              </td>
+              <td>
+                <strong style="font-size: 16px; color: <%= d.current_stock_units <= d.min_alert_units ? 'var(--danger)' : 'var(--success)' %>;">
+                  <%= d.current_stock_units %> Units
+                </strong>
+                <% if (d.current_stock_units <= d.min_alert_units) { %>
+                  <div style="font-size: 10px; color: var(--danger); font-weight: bold;">MIN THRESHOLD REACHED</div>
+                <% } %>
+              </td>
+              <td>
+                <div><%= d.safe_storage_locker %></div>
+                <small style="color: var(--text-muted);">Audited: <%= new Date(d.last_audited_date).toISOString().slice(0, 10) %></small>
+              </td>
+              <td>
+                <a href="/admin/narcotics/delete/<%= d.drug_id %>" class="btn btn-delete" onclick="return confirm('Remove controlled substance from register?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 25px;">No controlled drugs recorded in the vault.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 2: Dispensing Audit Trail -->
+  <div class="section-title"><i class="fa-solid fa-file-signature" style="color: var(--info);"></i> Dual-Signature Administration Audit Trail</div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Log Reference</th>
+          <th>Patient & Location</th>
+          <th>Controlled Substance</th>
+          <th>Prescribing & Administering Staff</th>
+          <th>Qty</th>
+          <th>Indication</th>
+          <th>Vault Balance</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (logs && logs.length > 0) { %>
+          <% logs.forEach(l => { %>
+            <tr>
+              <td><code style="color: #818cf8;"><%= l.log_reference %></code></td>
+              <td>
+                <strong><%= l.patient_name %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= l.ward_or_ot %></div>
+              </td>
+              <td>
+                <strong><%= l.generic_name || l.drug_code %></strong>
+                <div style="font-size: 11px; color: var(--text-muted);"><%= l.strength || '' %></div>
+              </td>
+              <td style="font-size: 12px;">
+                <div>Dr: <%= l.prescribing_doctor %></div>
+                <div style="color: var(--info);">Nurse: <%= l.administering_nurse %></div>
+              </td>
+              <td><strong style="color: var(--danger);"><%= l.quantity_dispensed %></strong></td>
+              <td style="max-width: 200px; font-size: 12px; color: #cbd5e1;"><%= l.clinical_indication %></td>
+              <td><span style="font-weight: 700; color: var(--success);"><%= l.balance_remaining_stock %> Vials</span></td>
+              <td>
+                <div style="font-size: 12px;"><%= new Date(l.dispense_timestamp).toLocaleDateString() %></div>
+                <small style="color: var(--text-muted);"><%= new Date(l.dispense_timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No narcotics administration events logged today.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Add Formulary Drug -->
+  <div id="drugModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Register Controlled Substance</h3>
+        <span onclick="document.getElementById('drugModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/narcotics/save-drug" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Generic Chemical Name</label>
+            <input type="text" name="generic_name" placeholder="e.g. Fentanyl Citrate" required>
+          </div>
+          <div class="form-group">
+            <label>Commercial Brand Name</label>
+            <input type="text" name="brand_name" placeholder="e.g. Fendrop" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Dosage Form</label>
+            <select name="dosage_form" required>
+              <option value="Injectable Ampoule">Injectable Ampoule</option>
+              <option value="Infusion Vial">Infusion Vial</option>
+              <option value="Oral Tablet">Oral Tablet</option>
+              <option value="Transdermal Patch">Transdermal Patch</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Concentration / Strength</label>
+            <input type="text" name="strength" placeholder="e.g. 50 mcg/ml (2ml)" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Statutory Schedule</label>
+          <select name="controlled_schedule" required>
+            <option value="Schedule X / Narcotic">Schedule X / Narcotic Drug (Strictest Control)</option>
+            <option value="Schedule H1 (High Risk)">Schedule H1 (High Risk Potency)</option>
+            <option value="Anesthetic Control">Anesthetic Control</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Initial Vault Stock (Units)</label>
+            <input type="number" name="current_stock_units" value="30" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Minimum Alert Level</label>
+            <input type="number" name="min_alert_units" value="10" min="1" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Storage Vault Locker</label>
+          <input type="text" name="safe_storage_locker" value="Double-Lock Vault Room #1 (Locker A)" required>
+        </div>
+
+        <div class="form-group">
+          <label>Audit Date</label>
+          <input type="date" name="last_audited_date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Add to Controlled Vault
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Dispense Narcotic -->
+  <div id="dispenseModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; color: var(--danger);"><i class="fa-solid fa-syringe"></i> Dispense Controlled Narcotic</h3>
+        <span onclick="document.getElementById('dispenseModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/narcotics/dispense" method="POST">
+        <div class="form-group">
+          <label>Select Controlled Substance</label>
+          <select name="drug_code" required>
+            <% drugs.forEach(d => { %>
+              <option value="<%= d.drug_code %>"><%= d.generic_name %> (<%= d.strength %>) - Stock: <%= d.current_stock_units %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Full Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Name" required>
+          </div>
+          <div class="form-group">
+            <label>Ward / OT Suite</label>
+            <input type="text" name="ward_or_ot" placeholder="e.g. ICU Wing B / OT-1" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Prescribing Doctor</label>
+            <select name="prescribing_doctor" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Administering Nurse</label>
+            <input type="text" name="administering_nurse" placeholder="Staff Nurse Name" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity to Dispense (Ampoules/Units)</label>
+          <input type="number" name="quantity_dispensed" value="1" min="1" max="10" required>
+        </div>
+
+        <div class="form-group">
+          <label>Clinical Justification / Procedure Indication</label>
+          <textarea name="clinical_indication" rows="2" placeholder="Post-op analgesia, sedation during intubation, trauma shock..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Authorize Dual-Sign & Dispense
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

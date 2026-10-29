@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telemedicine & Virtual Consultations | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --info: #38bdf8;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --indigo: #818cf8;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Completed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-In-Video-Call { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse 1.5s infinite; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-Scheduled { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-Cancelled { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    .badge-pay { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .pay-captured { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .pay-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-video { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .btn-video:hover { background: var(--info); color: #000; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Telemedicine & Virtual Video OPD</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('telemedModal').style.display='flex'">
+      <i class="fa-solid fa-video"></i> Book Virtual Consult
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Cumulative Telemed Slots</h3>
+      <p><%= stats.total_telemed %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Upcoming Sessions</h3>
+      <p style="color: var(--info);"><%= stats.scheduled_today %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Video Room</h3>
+      <p style="color: var(--danger);"><%= stats.active_calls %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Consults Paid</h3>
+      <p style="color: var(--success);"><%= stats.paid_consults %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Session ID & Patient</th>
+          <th>Specialist & Department</th>
+          <th>Slot Time</th>
+          <th>Fee & Billing</th>
+          <th>Chief Complaint</th>
+          <th>Session Status</th>
+          <th>Virtual Link</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (sessions && sessions.length > 0) { %>
+          <% sessions.forEach(s => { %>
+            <tr>
+              <td>
+                <strong><%= s.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= s.session_code %></div>
+                <small style="color: var(--text-muted);"><%= s.patient_phone %></small>
+              </td>
+              <td>
+                <strong><%= s.consulting_doctor %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= s.department %></div>
+              </td>
+              <td>
+                <div><%= new Date(s.consultation_datetime).toLocaleDateString() %></div>
+                <small style="color: var(--text-muted);"><%= new Date(s.consultation_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></small>
+              </td>
+              <td>
+                <strong>$<%= parseFloat(s.consultation_fee).toFixed(2) %></strong>
+                <div>
+                  <span class="badge-pay <%= s.payment_status.startsWith('Paid') ? 'pay-captured' : 'pay-pending' %>">
+                    <%= s.payment_status %>
+                  </span>
+                </div>
+              </td>
+              <td style="max-width: 180px; font-size: 12px; color: #cbd5e1;">
+                <%= s.patient_chief_complaint %>
+              </td>
+              <td>
+                <span class="badge-status status-<%= s.session_status.replace(/\s+/g, '-') %>"><%= s.session_status %></span>
+              </td>
+              <td>
+                <a href="<%= s.video_meeting_url %>" target="_blank" class="btn btn-video">
+                  <i class="fa-solid fa-headset"></i> Connect
+                </a>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openRxModal('<%= s.telemed_id %>', '<%= s.session_code %>', '<%= s.session_status %>', `<%= s.digital_prescription || '' %>`)">
+                    <i class="fa-solid fa-file-prescription"></i> Rx
+                  </button>
+                  <a href="/admin/telemedicine/delete/<%= s.telemed_id %>" class="btn btn-delete" onclick="return confirm('Delete virtual consultation?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No virtual consultations scheduled. Click "Book Virtual Consult" to create one.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Book Virtual Consult -->
+  <div id="telemedModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Schedule Telemedicine Slot</h3>
+        <span onclick="document.getElementById('telemedModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/telemedicine/save" method="POST">
+        <div class="form-group">
+          <label>Patient Full Name</label>
+          <input type="text" name="patient_name" placeholder="Patient Name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="tel" name="patient_phone" placeholder="+91 98227 XXXXX" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="patient_email" placeholder="patient@example.com">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Consulting Doctor</label>
+            <select name="consulting_doctor" required>
+              <% doctors.forEach(d => { %>
+                <option value="Dr. <%= d.first_name %> <%= d.last_name %>">Dr. <%= d.first_name %> <%= d.last_name %></option>
+              <% }) %>
+              <option value="Dr. Rizwan">Dr. Rizwan</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select name="department" required>
+              <% departments.forEach(dep => { %>
+                <option value="<%= dep.department_name %>"><%= dep.department_name %></option>
+              <% }) %>
+              <option value="General Medicine">General Medicine</option>
+              <option value="Cardiology">Cardiology</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Consultation Date & Time</label>
+            <input type="datetime-local" name="consultation_datetime" required>
+          </div>
+          <div class="form-group">
+            <label>Fee ($)</label>
+            <input type="number" step="0.01" name="consultation_fee" value="500.00" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Settlement</label>
+          <select name="payment_status" required>
+            <option value="Paid / Captured">Paid / Captured (Payment Gateway)</option>
+            <option value="Pending">Pending</option>
+            <option value="Waived">Waived (Follow-up)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Patient Chief Complaint / Symptoms</label>
+          <textarea name="patient_chief_complaint" rows="2" placeholder="Symptoms, duration, known vitals..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Generate Secure Video Room
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Issue E-Prescription -->
+  <div id="rxModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalRxTitle">Issue E-Prescription</h3>
+        <span onclick="document.getElementById('rxModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/telemedicine/complete-session" method="POST">
+        <input type="hidden" name="telemed_id" id="modalTelemedId">
+
+        <div class="form-group">
+          <label>Update Status</label>
+          <select name="session_status" id="modalStatus" required>
+            <option value="Completed">Completed</option>
+            <option value="Prescription Issued">Prescription Issued</option>
+            <option value="In Video Call">In Video Call</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Digital Prescription / Treatment Plan</label>
+          <textarea name="digital_prescription" id="modalRxNotes" rows="4" placeholder="Medication, dosages, frequency, and diet advice..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Sign & Issue E-Prescription
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openRxModal(id, code, status, rx) {
+      document.getElementById('modalTelemedId').value = id;
+      document.getElementById('modalRxTitle').innerText = 'Prescription: ' + code;
+      document.getElementById('modalStatus').value = status;
+      document.getElementById('modalRxNotes').value = rx;
+      document.getElementById('rxModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

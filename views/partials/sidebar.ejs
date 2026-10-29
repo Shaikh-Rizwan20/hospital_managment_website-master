@@ -1,0 +1,238 @@
+<!-- Sidebar Navigation -->
+<!-- Sidebar Navigation -->
+<!-- Sidebar Navigation -->
+<aside class="app-sidebar" id="appSidebar">
+  <!-- Brand Section -->
+  <div class="brand-section">
+    <a href="/admin" class="brand-link">
+      <i class="fa-solid fa-heart-pulse"></i>
+      <span>WellCure</span>
+    </a>
+    <button class="btn btn-sm text-secondary d-lg-none ms-auto" type="button" onclick="toggleSidebar()">
+      <i class="fa-solid fa-xmark fs-5"></i>
+    </button>
+  </div>
+
+  <!-- Sidebar Scrollable Menu -->
+  <div class="sidebar-menu-wrapper">
+    <!-- Main Dashboard -->
+    <div class="nav-label">Main Dashboard</div>
+    <a href="/admin" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Dashboard</span>
+    </a>
+    <a href="/admin/About_hospital" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'about' ? 'active' : '' %>">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>About Hospital</span>
+    </a>
+
+    <!-- Clinical & Patient Care -->
+    <div class="nav-label">Clinical & Care</div>
+    <a href="/admin/appointment" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'appointment' ? 'active' : '' %>">
+      <i class="fa-solid fa-calendar-check"></i>
+      <span>Appointments</span>
+    </a>
+    <a href="/admin/emergency" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'emergency' ? 'active' : '' %>">
+      <i class="fa-solid fa-truck-medical text-danger"></i>
+      <span>Emergency & Triage</span>
+    </a>
+    <a href="/admin/patient_records" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'patient_records' ? 'active' : '' %>">
+      <i class="fa-solid fa-notes-medical"></i>
+      <span>Medical Records (EHR)</span>
+    </a>
+    <a href="/admin/treatment" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'treatment' ? 'active' : '' %>">
+      <i class="fa-solid fa-syringe"></i>
+      <span>Add Treatment</span>
+    </a>
+    <a href="/admin/ot_schedule" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'ot_schedule' ? 'active' : '' %>">
+      <i class="fa-solid fa-hospital-user"></i>
+      <span>Operation Theater (OT)</span>
+    </a>
+    <a href="/admin/maternity" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'maternity' ? 'active' : '' %>">
+      <i class="fa-solid fa-baby" style="color: #ec4899;"></i>
+      <span>Maternity & LDR</span>
+    </a>
+    <a href="/admin/transplants" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'transplants' ? 'active' : '' %>">
+      <i class="fa-solid fa-hand-holding-heart" style="color: #c084fc;"></i>
+      <span>Organ Transplants</span>
+    </a>
+    <a href="/admin/physiotherapy" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'physiotherapy' ? 'active' : '' %>">
+      <i class="fa-solid fa-person-walking" style="color: #14b8a6;"></i>
+      <span>Physiotherapy & Rehab</span>
+    </a>
+    <a href="/admin/telemedicine" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'telemedicine' ? 'active' : '' %>">
+      <i class="fa-solid fa-headset" style="color: #38bdf8;"></i>
+      <span>Telemedicine Virtual OPD</span>
+    </a>
+    <a href="/admin/procedure_consents" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'procedure_consents' ? 'active' : '' %>">
+      <i class="fa-solid fa-file-signature text-success"></i>
+      <span>Patient Consents</span>
+    </a>
+    <a href="/admin/discharge_summaries" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'discharge_summaries' ? 'active' : '' %>">
+      <i class="fa-solid fa-file-waveform text-success"></i>
+      <span>Discharge Summaries</span>
+    </a>
+
+    <!-- Inpatient & Ward Management -->
+    <div class="nav-label">Wards & Inpatient</div>
+    <a href="/admin/beds" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'beds' ? 'active' : '' %>">
+      <i class="fa-solid fa-bed-pulse"></i>
+      <span>Ward & Beds</span>
+    </a>
+    <a href="/admin/nursing_kardex" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'nursing_kardex' ? 'active' : '' %>">
+      <i class="fa-solid fa-clipboard-user" style="color: #38bdf8;"></i>
+      <span>Nursing Kardex & SBAR</span>
+    </a>
+    <a href="/admin/diet_plans" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'diet_plans' ? 'active' : '' %>">
+      <i class="fa-solid fa-utensils text-success"></i>
+      <span>Patient Dietary</span>
+    </a>
+    <a href="/admin/visitor_passes" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'visitor_passes' ? 'active' : '' %>">
+      <i class="fa-solid fa-id-badge" style="color: #38bdf8;"></i>
+      <span>Visitor Gate Passes</span>
+    </a>
+
+    <!-- Diagnostics & Pharmacy -->
+    <div class="nav-label">Diagnostics & Pharmacy</div>
+    <a href="/admin/diagnostics" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'diagnostics' ? 'active' : '' %>">
+      <i class="fa-solid fa-microscope"></i>
+      <span>Lab Diagnostics</span>
+    </a>
+    <a href="/admin/radiology" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'radiology' ? 'active' : '' %>">
+      <i class="fa-solid fa-x-ray" style="color: #38bdf8;"></i>
+      <span>Radiology & PACS</span>
+    </a>
+    <a href="/admin/blood_bank" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'blood_bank' ? 'active' : '' %>">
+      <i class="fa-solid fa-droplet text-danger"></i>
+      <span>Blood Bank</span>
+    </a>
+    <a href="/admin/pharmacy" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'pharmacy' ? 'active' : '' %>">
+      <i class="fa-solid fa-pills"></i>
+      <span>Pharmacy Stock</span>
+    </a>
+    <a href="/admin/emar_records" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'emar_records' ? 'active' : '' %>">
+      <i class="fa-solid fa-prescription-bottle-medical" style="color: #38bdf8;"></i>
+      <span>Pharmacy e-MAR</span>
+    </a>
+    <a href="/admin/narcotics" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'narcotics' ? 'active' : '' %>">
+      <i class="fa-solid fa-capsules" style="color: #c084fc;"></i>
+      <span>Narcotics Formulary</span>
+    </a>
+
+    <!-- Staff & Doctors -->
+    <div class="nav-label">Staff & Departments</div>
+    <a href="/admin/departments" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'departments' ? 'active' : '' %>">
+      <i class="fa-solid fa-building-columns"></i>
+      <span>Departments</span>
+    </a>
+    <a href="/admin/doctors" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'doctors' ? 'active' : '' %>">
+      <i class="fa-solid fa-user-doctor"></i>
+      <span>Doctors</span>
+    </a>
+    <a href="/admin/avaibility" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'availability' ? 'active' : '' %>">
+      <i class="fa-regular fa-clock"></i>
+      <span>Doctor Availability</span>
+    </a>
+    <a href="/admin/staff_roster" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'staff_roster' ? 'active' : '' %>">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Staff Duty Roster</span>
+    </a>
+    <a href="/admin/staff_credentials" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'staff_credentials' ? 'active' : '' %>">
+      <i class="fa-solid fa-user-check text-success"></i>
+      <span>Staff Credentialing</span>
+    </a>
+
+    <!-- Operations & Logistics -->
+    <div class="nav-label">Hospital Operations</div>
+    <a href="/admin/ambulance_fleet" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'ambulance_fleet' ? 'active' : '' %>">
+      <i class="fa-solid fa-truck-medical text-danger"></i>
+      <span>Ambulance Fleet</span>
+    </a>
+    <a href="/admin/mgps_oxygen" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'mgps_oxygen' ? 'active' : '' %>">
+      <i class="fa-solid fa-gauge-high" style="color: #38bdf8;"></i>
+      <span>MGPS & Oxygen Bank</span>
+    </a>
+    <a href="/admin/cssd" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'cssd' ? 'active' : '' %>">
+      <i class="fa-solid fa-fire-burner" style="color: #38bdf8;"></i>
+      <span>CSSD & Sterilization</span>
+    </a>
+    <a href="/admin/linen" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'linen' ? 'active' : '' %>">
+      <i class="fa-solid fa-shirt text-success"></i>
+      <span>Linen & Laundry</span>
+    </a>
+    <a href="/admin/biowaste" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'biowaste' ? 'active' : '' %>">
+      <i class="fa-solid fa-biohazard text-warning"></i>
+      <span>Bio-Waste & Hazards</span>
+    </a>
+    <a href="/admin/assets" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'assets' ? 'active' : '' %>">
+      <i class="fa-solid fa-toolbox"></i>
+      <span>Medical Assets</span>
+    </a>
+    <a href="/admin/facility_maintenance" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'facility_maintenance' ? 'active' : '' %>">
+      <i class="fa-solid fa-screwdriver-wrench text-warning"></i>
+      <span>Facility & Maintenance</span>
+    </a>
+    <a href="/admin/utilities" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'utilities' ? 'active' : '' %>">
+      <i class="fa-solid fa-bolt text-warning"></i>
+      <span>Energy & Utilities</span>
+    </a>
+    <a href="/admin/disaster_management" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'disaster_management' ? 'active' : '' %>">
+      <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+      <span>Disaster & Emergency Codes</span>
+    </a>
+    <a href="/admin/mortuary" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'mortuary' ? 'active' : '' %>">
+      <i class="fa-solid fa-monument text-secondary"></i>
+      <span>Mortuary & Death Registry</span>
+    </a>
+
+    <!-- Finance & Governance -->
+    <div class="nav-label">Finance & Governance</div>
+    <a href="/admin/billing" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'billing' ? 'active' : '' %>">
+      <i class="fa-solid fa-file-invoice-dollar"></i>
+      <span>Billing & Invoices</span>
+    </a>
+    <a href="/admin/insurance_claims" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'insurance_claims' ? 'active' : '' %>">
+      <i class="fa-solid fa-file-shield" style="color: #38bdf8;"></i>
+      <span>Insurance & Claims</span>
+    </a>
+    <a href="/admin/doctor_payouts" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'doctor_payouts' ? 'active' : '' %>">
+      <i class="fa-solid fa-hand-holding-dollar text-success"></i>
+      <span>Doctor Payouts</span>
+    </a>
+    <a href="/admin/procurement" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'procurement' ? 'active' : '' %>">
+      <i class="fa-solid fa-boxes-packing" style="color: #6366f1;"></i>
+      <span>Procurement & POs</span>
+    </a>
+    <a href="/admin/infection_control" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'infection_control' ? 'active' : '' %>">
+      <i class="fa-solid fa-shield-virus text-danger"></i>
+      <span>Infection Control (HAI)</span>
+    </a>
+    <a href="/admin/mlc" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'mlc' ? 'active' : '' %>">
+      <i class="fa-solid fa-scale-balanced text-danger"></i>
+      <span>Medico-Legal (MLC)</span>
+    </a>
+    <a href="/admin/feedback" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'feedback' ? 'active' : '' %>">
+      <i class="fa-solid fa-star-half-stroke text-warning"></i>
+      <span>Patient Feedback</span>
+    </a>
+    <a href="/admin/audit_logs" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'audit_logs' ? 'active' : '' %>">
+      <i class="fa-solid fa-shield-halved" style="color: #a855f7;"></i>
+      <span>System Audit Logs</span>
+    </a>
+
+    <!-- Authentication -->
+    <div class="nav-label">Authentication</div>
+    <a href="/admin/login" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'login' ? 'active' : '' %>">
+      <i class="fa-solid fa-right-to-bracket"></i>
+      <span>Login</span>
+    </a>
+    <a href="/admin/register" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'register' ? 'active' : '' %>">
+      <i class="fa-solid fa-user-plus"></i>
+      <span>Register</span>
+    </a>
+    <a href="/admin/forgot-password" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'forgot_password' ? 'active' : '' %>">
+      <i class="fa-solid fa-key"></i>
+      <span>Reset Password</span>
+    </a>
+  </div>
+</aside>

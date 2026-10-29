@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Department | Welcare Hospital</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-glow: rgba(20, 184, 166, 0.35);
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glowing Background Orbs */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .orb-1 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, #99f6e4, #0f766e);
+            top: -100px;
+            left: 20%;
+        }
+
+        .orb-2 {
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, #bae6fd, #0284c7);
+            bottom: -80px;
+            right: 15%;
+        }
+
+        /* Navigation Buttons */
+        .nav-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary-light);
+            background: #f0fdfa;
+        }
+
+        /* 3D Dynamic Tilt Card with Radial Mouse Spotlight */
+        .tilt-wrapper {
+            perspective: 1200px;
+            width: 100%;
+            max-width: 540px;
+            padding: 1.25rem;
+            z-index: 1;
+            /* Adjusts margin to avoid overlap with admin sidebar */
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 991.98px) {
+            .tilt-wrapper {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+
+        .form-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 2.5rem 2.25rem;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08),
+                        0 0 0 1px rgba(226, 232, 240, 0.6);
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out, box-shadow 0.25s ease;
+            overflow: hidden;
+        }
+
+        /* Interactive Mouse Spotlight Overlay */
+        .mouse-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle 240px at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(20, 184, 166, 0.12), transparent 80%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .form-content {
+            position: relative;
+            z-index: 1;
+            transform: translateZ(25px);
+        }
+
+        /* Header Elements */
+        .icon-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ccfbf1, #e0f2fe);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 16px -4px var(--primary-glow);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.35rem;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 1.75rem;
+        }
+
+        /* Interactive Form Input Groups */
+        .input-group-custom {
+            margin-bottom: 1.35rem;
+            text-align: left;
+        }
+
+        .input-group-custom label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .input-group-custom input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .input-group-custom input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+        }
+
+        .input-group-custom input:focus + i,
+        .input-wrapper:focus-within i {
+            color: var(--primary);
+        }
+
+        /* Magnetic Glow Submit Button */
+        .btn-submit {
+            position: relative;
+            width: 100%;
+            padding: 0.9rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #0f766e, #0d9488);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 8px 20px -4px var(--primary-glow);
+            transition: all 0.25s ease;
+        }
+
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.25),
+                transparent
+            );
+            transform: rotate(45deg) translateY(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #115e59, #0f766e);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(15, 118, 110, 0.4);
+        }
+
+        .btn-submit:hover::after {
+            transform: rotate(45deg) translateY(100%);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Gradient Blobs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <div class="tilt-wrapper" id="tiltWrapper">
+        <!-- Navigation Buttons -->
+        <div class="nav-actions">
+            <a href="javascript:history.back()" class="nav-btn">
+                <i class="bi bi-arrow-left"></i> Previous
+            </a>
+            <a href="/admin/appointment" class="nav-btn">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+        </div>
+
+        <!-- 3D Interactive Card Container -->
+        <div class="form-container" id="formCard">
+            <div class="mouse-glow" id="mouseGlow"></div>
+
+            <div class="form-content">
+                <div class="icon-badge">
+                    <i class="bi bi-diagram-3-fill"></i>
+                </div>
+                <h2>Create Department</h2>
+                <p class="subtitle">Set up a clinical division and assign the presiding department head</p>
+
+                <form action="/admin/create_d" method="POST">
+                    <div class="input-group-custom">
+                        <label for="department_name">Department Name</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-building-add"></i>
+                            <input 
+                                type="text" 
+                                name="department_name" 
+                                id="department_name" 
+                                placeholder="e.g. Cardiology & Vascular Surgery" 
+                                required 
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label for="department_head">Department Head</label>
+                        <div class="input-wrapper">
+                            <i class="bi bi-person-badge"></i>
+                            <input 
+                                type="text" 
+                                name="department_head" 
+                                id="department_head" 
+                                placeholder="e.g. Dr. Robert Vance, MD" 
+                                required 
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>Register Department</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mouse Tracking & 3D Tilt Script -->
+    <script>
+        const card = document.getElementById('formCard');
+        const glow = document.getElementById('mouseGlow');
+        const wrapper = document.getElementById('tiltWrapper');
+
+        wrapper.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Update radial gradient spotlight position
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+
+            // Compute subtle 3D tilt calculation
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -6; // Max -6 to 6 deg
+            const rotateY = ((x - centerX) / centerX) * 6;
+
+            card.style.transform = `rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+        });
+
+        wrapper.addEventListener('mouseleave', () => {
+            // Smooth reset to rest position
+            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            card.style.setProperty('--mouse-x', `-500px`);
+            card.style.setProperty('--mouse-y', `-500px`);
+        });
+    </script>
+</body>
+</html>

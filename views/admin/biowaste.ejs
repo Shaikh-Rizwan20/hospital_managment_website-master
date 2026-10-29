@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biomedical Waste & Hazard Compliance | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --yellow-bag: #facc15;
+      --red-bag: #ef4444;
+      --white-bag: #f8fafc;
+      --blue-bag: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    .tag-category { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .cat-Yellow { background: rgba(250, 204, 21, 0.15); color: var(--yellow-bag); border: 1px solid rgba(250, 204, 21, 0.3); }
+    .cat-Red { background: rgba(239, 68, 68, 0.15); color: var(--red-bag); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .cat-White { background: rgba(248, 250, 252, 0.15); color: var(--white-bag); border: 1px solid rgba(248, 250, 252, 0.3); }
+    .cat-Blue { background: rgba(56, 189, 248, 0.15); color: var(--blue-bag); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .status-select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 460px; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Biomedical Hazard Waste & Environmental Compliance</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('wasteModal').style.display='flex'">
+      <i class="fa-solid fa-biohazard"></i> Log Waste Handover
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Total Dispatched Logs</h3>
+      <p><%= stats.total_manifests %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Cumulative Weight</h3>
+      <p style="color: #38bdf8;"><%= parseFloat(stats.total_weight_kg || 0).toFixed(1) %> <span style="font-size: 16px;">KG</span></p>
+    </div>
+    <div class="stat-card">
+      <h3>Infectious (Yellow Category)</h3>
+      <p style="color: var(--yellow-bag);"><%= stats.yellow_bags %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Facility Pickup</h3>
+      <p style="color: var(--red-bag);"><%= stats.pending_pickup %></p>
+    </div>
+  </div>
+
+  <!-- Manifest Records Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Manifest Code & Ward</th>
+          <th>Hazard Category</th>
+          <th>Weight</th>
+          <th>Methodology</th>
+          <th>Certified Transporter</th>
+          <th>Manifest Status</th>
+          <th>Handover Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (logs && logs.length > 0) { %>
+          <% logs.forEach(l => { %>
+            <tr>
+              <td>
+                <strong><%= l.manifest_code %></strong>
+                <div style="font-size: 12px; color: var(--text-muted);"><%= l.ward_department %></div>
+              </td>
+              <td>
+                <span class="tag-category cat-<%= l.waste_category.split(' ')[0] %>">
+                  <i class="fa-solid fa-triangle-exclamation"></i> <%= l.waste_category %>
+                </span>
+              </td>
+              <td><strong><%= parseFloat(l.weight_kg).toFixed(2) %> kg</strong></td>
+              <td style="color: #cbd5e1; font-size: 13px;"><%= l.disposal_method %></td>
+              <td>
+                <div><%= l.certified_handler %></div>
+                <small style="color: var(--text-muted);"><i class="fa-solid fa-truck"></i> <%= l.carrier_vehicle %></small>
+              </td>
+              <td>
+                <form action="/admin/biowaste/update-status" method="POST">
+                  <input type="hidden" name="waste_id" value="<%= l.waste_id %>">
+                  <select name="status" onchange="this.form.submit()" class="status-select">
+                    <option value="Collected in Ward" <%= l.status === 'Collected in Ward' ? 'selected' : '' %>>Collected in Ward</option>
+                    <option value="Dispatched to Facility" <%= l.status === 'Dispatched to Facility' ? 'selected' : '' %>>Dispatched to Facility</option>
+                    <option value="Treatment Completed" <%= l.status === 'Treatment Completed' ? 'selected' : '' %>>Treatment Completed</option>
+                  </select>
+                </form>
+              </td>
+              <td><%= new Date(l.handover_date).toISOString().slice(0, 10) %></td>
+              <td>
+                <a href="/admin/biowaste/delete/<%= l.waste_id %>" class="btn btn-delete" onclick="return confirm('Deregister waste manifest entry?')">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No biomedical waste logs registered. Click "Log Waste Handover" to create a manifest.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Log Waste Handover -->
+  <div id="wasteModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;"><i class="fa-solid fa-biohazard" style="color: var(--yellow-bag);"></i> Log Bio-Waste Manifest</h3>
+        <span onclick="document.getElementById('wasteModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/biowaste/save" method="POST">
+        <div class="form-group">
+          <label>Origin Department / Ward</label>
+          <select name="ward_department" required>
+            <% departments.forEach(d => { %>
+              <option value="<%= d.department_name %>"><%= d.department_name %></option>
+            <% }) %>
+            <option value="Operation Theater (OT)">Operation Theater (OT)</option>
+            <option value="ICU Wing">ICU Wing</option>
+            <option value="Emergency Bay">Emergency Bay</option>
+            <option value="Pathology Lab">Pathology Lab</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Bio-Waste Color Tag Category</label>
+          <select name="waste_category" required>
+            <option value="Yellow (Infectious/Anatomical)">Yellow (Human anatomical, soiled cotton, plaster)</option>
+            <option value="Red (Contaminated Plastics)">Red (Catheters, IV tubing, blood bags, gloves)</option>
+            <option value="White (Needles/Sharps)">White (Scalpels, surgical blades, fixed needles)</option>
+            <option value="Blue (Glassware/Vials)">Blue (Medicine ampoules, lab vials, expired antibiotics)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Weight (Kilograms)</label>
+            <input type="number" step="0.01" name="weight_kg" placeholder="e.g. 14.50" required>
+          </div>
+          <div class="form-group">
+            <label>Disposal Technique</label>
+            <select name="disposal_method" required>
+              <option value="Incineration">Incineration</option>
+              <option value="Autoclaving & Shredding">Autoclaving & Shredding</option>
+              <option value="Sharp Pit Encapsulation">Sharp Pit Encapsulation</option>
+              <option value="Chemical Disinfection">Chemical Disinfection</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Authorized Carrier Agency</label>
+            <input type="text" name="certified_handler" placeholder="e.g. CleanHealth Enviro" required>
+          </div>
+          <div class="form-group">
+            <label>Carrier Vehicle No.</label>
+            <input type="text" name="carrier_vehicle" placeholder="MH-12-BW-XXXX" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Handover Date</label>
+          <input type="date" name="handover_date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Sign & Log Handover Manifest
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

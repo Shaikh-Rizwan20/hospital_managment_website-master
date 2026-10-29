@@ -1,0 +1,312 @@
+<%- include("index.ejs") %>
+
+<style>
+  :root {
+    --admin-sidebar-width: 270px;
+    --admin-topbar-height: 75px;
+
+    --card-bg: rgba(18, 24, 38, 0.85);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --input-bg: rgba(255, 255, 255, 0.04);
+    --accent-gradient: linear-gradient(135deg, #6366f1, #d946ef);
+    --accent-hover: linear-gradient(135deg, #4f46e5, #c026d3);
+    --cyan-gradient: linear-gradient(135deg, #06b6d4, #3b82f6);
+    --text-muted: #94a3b8;
+  }
+
+  /* Structural wrapper: preserves space for fixed sidebar and topbar */
+  .doctor-form-viewport {
+    margin-left: var(--admin-sidebar-width);
+    padding-top: calc(var(--admin-topbar-height) + 1.8rem);
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 4rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    transition: margin-left 0.35s ease;
+  }
+
+  /* Interactive Mouse Follow Glow */
+  .mouse-glow-canvas {
+    position: fixed;
+    top: 0;
+    left: var(--admin-sidebar-width);
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.14), rgba(217, 70, 239, 0.05), transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+  }
+
+  /* Glass Card Container */
+  .glass-form-card {
+    max-width: 1050px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 2.5rem 3rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 35px rgba(99, 102, 241, 0.1);
+    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes slideUpFade {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .form-header-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Section Dividers */
+  .form-section-label {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #38bdf8;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 1.8rem 0 1.2rem;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  /* Custom Inputs & Floating States */
+  .input-wrapper label {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .form-control-custom,
+  .form-select-custom {
+    width: 100%;
+    background-color: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    color: #f8fafc;
+    padding: 11px 16px;
+    font-size: 0.92rem;
+    transition: all 0.25s ease;
+  }
+
+  .form-control-custom:focus,
+  .form-select-custom:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.18);
+    color: #fff;
+    outline: none;
+  }
+
+  .form-select-custom option {
+    background-color: #0f172a;
+    color: #f8fafc;
+  }
+
+  /* Submit Button */
+  .btn-submit-doctor {
+    background: var(--accent-gradient);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 28px;
+    width: 100%;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-submit-doctor:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(217, 70, 239, 0.45);
+    color: #fff;
+  }
+
+  .btn-submit-doctor:active {
+    transform: translateY(0);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 991.98px) {
+    .doctor-form-viewport {
+      margin-left: 0;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .mouse-glow-canvas {
+      left: 0;
+    }
+    .glass-form-card {
+      padding: 1.8rem 1.4rem;
+    }
+  }
+</style>
+
+<!-- Mouse Spotlight Layer -->
+<div class="mouse-glow-canvas" id="mouseGlowLayer"></div>
+
+<!-- Viewport Boundary -->
+<div class="doctor-form-viewport">
+  <div class="glass-form-card">
+    
+    <!-- Title & Subtitle -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
+      <div>
+        <h2 class="form-header-title">
+          <i class="fa-solid fa-user-doctor me-2"></i>Register New Doctor
+        </h2>
+        <p class="text-secondary small mb-0">Record practitioner credentials, specialization, and department assignments.</p>
+      </div>
+      <a href="/admin/doctors" class="btn btn-outline-light btn-sm px-3 py-2 rounded-3 text-decoration-none">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Directory
+      </a>
+    </div>
+
+    <form action="/admin/save_doctor" method="POST">
+
+      <!-- Section 1: Personal Details -->
+      <div class="form-section-label">
+        <i class="fa-regular fa-id-card"></i> Personal Information
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 input-wrapper">
+          <label for="first-name">First Name <span class="text-danger">*</span></label>
+          <input type="text" id="first-name" name="first_name" class="form-control-custom" placeholder="e.g. John" required>
+        </div>
+        <div class="col-md-6 input-wrapper">
+          <label for="last-name">Last Name <span class="text-danger">*</span></label>
+          <input type="text" id="last-name" name="last_name" class="form-control-custom" placeholder="e.g. Doe" required>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="age">Age <span class="text-danger">*</span></label>
+          <input type="number" id="age" name="age" class="form-control-custom" placeholder="e.g. 38" min="20" max="100" required>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="gender">Gender <span class="text-danger">*</span></label>
+          <select id="gender" name="gender" class="form-select-custom" required>
+            <option value="" disabled selected>Select gender...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="marital-status">Marital Status <span class="text-danger">*</span></label>
+          <select id="marital-status" name="marital_status" class="form-select-custom" required>
+            <option value="" disabled selected>Select status...</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Divorced">Divorced</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section 2: Clinical Credentials & Contact -->
+      <div class="form-section-label mt-4">
+        <i class="fa-solid fa-stethoscope"></i> Professional Credentials & Contact
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 input-wrapper">
+          <label for="designation">Designation <span class="text-danger">*</span></label>
+          <input type="text" id="designation" name="designation" class="form-control-custom" placeholder="e.g. Senior Consultant Cardiologist" required>
+        </div>
+        <div class="col-md-6 input-wrapper">
+          <label for="qualification">Qualification <span class="text-danger">*</span></label>
+          <input type="text" id="qualification" name="qualification" class="form-control-custom" placeholder="e.g. MBBS, MD (Cardiology), FRCP" required>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="blood-group">Blood Group <span class="text-danger">*</span></label>
+          <select id="blood-group" name="blood_group" class="form-select-custom" required>
+            <option value="" disabled selected>Select group...</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="email">Work Email <span class="text-danger">*</span></label>
+          <input type="email" id="email" name="email" class="form-control-custom" placeholder="doctor@wellcure.com" required>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="mobile">Mobile Number <span class="text-danger">*</span></label>
+          <input type="tel" id="mobile" name="mobile" class="form-control-custom" placeholder="+1 (555) 000-0000" required>
+        </div>
+      </div>
+
+      <!-- Section 3: Geographical Location -->
+      <div class="form-section-label mt-4">
+        <i class="fa-solid fa-map-location-dot"></i> Practice Location & Address
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4 input-wrapper">
+          <label for="country">Country <span class="text-danger">*</span></label>
+          <input type="text" id="country" name="country" class="form-control-custom" placeholder="e.g. United States" required>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="state">State / Province <span class="text-danger">*</span></label>
+          <input type="text" id="state" name="state" class="form-control-custom" placeholder="e.g. California" required>
+        </div>
+        <div class="col-md-4 input-wrapper">
+          <label for="city">City <span class="text-danger">*</span></label>
+          <input type="text" id="city" name="city" class="form-control-custom" placeholder="e.g. San Francisco" required>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-submit-doctor">
+        <i class="fa-solid fa-user-plus"></i> Save & Register Doctor
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  // Mouse Spotlight Motion
+  const glow = document.getElementById('mouseGlowLayer');
+  if (glow) {
+    window.addEventListener('mousemove', (e) => {
+      glow.style.left = `${e.clientX}px`;
+      glow.style.top = `${e.clientY}px`;
+    });
+  }
+</script>

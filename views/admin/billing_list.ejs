@@ -1,0 +1,539 @@
+<%- include("index.ejs") %>
+
+<style>
+  :root {
+    --admin-sidebar-width: 270px;
+    --admin-topbar-height: 75px;
+    --card-bg: rgba(18, 24, 38, 0.85);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
+    --success-glow: rgba(16, 185, 129, 0.2);
+    --warning-glow: rgba(245, 158, 11, 0.2);
+    --table-hover-bg: rgba(99, 102, 241, 0.05);
+  }
+
+  .billing-viewport {
+    margin-left: var(--admin-sidebar-width);
+    padding-top: calc(var(--admin-topbar-height) + 1.5rem);
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 4rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+  }
+
+  .mouse-glow-canvas {
+    position: fixed;
+    top: 0;
+    left: var(--admin-sidebar-width);
+    width: 650px;
+    height: 650px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15), rgba(217, 70, 239, 0.05), transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+  }
+
+  .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .title-gradient {
+    font-size: 1.85rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Stat Widget Cards */
+  .stat-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  /* Table Customization */
+  .table-modern {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-modern thead th {
+    background: rgba(255, 255, 255, 0.02) !important;
+    color: #94a3b8 !important;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--card-border) !important;
+    border-top: none;
+    font-weight: 600;
+  }
+
+  .table-modern tbody tr {
+    transition: background-color 0.2s ease, transform 0.15s ease;
+  }
+
+  .table-modern tbody tr:hover {
+    background-color: var(--table-hover-bg) !important;
+  }
+
+  .table-modern tbody td {
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    color: #cbd5e1 !important;
+    font-size: 0.88rem;
+    vertical-align: middle;
+  }
+
+  /* Avatars & Badges */
+  .patient-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-status-paid {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 10px var(--success-glow);
+  }
+  .badge-status-pending {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 10px var(--warning-glow);
+  }
+
+  .badge-status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .badge-status-paid .badge-status-indicator { background: #34d399; }
+  .badge-status-pending .badge-status-indicator { background: #fbbf24; }
+
+  /* Invoice ID Chip */
+  .invoice-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .invoice-pill:hover {
+    background: rgba(99, 102, 241, 0.18);
+    border-color: #818cf8;
+    color: #fff;
+  }
+
+  /* Custom Action Buttons */
+  .btn-action-pdf {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  .btn-action-pdf:hover {
+    background: #0284c7;
+    color: #fff !important;
+    box-shadow: 0 0 14px rgba(2, 132, 199, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-gradient-primary {
+    background: var(--accent-gradient);
+    color: #fff !important;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.38);
+    transition: all 0.25s ease;
+  }
+  .btn-gradient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(217, 70, 239, 0.45);
+  }
+
+  /* Empty state box */
+  .empty-state {
+    padding: 4rem 1rem;
+    text-align: center;
+    color: #94a3b8;
+  }
+  /* --- Force High-Contrast Visibility Inside the Table --- */
+.table-modern,
+.table-modern > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: #f1f5f9 !important; /* Bright off-white */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Table Headings */
+.table-modern thead th {
+  color: #94a3b8 !important; /* Crisp muted gray */
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 16px 14px !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Table Data Cells */
+.table-modern tbody td {
+  padding: 16px 14px !important;
+  vertical-align: middle !important;
+  color: #e2e8f0 !important;
+}
+
+/* Row Hover */
+.table-modern tbody tr:hover td {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Secondary & Subtitle Text inside table */
+.table-modern .text-muted,
+.table-modern .text-secondary {
+  color: #94a3b8 !important;
+}
+
+/* Invoice ID Chip */
+.invoice-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #38bdf8 !important; /* Sky Blue */
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+/* Status Badges */
+.badge-status-paid {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
+
+.badge-status-pending {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+  @media (max-width: 991.98px) {
+    .billing-viewport { margin-left: 0; padding: 1.2rem; }
+    .mouse-glow-canvas { left: 0; }
+  }
+</style>
+
+<div class="mouse-glow-canvas" id="mouseGlowLayer"></div>
+
+<div class="billing-viewport">
+  
+  <!-- Header Bar -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h1 class="title-gradient mb-1">
+        <i class="fa-solid fa-file-invoice-dollar me-2"></i>Invoicing & Billing
+      </h1>
+      <p class="text-secondary mb-0 small">Create patient invoices, monitor pending balances, and export clinical receipts.</p>
+    </div>
+    <a href="/admin/billing/create" class="btn-gradient-primary">
+      <i class="fa-solid fa-plus-circle"></i> Create New Invoice
+    </a>
+  </div>
+
+  <!-- KPI Metric Overview -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="stat-card d-flex align-items-center gap-3">
+        <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+          <i class="fa-solid fa-vault"></i>
+        </div>
+        <div>
+          <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Settled Revenue</span>
+          <h3 class="text-white fw-bold mt-1 mb-0">$<%= parseFloat(stats.total_revenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h3>
+          <small class="text-success"><i class="fa-solid fa-circle-check me-1"></i><%= stats.paid_count || 0 %> Cleared Invoices</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="stat-card d-flex align-items-center gap-3">
+        <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+        </div>
+        <div>
+          <span class="text-secondary small fw-semibold text-uppercase tracking-wider">Pending Balance</span>
+          <h3 class="text-white fw-bold mt-1 mb-0">$<%= parseFloat(stats.pending_amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h3>
+          <small class="text-warning"><i class="fa-regular fa-clock me-1"></i><%= stats.pending_count || 0 %> Unsettled</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Controls -->
+  <div class="glass-card p-3 mb-4">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-7">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-0 text-secondary ps-3">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input 
+            type="text" 
+            id="billingSearch" 
+            class="form-control bg-transparent text-white border-0 shadow-none" 
+            placeholder="Search by patient name, invoice #, or doctor..." 
+            onkeyup="filterInvoices()"
+          >
+        </div>
+      </div>
+      <div class="col-12 col-md-5 d-flex justify-content-md-end gap-2 px-3">
+        <button class="btn btn-sm btn-dark border-secondary text-secondary rounded-pill px-3 active-filter" onclick="filterByStatus('all', this)">
+          All
+        </button>
+        <button class="btn btn-sm btn-dark border-secondary text-secondary rounded-pill px-3" onclick="filterByStatus('paid', this)">
+          Paid
+        </button>
+        <button class="btn btn-sm btn-dark border-secondary text-secondary rounded-pill px-3" onclick="filterByStatus('pending', this)">
+          Pending
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoices Table View -->
+  <div class="glass-card overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-modern align-middle" id="invoicesTable">
+        <thead>
+          <tr>
+            <th>Invoice ID</th>
+            <th>Patient</th>
+            <th>Attending Doctor</th>
+            <th>Issued Date</th>
+            <th>Method</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceTableBody">
+  <% if (invoices && invoices.length > 0) { %>
+    <% invoices.forEach(function(inv) { %>
+      <tr data-status="<%= (inv.payment_status || '').toLowerCase() %>">
+        <!-- Invoice # -->
+        <td>
+          <span class="invoice-pill" onclick="copyInvoiceId('<%= inv.invoice_number %>')" style="cursor: pointer;">
+            #<%= inv.invoice_number %>
+          </span>
+        </td>
+
+        <!-- Patient -->
+        <td>
+          <div style="font-weight: 600; color: #ffffff !important; font-size: 0.95rem;">
+            <%= inv.patient_name %>
+          </div>
+          <div style="color: #94a3b8 !important; font-size: 0.8rem;">
+            <%= inv.patient_phone || inv.patient_email || 'No Contact Info' %>
+          </div>
+        </td>
+
+        <!-- Doctor -->
+        <td>
+          <span style="color: #cbd5e1 !important;">
+            <%= inv.doctor_name ? 'Dr. ' + inv.doctor_name : 'General Duty' %>
+          </span>
+        </td>
+
+        <!-- Date -->
+        <td>
+          <span style="color: #cbd5e1 !important;">
+            <%= new Date(inv.invoice_date).toLocaleDateString() %>
+          </span>
+        </td>
+
+        <!-- Payment Method -->
+        <td>
+          <span class="badge bg-secondary text-white" style="font-size: 0.8rem; padding: 5px 9px;">
+            <%= inv.payment_method || 'Cash' %>
+          </span>
+        </td>
+
+        <!-- Amount -->
+        <td>
+          <strong style="color: #38bdf8 !important; font-size: 1rem;">
+            $<%= parseFloat(inv.total_amount || 0).toFixed(2) %>
+          </strong>
+        </td>
+
+        <!-- Status -->
+        <td>
+          <span class="badge-status <%= (inv.payment_status === 'Paid') ? 'badge-status-paid' : 'badge-status-pending' %>">
+            <%= inv.payment_status || 'Pending' %>
+          </span>
+        </td>
+
+        <!-- Action -->
+        <td class="text-end">
+          <a href="/admin/billing/pdf/<%= inv.invoice_id %>" class="btn btn-sm btn-info text-dark fw-bold rounded-pill px-3" target="_blank">
+            <i class="fa-solid fa-file-pdf me-1"></i> PDF
+          </a>
+        </td>
+      </tr>
+    <% }); %>
+  <% } else { %>
+    <tr>
+      <td colspan="8" class="text-center py-5 text-white">
+        <h5>No Invoices Found</h5>
+        <p class="text-muted small">Create a new invoice to populate this table.</p>
+      </td>
+    </tr>
+  <% } %>
+</tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <% if (pages > 1) { %>
+      <div class="p-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+        <span class="text-secondary small">Showing page <%= current %> of <%= pages %></span>
+        <ul class="pagination pagination-sm mb-0" style="gap: 6px;">
+          <% for (let i = 1; i <= pages; i++) { %>
+            <li class="page-item <%= (i === current) ? 'active' : '' %>">
+              <a class="page-link rounded-3 <%= (i === current) ? 'bg-primary border-primary text-white' : 'bg-dark border-secondary text-secondary' %>" href="?page=<%= i %>">
+                <%= i %>
+              </a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  // Mouse Glow Accent
+  const glow = document.getElementById('mouseGlowLayer');
+  if (glow) {
+    window.addEventListener('mousemove', (e) => {
+      glow.style.left = `${e.clientX}px`;
+      glow.style.top = `${e.clientY}px`;
+    });
+  }
+
+  // Interactive Live Search
+  function filterInvoices() {
+    const q = document.getElementById("billingSearch").value.toLowerCase();
+    const rows = document.querySelectorAll("#invoiceTableBody tr[data-status]");
+    rows.forEach(r => {
+      r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
+    });
+  }
+
+  // Filter Pill Selector (All / Paid / Pending)
+  function filterByStatus(status, btn) {
+    document.querySelectorAll('.glass-card .btn-dark').forEach(b => {
+      b.classList.remove('text-white', 'border-primary');
+      b.classList.add('text-secondary');
+    });
+    btn.classList.remove('text-secondary');
+    btn.classList.add('text-white', 'border-primary');
+
+    const rows = document.querySelectorAll("#invoiceTableBody tr[data-status]");
+    rows.forEach(r => {
+      const rowStatus = r.getAttribute('data-status');
+      if (status === 'all' || rowStatus === status) {
+        r.style.display = "";
+      } else {
+        r.style.display = "none";
+      }
+    });
+  }
+
+  // Click-to-copy utility for invoice reference
+  function copyInvoiceId(id) {
+    navigator.clipboard.writeText(id).then(() => {
+      const alertBadge = document.createElement('div');
+      alertBadge.innerText = `Copied ${id} to clipboard`;
+      alertBadge.style.position = 'fixed';
+      alertBadge.style.bottom = '20px';
+      alertBadge.style.right = '20px';
+      alertBadge.style.background = '#6366f1';
+      alertBadge.style.color = '#fff';
+      alertBadge.style.padding = '8px 16px';
+      alertBadge.style.borderRadius = '8px';
+      alertBadge.style.fontSize = '0.82rem';
+      alertBadge.style.zIndex = '9999';
+      document.body.appendChild(alertBadge);
+      setTimeout(() => alertBadge.remove(), 2000);
+    });
+  }
+</script>

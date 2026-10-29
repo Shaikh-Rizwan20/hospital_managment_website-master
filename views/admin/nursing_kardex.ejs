@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nursing Kardex & SBAR Handover | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-active { background: rgba(56, 189, 248, 0.15); color: var(--info); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-closed { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    .tag-risk { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .risk-high { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .risk-med { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .risk-low { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+
+    .diet-npo { color: var(--danger); font-weight: 800; }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-sign { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 500px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Nursing Kardex & Shift Handover (SBAR)</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('kardexModal').style.display='flex'">
+      <i class="fa-solid fa-clipboard-user"></i> New Shift Kardex Entry
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Active Shift Charts</h3>
+      <p style="color: var(--info);"><%= stats.active_charts %></p>
+    </div>
+    <div class="stat-card">
+      <h3>High Fall Risk Patients</h3>
+      <p style="color: var(--danger);"><%= stats.high_fall_risks %></p>
+    </div>
+    <div class="stat-card">
+      <h3>NPO (Fasting) Patients</h3>
+      <p style="color: var(--warning);"><%= stats.npo_alerts %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Kardex Logs</h3>
+      <p><%= stats.total_charts %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Chart # & Patient</th>
+          <th>Bed / Ward</th>
+          <th>Clinical Directives</th>
+          <th>Fluid I/O Balance</th>
+          <th>SBAR Shift Handover</th>
+          <th>Nursing Crew</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (charts && charts.length > 0) { %>
+          <% charts.forEach(c => { %>
+            <tr>
+              <td>
+                <strong><%= c.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= c.chart_code %></div>
+                <small style="color: var(--text-muted);"><%= c.shift_type.split(' ')[0] %> Shift</small>
+              </td>
+              <td>
+                <span style="font-weight: bold; color: var(--info);"><i class="fa-solid fa-bed"></i> <%= c.bed_room_no %></span>
+              </td>
+              <td>
+                <div>
+                  <span class="tag-risk <%= c.fall_risk_tier.includes('High') ? 'risk-high' : (c.fall_risk_tier.includes('Moderate') ? 'risk-med' : 'risk-low') %>">
+                    <%= c.fall_risk_tier %>
+                  </span>
+                </div>
+                <small style="margin-top: 4px; display: inline-block;" class="<%= c.diet_code.includes('NPO') ? 'diet-npo' : '' %>">
+                  <i class="fa-solid fa-utensils"></i> <%= c.diet_code %>
+                </small>
+              </td>
+              <td>
+                <div style="font-size: 12px;">In: <strong style="color: var(--info);"><%= c.intake_fluids_ml %> ml</strong></div>
+                <div style="font-size: 12px;">Out: <strong style="color: var(--warning);"><%= c.output_urine_ml %> ml</strong></div>
+                <div style="font-size: 12px; font-weight: 800; color: <%= c.fluid_net_balance_ml >= 0 ? 'var(--success)' : 'var(--danger)' %>;">
+                  Net: <%= c.fluid_net_balance_ml > 0 ? '+' : '' %><%= c.fluid_net_balance_ml %> ml
+                </div>
+              </td>
+              <td style="max-width: 250px; font-size: 12px; color: #cbd5e1;">
+                <div><strong style="color: #fff;">S:</strong> <%= c.sbar_situation %></div>
+                <div><strong style="color: #fff;">A:</strong> <%= c.sbar_assessment %></div>
+                <div><strong style="color: #fff;">R:</strong> <%= c.sbar_recommendation %></div>
+              </td>
+              <td style="font-size: 12px;">
+                <div>Out: <strong><%= c.handover_nurse_outgoing %></strong></div>
+                <div style="color: var(--info);">In: <strong><%= c.handover_nurse_incoming %></strong></div>
+              </td>
+              <td>
+                <span class="badge-status <%= c.status === 'Active Shift Chart' ? 'status-active' : 'status-closed' %>">
+                  <%= c.status %>
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <% if (c.status === 'Active Shift Chart') { %>
+                    <form action="/admin/nursing_kardex/signoff" method="POST" style="display:inline;">
+                      <input type="hidden" name="kardex_id" value="<%= c.kardex_id %>">
+                      <button type="submit" class="btn btn-sign" title="Sign Handover">
+                        <i class="fa-solid fa-signature"></i> Sign Off
+                      </button>
+                    </form>
+                  <% } %>
+                  <a href="/admin/nursing_kardex/delete/<%= c.kardex_id %>" class="btn btn-delete" onclick="return confirm('Delete this Kardex entry?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No nursing Kardex entries recorded for this shift. Click "New Shift Kardex Entry" to log bedside care.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: New Kardex Entry -->
+  <div id="kardexModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Bedside Nursing Kardex & SBAR</h3>
+        <span onclick="document.getElementById('kardexModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/nursing_kardex/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Inpatient Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Full Name" required>
+          </div>
+          <div class="form-group">
+            <label>Assigned Bed / Ward</label>
+            <input type="text" name="bed_room_no" placeholder="e.g. ICU-101 / GEN-201" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Shift Timing</label>
+            <select name="shift_type" required>
+              <option value="Morning (07:00 - 15:00)">Morning (07:00 - 15:00)</option>
+              <option value="Evening (15:00 - 23:00)">Evening (15:00 - 23:00)</option>
+              <option value="Night (23:00 - 07:00)">Night (23:00 - 07:00)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fall Risk Assessment</label>
+            <select name="fall_risk_tier" required>
+              <option value="Low Risk">Low Risk</option>
+              <option value="Moderate Risk">Moderate Risk</option>
+              <option value="High Fall Risk">High Fall Risk (Bed Alarm Active)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Dietary Order / Restriction</label>
+          <select name="diet_code" required>
+            <option value="Regular Solid">Regular Solid</option>
+            <option value="Diabetic Diet">Diabetic Diet</option>
+            <option value="Renal Low-Salt">Renal Low-Salt</option>
+            <option value="Clear Liquids">Clear Liquids</option>
+            <option value="NPO (Nil Per Os)">NPO (Nil Per Os - Fasting for Surgery)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Fluid Intake (ml)</label>
+            <input type="number" name="intake_fluids_ml" value="1500" required>
+          </div>
+          <div class="form-group">
+            <label>Urine / Drain Output (ml)</label>
+            <input type="number" name="output_urine_ml" value="1200" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>SBAR - Situation</label>
+          <input type="text" name="sbar_situation" placeholder="Current condition, pain, complaints..." required>
+        </div>
+
+        <div class="form-group">
+          <label>SBAR - Assessment</label>
+          <textarea name="sbar_assessment" rows="2" placeholder="Vitals, incision site, lab/sugar status..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>SBAR - Recommendation</label>
+          <input type="text" name="sbar_recommendation" placeholder="Medication timing, dressing change, doctor review..." required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Outgoing Nurse Name</label>
+            <input type="text" name="handover_nurse_outgoing" placeholder="Outgoing Nurse" required>
+          </div>
+          <div class="form-group">
+            <label>Incoming Nurse Name</label>
+            <input type="text" name="handover_nurse_incoming" placeholder="Incoming Nurse" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Log Date</label>
+          <input type="date" name="logged_date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Save Kardex Handover Chart
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

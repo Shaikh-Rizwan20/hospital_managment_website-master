@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Send Email</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1FA2FF, #12D8FA, #A6FFCB);
+    }
+
+    .form-container {
+      background: #ffffff;
+      padding: 40px 35px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 500px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 22px;
+      border: none;
+      border-radius: 12px;
+      background: #f0f8ff;
+      font-size: 15px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    textarea:focus {
+      background: #e8fcf8;
+      box-shadow: 0 0 0 3px rgba(66, 255, 212, 0.5);
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-send {
+      display: inline-block;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 18px rgba(131, 58, 180, 0.3);
+    }
+
+    .btn-send:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(252, 176, 69, 0.4);
+    }
+
+    @media (max-width: 576px) {
+      .form-container {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <form class="form-container" action="/admin/send-email" method="POST">
+    <h2>💌 Send Email to Patient</h2>
+
+    <label for="to">To</label>
+    <input type="email" name="to" id="to" placeholder="patient@example.com" required>
+
+    <label for="subject">Subject</label>
+    <input type="text" name="subject" id="subject" placeholder="Important Update" required>
+
+    <label for="message">Message</label>
+    <textarea name="message" id="message" placeholder="Type your message here..." required></textarea>
+
+    <button type="submit" class="btn-send">✨ Send Email</button>
+  </form>
+
+</body>
+</html>

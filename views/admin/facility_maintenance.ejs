@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facility Maintenance & Work Orders | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+      --amber: #f59e0b;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Open---Reported { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .status-Technician-Assigned { background: rgba(56, 189, 248, 0.15); color: var(--info); }
+    .status-Work-In-Progress { background: rgba(245, 158, 11, 0.2); color: var(--warning); animation: pulse 1.5s infinite; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .status-Resolved---Tested { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Closed { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    .badge-priority { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+    .prio-critical { color: var(--danger); background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); animation: pulse 1.5s infinite; }
+    .prio-high { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
+    .prio-medium { color: var(--info); background: rgba(56, 189, 248, 0.15); }
+    .prio-routine { color: var(--text-muted); background: rgba(255, 255, 255, 0.05); }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Hospital Facility Maintenance & Work Orders</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('woModal').style.display='flex'">
+      <i class="fa-solid fa-screwdriver-wrench"></i> Create Work Order
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Cumulative Tickets</h3>
+      <p><%= stats.total_tickets %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Breakdowns</h3>
+      <p style="color: var(--warning);"><%= stats.active_breakdowns %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Clinical Critical Alarms</h3>
+      <p style="color: var(--danger);"><%= stats.critical_alarms %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Resolved & Verified</h3>
+      <p style="color: var(--success);"><%= stats.resolved_count %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket # & Ward</th>
+          <th>Discipline Category</th>
+          <th>Priority Level</th>
+          <th>Issue Description</th>
+          <th>Reporter & Technician</th>
+          <th>Work Order Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (orders && orders.length > 0) { %>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td>
+                <strong><%= o.location_ward %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= o.ticket_code %></div>
+                <small style="color: var(--text-muted);"><%= new Date(o.reported_at).toLocaleDateString() %></small>
+              </td>
+              <td>
+                <span style="font-weight: 600;"><%= o.category %></span>
+              </td>
+              <td>
+                <span class="badge-priority <%= o.priority.includes('Urgent') ? 'prio-critical' : (o.priority.includes('High') ? 'prio-high' : (o.priority.includes('Medium') ? 'prio-medium' : 'prio-routine')) %>">
+                  <%= o.priority.split(' ')[0] %>
+                </span>
+              </td>
+              <td style="max-width: 220px; font-size: 13px; color: #cbd5e1;">
+                <%= o.issue_description %>
+                <% if (o.completion_notes) { %>
+                  <div style="font-size: 11px; color: var(--success); margin-top: 4px;">Resolution: <%= o.completion_notes %></div>
+                <% } %>
+              </td>
+              <td>
+                <div>Rep: <%= o.reported_by %></div>
+                <small style="color: var(--info); font-weight: bold;"><i class="fa-solid fa-wrench"></i> <%= o.assigned_technician %></small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= o.status.replace(/\s+/g, '-') %>"><%= o.status %></span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-edit" onclick="openTicketUpdateModal('<%= o.ticket_id %>', '<%= o.ticket_code %>', '<%= o.status %>', '<%= o.assigned_technician %>', `<%= o.completion_notes || '' %>`)">
+                    <i class="fa-solid fa-pen-to-square"></i> Update
+                  </button>
+                  <a href="/admin/facility_maintenance/delete/<%= o.ticket_id %>" class="btn btn-delete" onclick="return confirm('Deregister this maintenance work order?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No open maintenance tickets. Click "Create Work Order" to report a breakdown.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Create Work Order -->
+  <div id="woModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Create Facility Work Order</h3>
+        <span onclick="document.getElementById('woModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/facility_maintenance/save" method="POST">
+        <div class="form-group">
+          <label>Ward / Department Location</label>
+          <select name="location_ward" required>
+            <% departments.forEach(d => { %>
+              <option value="<%= d.department_name %>"><%= d.department_name %></option>
+            <% }) %>
+            <option value="ICU Wing B">ICU Wing B</option>
+            <option value="Operation Theater (OT-1)">Operation Theater (OT-1)</option>
+            <option value="Operation Theater (OT-2)">Operation Theater (OT-2)</option>
+            <option value="Emergency Trauma Bay">Emergency Trauma Bay</option>
+            <option value="General Ward">General Ward</option>
+            <option value="Central Manifold Plant">Central Manifold Plant</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Engineering / Housekeeping Category</label>
+          <select name="category" required>
+            <option value="HVAC / Air Conditioning">HVAC / Air Conditioning & Ventilation</option>
+            <option value="Medical Gas Terminal Sockets">Medical Gas Terminal Sockets</option>
+            <option value="Electrical & Backup Generator">Electrical & Backup Generator</option>
+            <option value="Plumbing & Water Supply">Plumbing & Water Supply</option>
+            <option value="Elevator / Conveyance">Elevator / Lift Conveyance</option>
+            <option value="Housekeeping / Terminal Clean">Housekeeping / Terminal Clean</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Priority</label>
+            <select name="priority" required>
+              <option value="Medium">Medium Priority</option>
+              <option value="High Priority">High Priority</option>
+              <option value="Urgent / Clinical Critical">Urgent / Clinical Critical</option>
+              <option value="Low / Routine">Low / Routine</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Reported By</label>
+            <input type="text" name="reported_by" value="Floor Incharge Nurse" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned Technician / Vendor</label>
+          <input type="text" name="assigned_technician" placeholder="e.g. HVAC Tech. Rajesh / HK Supervisor" required>
+        </div>
+
+        <div class="form-group">
+          <label>Breakdown Description</label>
+          <textarea name="issue_description" rows="3" placeholder="Exact symptoms, room number, leak severity, error alarms..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Dispatch Work Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Update Work Order Progress -->
+  <div id="updateModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalTicketTitle">Update Work Order</h3>
+        <span onclick="document.getElementById('updateModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/facility_maintenance/update-status" method="POST">
+        <input type="hidden" name="ticket_id" id="modalTicketId">
+
+        <div class="form-group">
+          <label>Work Order Status</label>
+          <select name="status" id="modalStatus" required>
+            <option value="Open / Reported">Open / Reported</option>
+            <option value="Technician Assigned">Technician Assigned</option>
+            <option value="Work In Progress">Work In Progress</option>
+            <option value="Resolved & Tested">Resolved & Tested</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned Lead Technician</label>
+          <input type="text" name="assigned_technician" id="modalTech" required>
+        </div>
+
+        <div class="form-group">
+          <label>Resolution / Replacement Notes</label>
+          <textarea name="completion_notes" id="modalNotes" rows="3" placeholder="Replaced valve, filter cleaned, pressure verified..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Save Resolution Update
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openTicketUpdateModal(id, code, status, tech, notes) {
+      document.getElementById('modalTicketId').value = id;
+      document.getElementById('modalTicketTitle').innerText = 'Update ' + code;
+      document.getElementById('modalStatus').value = status;
+      document.getElementById('modalTech').value = tech;
+      document.getElementById('modalNotes').value = notes;
+      document.getElementById('updateModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

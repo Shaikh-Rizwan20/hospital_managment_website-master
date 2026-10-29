@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharmacy e-MAR & Drug Administration | WellCure Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #38bdf8;
+      --success: #10b981;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px; min-height: 100vh; }
+
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .back-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+    .back-link:hover { color: #fff; }
+
+    /* Top Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card p { font-size: 28px; font-weight: 800; }
+
+    /* Table Container */
+    .table-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; overflow-x: auto; backdrop-filter: blur(12px); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { padding: 14px 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .status-Administered--Given- { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-Scheduled---Due { background: rgba(56, 189, 248, 0.15); color: var(--info); animation: pulse 1.5s infinite; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-Patient-Refused { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-Missed-Dose { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .badge-route { font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; display: inline-block; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; }
+
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-edit { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Modal Form Elements */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: #111827; border: 1px solid var(--border); border-radius: 18px; width: 480px; max-height: 90vh; overflow-y: auto; padding: 26px; color: #fff; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #090d16; color: #fff; font-size: 13px; outline: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-header">
+    <div>
+      <a href="/admin/l_login" class="back-link"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+      <h1 style="font-size: 24px; font-weight: 800;">Bedside Pharmacy e-MAR Administration</h1>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('emarModal').style.display='flex'">
+      <i class="fa-solid fa-prescription-bottle-medical"></i> Schedule Medication Dose
+    </button>
+  </div>
+
+  <!-- Dynamic Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <h3>Doses Scheduled</h3>
+      <p><%= stats.total_doses_scheduled %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Administered (Given)</h3>
+      <p style="color: var(--success);"><%= stats.administered_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending / Due Now</h3>
+      <p style="color: var(--info);"><%= stats.pending_due_count %></p>
+    </div>
+    <div class="stat-card">
+      <h3>Missed / Refused Alerts</h3>
+      <p style="color: var(--danger);"><%= stats.exception_alerts %></p>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Order # & Patient</th>
+          <th>Bed / Ward</th>
+          <th>Prescribed Medication & Dose</th>
+          <th>Route</th>
+          <th>Scheduled Slot</th>
+          <th>Administration Status</th>
+          <th>Clinical Notes</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (records && records.length > 0) { %>
+          <% records.forEach(r => { %>
+            <tr>
+              <td>
+                <strong><%= r.patient_name %></strong>
+                <div style="font-size: 12px; color: #818cf8; font-family: monospace;"><%= r.schedule_code %></div>
+              </td>
+              <td>
+                <span style="font-weight: bold; color: var(--info);"><i class="fa-solid fa-bed"></i> <%= r.bed_room_no %></span>
+              </td>
+              <td>
+                <strong style="font-size: 15px;"><%= r.medication_name %></strong>
+                <div style="font-size: 12px; color: var(--warning); font-weight: 600;"><%= r.dosage_ordered %></div>
+              </td>
+              <td>
+                <span class="badge-route"><%= r.route_of_admin.split(' ')[0] %></span>
+              </td>
+              <td>
+                <div><%= r.scheduled_time %></div>
+                <small style="color: var(--text-muted);"><%= new Date(r.scheduled_date).toLocaleDateString() %></small>
+              </td>
+              <td>
+                <span class="badge-status status-<%= r.status.replace(/[^a-zA-Z0-9]/g, '-') %>">
+                  <%= r.status %>
+                </span>
+                <% if (r.administered_datetime) { %>
+                  <div style="font-size: 11px; color: var(--success); margin-top: 4px;">
+                    Given: <%= new Date(r.administered_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %> by <%= r.administering_nurse %>
+                  </div>
+                <% } %>
+              </td>
+              <td style="max-width: 200px; font-size: 12px; color: #cbd5e1;">
+                <%= r.clinical_notes || 'No specific administration notes.' %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <% if (r.status === 'Scheduled / Due') { %>
+                    <button class="btn btn-edit" onclick="openAdministerModal('<%= r.admin_id %>', '<%= r.schedule_code %>', '<%= r.medication_name %>', '<%= r.dosage_ordered %>', '<%= r.administering_nurse %>')">
+                      <i class="fa-solid fa-barcode"></i> Give
+                    </button>
+                  <% } %>
+                  <a href="/admin/emar_records/delete/<%= r.admin_id %>" class="btn btn-delete" onclick="return confirm('Deregister this medication order?')">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+              No medication administrations scheduled. Click "Schedule Medication Dose" to queue inpatient drugs.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal: Schedule Medication -->
+  <div id="emarModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;">Schedule Inpatient Drug Dose</h3>
+        <span onclick="document.getElementById('emarModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/emar_records/save" method="POST">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Patient Full Name</label>
+            <input type="text" name="patient_name" placeholder="Patient Name" required>
+          </div>
+          <div class="form-group">
+            <label>Bed / Ward Location</label>
+            <input type="text" name="bed_room_no" placeholder="e.g. ICU-101 / GEN-201" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Drug Name & Formulation</label>
+            <input type="text" name="medication_name" placeholder="e.g. Inj. Ceftriaxone / Tab. Metformin" required>
+          </div>
+          <div class="form-group">
+            <label>Ordered Dose</label>
+            <input type="text" name="dosage_ordered" placeholder="e.g. 1g in 100ml NS" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Route of Administration</label>
+          <select name="route_of_admin" required>
+            <option value="Oral (PO)">Oral (PO - By Mouth)</option>
+            <option value="Intravenous (IV Push/Infusion)">Intravenous (IV Push / Continuous Infusion)</option>
+            <option value="Intramuscular (IM)">Intramuscular (IM)</option>
+            <option value="Subcutaneous (SC)">Subcutaneous (SC)</option>
+            <option value="Inhalation/Nebulization">Inhalation / Nebulization</option>
+            <option value="Topical">Topical / Transdermal</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Scheduled Slot Time</label>
+            <input type="time" name="scheduled_time" value="18:00" required>
+          </div>
+          <div class="form-group">
+            <label>Scheduled Date</label>
+            <input type="date" name="scheduled_date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Administering Nurse On Duty</label>
+          <input type="text" name="administering_nurse" value="Staff Nurse" required>
+        </div>
+
+        <div class="form-group">
+          <label>Administration Instructions / Precautions</label>
+          <textarea name="clinical_notes" rows="2" placeholder="Infuse over 30 mins, check blood sugar prior to dose..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Queue Dose in e-MAR
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Confirm Bedside Administration -->
+  <div id="administerModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px;" id="modalMedTitle">Verify & Administer Drug</h3>
+        <span onclick="document.getElementById('administerModal').style.display='none'" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+      </div>
+
+      <form action="/admin/emar_records/administer" method="POST">
+        <input type="hidden" name="admin_id" id="modalAdminId">
+
+        <div class="form-group">
+          <label>Administration Outcome</label>
+          <select name="status" id="modalOutcome" required>
+            <option value="Administered (Given)">Administered (Given - Verified at Bedside)</option>
+            <option value="Patient Refused">Patient Refused</option>
+            <option value="Withheld / Doctor Hold">Withheld / Doctor Clinical Hold</option>
+            <option value="Missed Dose">Missed Dose</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Primary Administering Nurse</label>
+            <input type="text" name="administering_nurse" id="modalNurse" required>
+          </div>
+          <div class="form-group">
+            <label>Witness / Co-Sign Nurse</label>
+            <input type="text" name="witness_nurse" placeholder="Co-Sign Nurse Name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bedside Administration Observations</label>
+          <textarea name="clinical_notes" id="modalNotes" rows="3" placeholder="Injection site condition, patient tolerance, IV rate..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          Sign & Log Administration
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openAdministerModal(id, code, med, dose, nurse) {
+      document.getElementById('modalAdminId').value = id;
+      document.getElementById('modalMedTitle').innerText = 'Administer: ' + med + ' (' + dose + ')';
+      document.getElementById('modalNurse').value = nurse;
+      document.getElementById('administerModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-fileupload": "^1.5.1",
+    "express-session": "^1.18.1",
+    "fileupload": "^1.0.0",
+    "html-pdf": "^3.0.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.0",
+    "nodemailer": "^6.10.0",
+    "pdfkit": "^0.20.2"
+  },
+  "name": "hospital_website",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
